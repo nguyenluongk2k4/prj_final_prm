@@ -1,0 +1,18 @@
+# Build config file
+# Chạy: dart run build_runner build --delete-conflicting-outputs
+# Watch mode: dart run build_runner watch --delete-conflicting-outputs
+
+targets:
+  $default:
+    builders:
+      slang_build_runner:
+        enabled: true
+        options:
+          base_locale: en
+          fallback_strategy: base_locale
+          input_directory: lib/i18n
+          input_file_pattern: .i18n.json
+          output_directory: lib/i18n
+          output_file_name: strings.g.dart
+          output_format: single_file
+          string_interpolation: double_braces
