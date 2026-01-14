@@ -83,6 +83,7 @@ dev_dependencies:
   freezed: ^2.5.7
   json_serializable: ^6.8.0
   slang_build_runner: ^3.32.0
+  flutter_gen_runner: ^5.7.0
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
@@ -101,16 +102,12 @@ flutter:
     - assets/icons/
 
 # Flutter Gen Configuration
-# flutter_gen:
-#   output: lib/gen/
-#   line_length: 80
-#   
-#   integrations:
-#     flutter_svg: true
-#     
-#   colors:
-#     inputs:
-#       - assets/colors/colors.xml
+flutter_gen:
+  output: lib/gen/
+  line_length: 80
+  
+  integrations:
+    flutter_svg: true
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/to/resolution-aware-images

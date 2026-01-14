@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
 import '../../theme/app_colors.dart';
 
@@ -37,9 +38,17 @@ class AppBarWithBack extends StatelessWidget implements PreferredSizeWidget {
       backgroundColor: backgroundColor ?? (isDark ? const Color(0xFF1A1A1A) : AppColors.background),
       foregroundColor: foregroundColor ?? (isDark ? AppColors.textWhite : AppColors.textPrimary),
       elevation: 0,
-      leading: IconButton(
-        icon: const Icon(Icons.arrow_back_ios_new, size: 20),
-        onPressed: onBackPressed ?? () => context.pop(),
+      leading: Padding(
+        padding: const EdgeInsets.only(left: 8),
+        child: IconButton(
+          padding: EdgeInsets.zero,
+          icon: SvgPicture.asset(
+            'assets/icons/btn_back.svg',
+            width: 52,
+            height: 52,
+          ),
+          onPressed: onBackPressed ?? () => context.pop(),
+        ),
       ),
       actions: actions,
     );

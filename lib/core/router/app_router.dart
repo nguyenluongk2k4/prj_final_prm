@@ -1,6 +1,11 @@
 import 'package:go_router/go_router.dart';
 import '../../features/onboarding/presentation/pages/onboarding_page.dart';
 import '../../features/auth/presentation/pages/signup_page.dart';
+import '../../features/auth/presentation/pages/phone_signup_page.dart';
+import '../../features/auth/presentation/pages/verification_page.dart';
+import '../../features/auth/presentation/pages/profile_details_page.dart';
+import '../../features/auth/presentation/pages/gender_selection_page.dart';
+import '../../features/auth/presentation/pages/interests_page.dart';
 import '../../features/auth/presentation/pages/login_page.dart';
 import '../../features/auth/presentation/pages/settings_page.dart';
 import '../app_stores.dart';
@@ -19,6 +24,31 @@ class AppRouter {
         path: AppRoutes.signup,
         name: AppRoutes.signupName,
         builder: (context, state) => const SignUpPage(),
+      ),
+      GoRoute(
+        path: AppRoutes.phoneSignup,
+        name: AppRoutes.phoneSignupName,
+        builder: (context, state) => const PhoneSignUpPage(),
+      ),
+      GoRoute(
+        path: AppRoutes.verification,
+        name: AppRoutes.verificationName,
+        builder: (context, state) => const VerificationPage(),
+      ),
+      GoRoute(
+        path: AppRoutes.profileDetails,
+        name: AppRoutes.profileDetailsName,
+        builder: (context, state) => const ProfileDetailsPage(),
+      ),
+      GoRoute(
+        path: AppRoutes.genderSelection,
+        name: AppRoutes.genderSelectionName,
+        builder: (context, state) => const GenderSelectionPage(),
+      ),
+      GoRoute(
+        path: AppRoutes.interests,
+        name: AppRoutes.interestsName,
+        builder: (context, state) => const InterestsPage(),
       ),
       GoRoute(
         path: AppRoutes.login,

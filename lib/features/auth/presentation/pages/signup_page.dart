@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:go_router/go_router.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/presentation/widgets/widgets.dart';
+import '../../../../core/router/app_routes.dart';
 
 class SignUpPage extends StatelessWidget {
   const SignUpPage({super.key});
@@ -57,7 +59,7 @@ class SignUpPage extends StatelessWidget {
                   AppOutlineButton(
                     text: 'Use phone number',
                     onPressed: () {
-                      // Navigate to phone sign up
+                      context.pushNamed(AppRoutes.phoneSignupName);
                     },
                   ),
                 ],
@@ -180,8 +182,6 @@ class SignUpPage extends StatelessWidget {
       child: IconButton(
         icon: SvgPicture.asset(
           assetPath,
-          width: 32,
-          height: 32,
         ),
         onPressed: onPressed,
       ),
