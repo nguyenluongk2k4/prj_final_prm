@@ -3,7 +3,10 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
 import '../../../../core/presentation/widgets/widgets.dart';
 import '../../../../core/router/app_routes.dart';
+import '../../../../core/theme/app_colors.dart';
+import '../../../../core/theme/app_text_styles.dart';
 import '../../../../gen/assets.gen.dart';
+import '../../../../i18n/strings.g.dart';
 
 class InterestsPage extends StatefulWidget {
   const InterestsPage({super.key});
@@ -13,21 +16,21 @@ class InterestsPage extends StatefulWidget {
 }
 
 class _InterestsPageState extends State<InterestsPage> {
-  final List<Interest> _interests = [
-    Interest(name: 'Photography', icon: '177:332', isSelected: false),
-    Interest(name: 'Shopping', icon: '177:328', isSelected: true),
-    Interest(name: 'Karaoke', icon: '177:324', isSelected: false),
-    Interest(name: 'Yoga', icon: '177:334', isSelected: false),
-    Interest(name: 'Cooking', icon: '177:329', isSelected: false),
-    Interest(name: 'Tennis', icon: '177:325', isSelected: false),
-    Interest(name: 'Run', icon: '177:326', isSelected: true),
-    Interest(name: 'Swimming', icon: '177:336', isSelected: false),
-    Interest(name: 'Art', icon: '177:327', isSelected: false),
-    Interest(name: 'Traveling', icon: '177:333', isSelected: true),
-    Interest(name: 'Extreme', icon: '177:330', isSelected: false),
-    Interest(name: 'Music', icon: '177:401', isSelected: false),
-    Interest(name: 'Drink', icon: '177:335', isSelected: false),
-    Interest(name: 'Video games', icon: '177:337', isSelected: false),
+  late final List<Interest> _interests = [
+    Interest(name: t.photography, icon: '177:332', isSelected: false),
+    Interest(name: t.shopping, icon: '177:328', isSelected: true),
+    Interest(name: t.karaoke, icon: '177:324', isSelected: false),
+    Interest(name: t.yoga, icon: '177:334', isSelected: false),
+    Interest(name: t.cooking, icon: '177:329', isSelected: false),
+    Interest(name: t.tennis, icon: '177:325', isSelected: false),
+    Interest(name: t.run, icon: '177:326', isSelected: true),
+    Interest(name: t.swimming, icon: '177:336', isSelected: false),
+    Interest(name: t.art, icon: '177:327', isSelected: false),
+    Interest(name: t.traveling, icon: '177:333', isSelected: true),
+    Interest(name: t.extreme, icon: '177:330', isSelected: false),
+    Interest(name: t.music, icon: '177:401', isSelected: false),
+    Interest(name: t.drink, icon: '177:335', isSelected: false),
+    Interest(name: t.videoGames, icon: '177:337', isSelected: false),
   ];
 
   void _toggleInterest(int index) {
@@ -38,109 +41,67 @@ class _InterestsPageState extends State<InterestsPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.white,
-      appBar: AppBarSimple(
-        title: '',
-        centerTitle: false,
-        backgroundColor: Colors.white,
-        leading: Padding(
-          padding: const EdgeInsets.only(left: 8),
-          child: IconButton(
-            padding: EdgeInsets.zero,
-            icon: Assets.icons.btnBack.svg(width: 52, height: 52),
-            onPressed: () => context.pop(),
-          ),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () {
-              context.goNamed(AppRoutes.homeName);
-            },
-            child: const Text(
-              'Skip',
-              style: TextStyle(
-                fontFamily: 'Sk-Modernist',
-                fontSize: 16,
-                fontWeight: FontWeight.w700,
-                color: Color(0xFFE94057),
-              ),
-            ),
-          ),
-        ],
-      ),
-      body: SafeArea(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const SizedBox(height: 12),
+    return AppScaffold(
+      showBackButton: true,
+      showSkipButton: true,
+      onSkip: () => context.goNamed(AppRoutes.homeName),
+      body: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const SizedBox(height: 12),
 
-            // Title and description
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 40),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const Text(
-                    'Your interests',
-                    style: TextStyle(
-                      fontFamily: 'Sk-Modernist',
-                      fontSize: 34,
-                      fontWeight: FontWeight.w700,
-                      color: Color(0xFF000000),
-                      height: 1.5,
-                    ),
+          // Title and description
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 40),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(t.yourInterests, style: AppTextStyles.h1),
+                const SizedBox(height: 12),
+                Text(
+                  t.interestsDesc,
+                  style: AppTextStyles.bodyMedium.copyWith(
+                    color: AppColors.textPrimary70,
                   ),
-                  const SizedBox(height: 12),
-                  const Text(
-                    'Select a few of your interests and let everyone know what you\'re passionate about.',
-                    style: TextStyle(
-                      fontFamily: 'Sk-Modernist',
-                      fontSize: 14,
-                      fontWeight: FontWeight.w400,
-                      color: Color(0xB3000000), // 70% opacity
-                      height: 1.5,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-
-            const SizedBox(height: 32),
-
-            // Interests grid
-            Expanded(
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 40),
-                child: GridView.builder(
-                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: 2,
-                    crossAxisSpacing: 15,
-                    mainAxisSpacing: 10,
-                    childAspectRatio: 140 / 45,
-                  ),
-                  itemCount: _interests.length,
-                  itemBuilder: (context, index) {
-                    return _buildInterestChip(_interests[index], index);
-                  },
                 ),
-              ),
+              ],
             ),
+          ),
 
-            // Continue button
-            Padding(
+          const SizedBox(height: 32),
+
+          // Interests grid
+          Expanded(
+            child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 40),
-              child: AppPrimaryButton(
-                text: 'Continue',
-                onPressed: () {
-                  context.goNamed(AppRoutes.homeName);
+              child: GridView.builder(
+                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: 2,
+                  crossAxisSpacing: 15,
+                  mainAxisSpacing: 10,
+                  childAspectRatio: 140 / 45,
+                ),
+                itemCount: _interests.length,
+                itemBuilder: (context, index) {
+                  return _buildInterestChip(_interests[index], index);
                 },
               ),
             ),
+          ),
 
-            const SizedBox(height: 40),
-          ],
-        ),
+          // Continue button
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 40),
+            child: AppPrimaryButton(
+              text: t.continueLabel,
+              onPressed: () {
+                context.pushNamed(AppRoutes.friendsName);
+              },
+            ),
+          ),
+
+          const SizedBox(height: 40),
+        ],
       ),
     );
   }
@@ -151,18 +112,16 @@ class _InterestsPageState extends State<InterestsPage> {
       child: Container(
         height: 45,
         decoration: BoxDecoration(
-          color: interest.isSelected ? const Color(0xFFE94057) : Colors.white,
+          color: interest.isSelected ? AppColors.primary : AppColors.background,
           border: Border.all(
-            color: interest.isSelected
-                ? const Color(0xFFE94057)
-                : const Color(0xFFE8E6EA),
+            color: interest.isSelected ? AppColors.primary : AppColors.border,
             width: 1,
           ),
           borderRadius: BorderRadius.circular(15),
           boxShadow: interest.isSelected
               ? [
                   BoxShadow(
-                    color: const Color(0xFFE94057).withOpacity(0.2),
+                    color: AppColors.primary.withOpacity(0.2),
                     blurRadius: 15,
                     offset: const Offset(0, 15),
                   ),
@@ -180,8 +139,8 @@ class _InterestsPageState extends State<InterestsPage> {
                 child: _getIcon(interest.name).svg(
                   colorFilter: ColorFilter.mode(
                     interest.isSelected
-                        ? Colors.white
-                        : const Color(0xFF000000),
+                        ? AppColors.textWhite
+                        : AppColors.textPrimary,
                     BlendMode.srcIn,
                   ),
                 ),
@@ -190,16 +149,13 @@ class _InterestsPageState extends State<InterestsPage> {
               Expanded(
                 child: Text(
                   interest.name,
-                  style: TextStyle(
-                    fontFamily: 'Sk-Modernist',
-                    fontSize: 14,
+                  style: AppTextStyles.bodyMedium.copyWith(
                     fontWeight: interest.isSelected
                         ? FontWeight.w700
                         : FontWeight.w400,
                     color: interest.isSelected
-                        ? Colors.white
-                        : const Color(0xFF000000),
-                    height: 1.5,
+                        ? AppColors.textWhite
+                        : AppColors.textPrimary,
                   ),
                   overflow: TextOverflow.ellipsis,
                 ),
@@ -212,38 +168,21 @@ class _InterestsPageState extends State<InterestsPage> {
   }
 
   SvgGenImage _getIcon(String name) {
-    switch (name) {
-      case 'Photography':
-        return Assets.icons.camera;
-      case 'Shopping':
-        return Assets.icons.shopping;
-      case 'Karaoke':
-        return Assets.icons.voice;
-      case 'Yoga':
-        return Assets.icons.yoga;
-      case 'Cooking':
-        return Assets.icons.noodles;
-      case 'Tennis':
-        return Assets.icons.tennis;
-      case 'Run':
-        return Assets.icons.sport;
-      case 'Swimming':
-        return Assets.icons.ripple;
-      case 'Art':
-        return Assets.icons.platte;
-      case 'Traveling':
-        return Assets.icons.outdoor;
-      case 'Extreme':
-        return Assets.icons.parachute;
-      case 'Music':
-        return Assets.icons.music;
-      case 'Drink':
-        return Assets.icons.goblet;
-      case 'Video games':
-        return Assets.icons.gameHandle;
-      default:
-        return Assets.icons.camera;
-    }
+    if (name == t.photography) return Assets.icons.camera;
+    if (name == t.shopping) return Assets.icons.shopping;
+    if (name == t.karaoke) return Assets.icons.voice;
+    if (name == t.yoga) return Assets.icons.yoga;
+    if (name == t.cooking) return Assets.icons.noodles;
+    if (name == t.tennis) return Assets.icons.tennis;
+    if (name == t.run) return Assets.icons.sport;
+    if (name == t.swimming) return Assets.icons.ripple;
+    if (name == t.art) return Assets.icons.platte;
+    if (name == t.traveling) return Assets.icons.outdoor;
+    if (name == t.extreme) return Assets.icons.parachute;
+    if (name == t.music) return Assets.icons.music;
+    if (name == t.drink) return Assets.icons.goblet;
+    if (name == t.videoGames) return Assets.icons.gameHandle;
+    return Assets.icons.camera;
   }
 }
 

@@ -109,12 +109,20 @@ class $AssetsImagesGen {
   SvgGenImage get facebookIcon =>
       const SvgGenImage('assets/images/facebook_icon.svg');
 
+  /// File path: assets/images/friends_illustration.svg
+  SvgGenImage get friendsIllustration =>
+      const SvgGenImage('assets/images/friends_illustration.svg');
+
   /// File path: assets/images/google_icon.svg
   SvgGenImage get googleIcon =>
       const SvgGenImage('assets/images/google_icon.svg');
 
   /// File path: assets/images/logo.svg
   SvgGenImage get logo => const SvgGenImage('assets/images/logo.svg');
+
+  /// File path: assets/images/notification_illustration.svg
+  SvgGenImage get notificationIllustration =>
+      const SvgGenImage('assets/images/notification_illustration.svg');
 
   /// File path: assets/images/onboarding_1.png
   AssetGenImage get onboarding1 =>
@@ -139,8 +147,10 @@ class $AssetsImagesGen {
     dotActive,
     dotInactive,
     facebookIcon,
+    friendsIllustration,
     googleIcon,
     logo,
+    notificationIllustration,
     onboarding1,
     onboarding2,
     onboarding3,

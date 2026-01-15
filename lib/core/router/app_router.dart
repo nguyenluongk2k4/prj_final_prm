@@ -6,6 +6,8 @@ import '../../features/auth/presentation/pages/verification_page.dart';
 import '../../features/auth/presentation/pages/profile_details_page.dart';
 import '../../features/auth/presentation/pages/gender_selection_page.dart';
 import '../../features/auth/presentation/pages/interests_page.dart';
+import '../../features/auth/presentation/pages/friends_page.dart';
+import '../../features/auth/presentation/pages/notification_page.dart';
 import '../../features/auth/presentation/pages/login_page.dart';
 import '../../features/auth/presentation/pages/settings_page.dart';
 import '../app_stores.dart';
@@ -49,6 +51,16 @@ class AppRouter {
         path: AppRoutes.interests,
         name: AppRoutes.interestsName,
         builder: (context, state) => const InterestsPage(),
+      ),
+      GoRoute(
+        path: AppRoutes.friends,
+        name: AppRoutes.friendsName,
+        builder: (context, state) => const FriendsPage(),
+      ),
+      GoRoute(
+        path: AppRoutes.notification,
+        name: AppRoutes.notificationName,
+        builder: (context, state) => const NotificationPage(),
       ),
       GoRoute(
         path: AppRoutes.login,
