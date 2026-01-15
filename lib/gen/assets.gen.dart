@@ -93,9 +93,24 @@ class $AssetsImagesGen {
   /// File path: assets/images/.gitkeep
   String get aGitkeep => 'assets/images/.gitkeep';
 
+  /// File path: assets/images/action_buttons.svg
+  SvgGenImage get actionButtons =>
+      const SvgGenImage('assets/images/action_buttons.svg');
+
   /// File path: assets/images/apple_icon.svg
   SvgGenImage get appleIcon =>
       const SvgGenImage('assets/images/apple_icon.svg');
+
+  /// File path: assets/images/btn_back.svg
+  SvgGenImage get btnBack => const SvgGenImage('assets/images/btn_back.svg');
+
+  /// File path: assets/images/btn_filter.svg
+  SvgGenImage get btnFilter =>
+      const SvgGenImage('assets/images/btn_filter.svg');
+
+  /// File path: assets/images/dislike_indicator.svg
+  SvgGenImage get dislikeIndicator =>
+      const SvgGenImage('assets/images/dislike_indicator.svg');
 
   /// File path: assets/images/dot_active.svg
   SvgGenImage get dotActive =>
@@ -117,8 +132,15 @@ class $AssetsImagesGen {
   SvgGenImage get googleIcon =>
       const SvgGenImage('assets/images/google_icon.svg');
 
+  /// File path: assets/images/like_indicator.svg
+  SvgGenImage get likeIndicator =>
+      const SvgGenImage('assets/images/like_indicator.svg');
+
   /// File path: assets/images/logo.svg
   SvgGenImage get logo => const SvgGenImage('assets/images/logo.svg');
+
+  /// File path: assets/images/nav_bar.svg
+  SvgGenImage get navBar => const SvgGenImage('assets/images/nav_bar.svg');
 
   /// File path: assets/images/notification_illustration.svg
   SvgGenImage get notificationIllustration =>
@@ -136,6 +158,10 @@ class $AssetsImagesGen {
   AssetGenImage get onboarding3 =>
       const AssetGenImage('assets/images/onboarding_3.png');
 
+  /// File path: assets/images/profile_example.png
+  AssetGenImage get profileExample =>
+      const AssetGenImage('assets/images/profile_example.png');
+
   /// File path: assets/images/profile_photo.png
   AssetGenImage get profilePhoto =>
       const AssetGenImage('assets/images/profile_photo.png');
@@ -143,17 +169,24 @@ class $AssetsImagesGen {
   /// List of all assets
   List<dynamic> get values => [
     aGitkeep,
+    actionButtons,
     appleIcon,
+    btnBack,
+    btnFilter,
+    dislikeIndicator,
     dotActive,
     dotInactive,
     facebookIcon,
     friendsIllustration,
     googleIcon,
+    likeIndicator,
     logo,
+    navBar,
     notificationIllustration,
     onboarding1,
     onboarding2,
     onboarding3,
+    profileExample,
     profilePhoto,
   ];
 }

@@ -4,9 +4,9 @@
 /// To regenerate, run: `dart run slang`
 ///
 /// Locales: 2
-/// Strings: 124 (62 per locale)
+/// Strings: 128 (64 per locale)
 ///
-/// Built on 2026-01-15 at 00:13 UTC
+/// Built on 2026-01-15 at 01:03 UTC
 
 // coverage:ignore-file
 // ignore_for_file: type=lint
@@ -210,6 +210,8 @@ class Translations implements BaseTranslations<AppLocale, Translations> {
 	String get enableNotifications => 'Enable notification\'s';
 	String get notificationDesc => 'Get push-notification when you get the match or receive a message.';
 	String get iWantToBeNotified => 'I want to be notified';
+	String get discover => 'Discover';
+	String get professionalModel => 'Professional model';
 }
 
 // Path: <root>
@@ -300,6 +302,8 @@ class _StringsVi extends Translations {
 	@override String get enableNotifications => 'Bật thông báo';
 	@override String get notificationDesc => 'Nhận thông báo đẩy khi bạn có kết nối hoặc nhận tin nhắn.';
 	@override String get iWantToBeNotified => 'Tôi muốn nhận thông báo';
+	@override String get discover => 'Khám phá';
+	@override String get professionalModel => 'Người mẫu chuyên nghiệp';
 }
 
 /// Flat map(s) containing all translations.
@@ -370,6 +374,8 @@ extension on Translations {
 			case 'enableNotifications': return 'Enable notification\'s';
 			case 'notificationDesc': return 'Get push-notification when you get the match or receive a message.';
 			case 'iWantToBeNotified': return 'I want to be notified';
+			case 'discover': return 'Discover';
+			case 'professionalModel': return 'Professional model';
 			default: return null;
 		}
 	}
@@ -440,6 +446,8 @@ extension on _StringsVi {
 			case 'enableNotifications': return 'Bật thông báo';
 			case 'notificationDesc': return 'Nhận thông báo đẩy khi bạn có kết nối hoặc nhận tin nhắn.';
 			case 'iWantToBeNotified': return 'Tôi muốn nhận thông báo';
+			case 'discover': return 'Khám phá';
+			case 'professionalModel': return 'Người mẫu chuyên nghiệp';
 			default: return null;
 		}
 	}

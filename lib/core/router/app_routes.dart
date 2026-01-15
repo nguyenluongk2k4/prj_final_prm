@@ -9,9 +9,10 @@ class AppRoutes {
   static const String interests = '/interests';
   static const String friends = '/friends';
   static const String notification = '/notification';
+  static const String home = '/home';
   static const String login = '/login';
   static const String settings = '/settings';
-  static const String home = '/home';
+  static const String main = '/home';
   
   // Route names
   static const String onboardingName = 'onboarding';

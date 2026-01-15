@@ -60,5 +60,7 @@
   "videoGames": "Video games",
   "enableNotifications": "Enable notification's",
   "notificationDesc": "Get push-notification when you get the match or receive a message.",
-  "iWantToBeNotified": "I want to be notified"
+  "iWantToBeNotified": "I want to be notified",
+  "discover": "Discover",
+  "professionalModel": "Professional model"
 }
