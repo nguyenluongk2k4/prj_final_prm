@@ -4,9 +4,9 @@
 /// To regenerate, run: `dart run slang`
 ///
 /// Locales: 2
-/// Strings: 128 (64 per locale)
+/// Strings: 136 (68 per locale)
 ///
-/// Built on 2026-01-15 at 01:03 UTC
+/// Built on 2026-01-15 at 01:17 UTC
 
 // coverage:ignore-file
 // ignore_for_file: type=lint
@@ -212,6 +212,10 @@ class Translations implements BaseTranslations<AppLocale, Translations> {
 	String get iWantToBeNotified => 'I want to be notified';
 	String get discover => 'Discover';
 	String get professionalModel => 'Professional model';
+	String get itsAMatch => 'It\'s a match, Jake!';
+	String get startConversation => 'Start a conversation now with each other';
+	String get sayHello => 'Say hello';
+	String get keepSwiping => 'Keep swiping';
 }
 
 // Path: <root>
@@ -304,6 +308,10 @@ class _StringsVi extends Translations {
 	@override String get iWantToBeNotified => 'Tôi muốn nhận thông báo';
 	@override String get discover => 'Khám phá';
 	@override String get professionalModel => 'Người mẫu chuyên nghiệp';
+	@override String get itsAMatch => 'Đã ghép đôi, Jake!';
+	@override String get startConversation => 'Bắt đầu cuộc trò chuyện với nhau ngay bây giờ';
+	@override String get sayHello => 'Chào hỏi';
+	@override String get keepSwiping => 'Tiếp tục vuốt';
 }
 
 /// Flat map(s) containing all translations.
@@ -376,6 +384,10 @@ extension on Translations {
 			case 'iWantToBeNotified': return 'I want to be notified';
 			case 'discover': return 'Discover';
 			case 'professionalModel': return 'Professional model';
+			case 'itsAMatch': return 'It\'s a match, Jake!';
+			case 'startConversation': return 'Start a conversation now with each other';
+			case 'sayHello': return 'Say hello';
+			case 'keepSwiping': return 'Keep swiping';
 			default: return null;
 		}
 	}
@@ -448,6 +460,10 @@ extension on _StringsVi {
 			case 'iWantToBeNotified': return 'Tôi muốn nhận thông báo';
 			case 'discover': return 'Khám phá';
 			case 'professionalModel': return 'Người mẫu chuyên nghiệp';
+			case 'itsAMatch': return 'Đã ghép đôi, Jake!';
+			case 'startConversation': return 'Bắt đầu cuộc trò chuyện với nhau ngay bây giờ';
+			case 'sayHello': return 'Chào hỏi';
+			case 'keepSwiping': return 'Tiếp tục vuốt';
 			default: return null;
 		}
 	}

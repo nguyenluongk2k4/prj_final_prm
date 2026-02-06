@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_card_swiper/flutter_card_swiper.dart';
+import 'package:go_router/go_router.dart';
+import 'package:prj_final_prm/core/router/app_routes.dart';
 import '../../../../core/presentation/widgets/widgets.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_styles.dart';
@@ -70,6 +72,10 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
+    final screenWidth = MediaQuery.of(context).size.width;
+    final screenHeight = MediaQuery.of(context).size.height;
+    final horizontalPadding = screenWidth * 0.1; // 10% of screen width
+
     return Scaffold(
       backgroundColor: AppColors.background,
       body: SafeArea(
@@ -77,7 +83,12 @@ class _HomePageState extends State<HomePage> {
           children: [
             // Header
             Padding(
-              padding: const EdgeInsets.fromLTRB(40, 44, 40, 0),
+              padding: EdgeInsets.fromLTRB(
+                horizontalPadding,
+                screenHeight * 0.054,
+                horizontalPadding,
+                0,
+              ),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
@@ -104,12 +115,12 @@ class _HomePageState extends State<HomePage> {
               ),
             ),
 
-            const SizedBox(height: 24),
+            SizedBox(height: screenHeight * 0.03),
 
             // Profile Card with CardSwiper
             Expanded(
               child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 40),
+                padding: EdgeInsets.symmetric(horizontal: horizontalPadding),
                 child: CardSwiper(
                   controller: _swiperController,
                   cardsCount: _profiles.length,
@@ -137,11 +148,11 @@ class _HomePageState extends State<HomePage> {
               ),
             ),
 
-            const SizedBox(height: 21),
+            SizedBox(height: screenHeight * 0.026),
 
             // Action buttons
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 40),
+              padding: EdgeInsets.symmetric(horizontal: horizontalPadding),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
@@ -150,8 +161,8 @@ class _HomePageState extends State<HomePage> {
                     onTap: () =>
                         _swiperController.swipe(CardSwiperDirection.left),
                     child: Container(
-                      width: 78,
-                      height: 78,
+                      width: screenWidth * 0.21,
+                      height: screenWidth * 0.21,
                       decoration: BoxDecoration(
                         color: AppColors.background,
                         shape: BoxShape.circle,
@@ -174,15 +185,15 @@ class _HomePageState extends State<HomePage> {
                     ),
                   ),
 
-                  const SizedBox(width: 16),
+                  SizedBox(width: screenWidth * 0.043),
 
                   // Like button
                   GestureDetector(
                     onTap: () =>
                         _swiperController.swipe(CardSwiperDirection.right),
                     child: Container(
-                      width: 99,
-                      height: 99,
+                      width: screenWidth * 0.264,
+                      height: screenWidth * 0.264,
                       decoration: BoxDecoration(
                         gradient: const LinearGradient(
                           colors: [Color(0xFFE94057), Color(0xFFF27121)],
@@ -208,15 +219,15 @@ class _HomePageState extends State<HomePage> {
                     ),
                   ),
 
-                  const SizedBox(width: 16),
+                  SizedBox(width: screenWidth * 0.043),
 
                   // Super like button
                   GestureDetector(
                     onTap: () =>
                         _swiperController.swipe(CardSwiperDirection.top),
                     child: Container(
-                      width: 78,
-                      height: 78,
+                      width: screenWidth * 0.21,
+                      height: screenWidth * 0.21,
                       decoration: BoxDecoration(
                         color: AppColors.background,
                         shape: BoxShape.circle,
@@ -242,7 +253,7 @@ class _HomePageState extends State<HomePage> {
               ),
             ),
 
-            const SizedBox(height: 22),
+            SizedBox(height: screenHeight * 0.027),
 
             // Navigation bar
             BottomNavBar(
@@ -260,9 +271,12 @@ class _HomePageState extends State<HomePage> {
   }
 
   Widget _buildProfileCard(ProfileCard profile) {
+    final screenHeight = MediaQuery.of(context).size.height;
+    final cardHeight = screenHeight * 0.57;
+
     return Container(
       width: double.infinity,
-      height: 466,
+      height: cardHeight,
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(15),
         image: DecorationImage(

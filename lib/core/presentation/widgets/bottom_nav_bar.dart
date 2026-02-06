@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
+import '../../../gen/assets.gen.dart';
 import '../../theme/app_colors.dart';
 
 class BottomNavBar extends StatelessWidget {
@@ -23,22 +25,22 @@ class BottomNavBar extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.spaceAround,
         children: [
           _NavBarItem(
-            icon: Icons.explore,
+            iconPath: Assets.icons.navHomeInactive.path,
             isSelected: selectedIndex == 0,
             onTap: () => onTap(0),
           ),
           _NavBarItem(
-            icon: Icons.favorite_border,
+            iconPath: Assets.icons.navMatchesInactive.path,
             isSelected: selectedIndex == 1,
             onTap: () => onTap(1),
           ),
           _NavBarItem(
-            icon: Icons.chat_bubble_outline,
+            iconPath: Assets.icons.navChatInactive.path,
             isSelected: selectedIndex == 2,
             onTap: () => onTap(2),
           ),
           _NavBarItem(
-            icon: Icons.person_outline,
+            iconPath: Assets.icons.navAccountInactive.path,
             isSelected: selectedIndex == 3,
             onTap: () => onTap(3),
           ),
@@ -49,12 +51,12 @@ class BottomNavBar extends StatelessWidget {
 }
 
 class _NavBarItem extends StatelessWidget {
-  final IconData icon;
+  final String iconPath;
   final bool isSelected;
   final VoidCallback onTap;
 
   const _NavBarItem({
-    required this.icon,
+    required this.iconPath,
     required this.isSelected,
     required this.onTap,
   });
@@ -71,10 +73,14 @@ class _NavBarItem extends StatelessWidget {
         child: Stack(
           alignment: Alignment.center,
           children: [
-            Icon(
-              icon,
-              color: isSelected ? AppColors.primary : const Color(0xFFADAFBB),
-              size: 24,
+            SvgPicture.asset(
+              iconPath,
+              width: 24,
+              height: 24,
+              colorFilter: ColorFilter.mode(
+                isSelected ? AppColors.primary : const Color(0xFFADAFBB),
+                BlendMode.srcIn,
+              ),
             ),
             if (isSelected)
               Positioned(

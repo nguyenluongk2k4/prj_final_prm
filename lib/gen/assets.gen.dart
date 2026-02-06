@@ -33,8 +33,28 @@ class $AssetsIconsGen {
   /// File path: assets/icons/goblet.svg
   SvgGenImage get goblet => const SvgGenImage('assets/icons/goblet.svg');
 
+  /// File path: assets/icons/home_action_buttons.svg
+  SvgGenImage get homeActionButtons =>
+      const SvgGenImage('assets/icons/home_action_buttons.svg');
+
   /// File path: assets/icons/music.svg
   SvgGenImage get music => const SvgGenImage('assets/icons/music.svg');
+
+  /// File path: assets/icons/nav_account_inactive.svg
+  SvgGenImage get navAccountInactive =>
+      const SvgGenImage('assets/icons/nav_account_inactive.svg');
+
+  /// File path: assets/icons/nav_chat_inactive.svg
+  SvgGenImage get navChatInactive =>
+      const SvgGenImage('assets/icons/nav_chat_inactive.svg');
+
+  /// File path: assets/icons/nav_home_inactive.svg
+  SvgGenImage get navHomeInactive =>
+      const SvgGenImage('assets/icons/nav_home_inactive.svg');
+
+  /// File path: assets/icons/nav_matches_inactive.svg
+  SvgGenImage get navMatchesInactive =>
+      const SvgGenImage('assets/icons/nav_matches_inactive.svg');
 
   /// File path: assets/icons/noodles.svg
   SvgGenImage get noodles => const SvgGenImage('assets/icons/noodles.svg');
@@ -73,7 +93,12 @@ class $AssetsIconsGen {
     camera,
     gameHandle,
     goblet,
+    homeActionButtons,
     music,
+    navAccountInactive,
+    navChatInactive,
+    navHomeInactive,
+    navMatchesInactive,
     noodles,
     outdoor,
     parachute,
@@ -139,6 +164,10 @@ class $AssetsImagesGen {
   /// File path: assets/images/logo.svg
   SvgGenImage get logo => const SvgGenImage('assets/images/logo.svg');
 
+  /// File path: assets/images/match_photos.svg
+  SvgGenImage get matchPhotos =>
+      const SvgGenImage('assets/images/match_photos.svg');
+
   /// File path: assets/images/nav_bar.svg
   SvgGenImage get navBar => const SvgGenImage('assets/images/nav_bar.svg');
 
@@ -181,6 +210,7 @@ class $AssetsImagesGen {
     googleIcon,
     likeIndicator,
     logo,
+    matchPhotos,
     navBar,
     notificationIllustration,
     onboarding1,

@@ -10,6 +10,7 @@ class AppRoutes {
   static const String friends = '/friends';
   static const String notification = '/notification';
   static const String home = '/home';
+  static const String match = '/match';
   static const String login = '/login';
   static const String settings = '/settings';
   static const String main = '/home';
@@ -27,4 +28,5 @@ class AppRoutes {
   static const String loginName = 'login';
   static const String settingsName = 'settings';
   static const String homeName = 'home';
+  static const String matchName = 'match';
 }

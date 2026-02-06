@@ -9,6 +9,7 @@ import '../../features/auth/presentation/pages/interests_page.dart';
 import '../../features/auth/presentation/pages/friends_page.dart';
 import '../../features/auth/presentation/pages/notification_page.dart';
 import '../../features/home/presentation/pages/home_page.dart';
+import '../../features/home/presentation/pages/match_page.dart';
 import '../../features/auth/presentation/pages/login_page.dart';
 import '../../features/auth/presentation/pages/settings_page.dart';
 import '../app_stores.dart';
@@ -67,6 +68,11 @@ class AppRouter {
         path: AppRoutes.home,
         name: AppRoutes.homeName,
         builder: (context, state) => const HomePage(),
+      ),
+      GoRoute(
+        path: AppRoutes.match,
+        name: AppRoutes.matchName,
+        builder: (context, state) => const MatchPage(),
       ),
       GoRoute(
         path: AppRoutes.login,

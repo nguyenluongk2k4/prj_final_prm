@@ -62,5 +62,8 @@
   "notificationDesc": "Get push-notification when you get the match or receive a message.",
   "iWantToBeNotified": "I want to be notified",
   "discover": "Discover",
-  "professionalModel": "Professional model"
-}
+  "professionalModel": "Professional model",
+  "itsAMatch": "It's a match, Jake!",
+  "startConversation": "Start a conversation now with each other",
+  "sayHello": "Say hello",
+  "keepSwiping": "Keep swiping"}
