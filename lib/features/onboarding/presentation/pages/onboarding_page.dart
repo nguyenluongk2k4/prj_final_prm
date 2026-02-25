@@ -73,8 +73,9 @@ class _OnboardingPageState extends State<OnboardingPage> {
     return Scaffold(
       backgroundColor: AppColors.background,
       body: SafeArea(
-        child: Column(
-          children: [
+        child: SingleChildScrollView(
+          child: Column(
+            children: [
             const SizedBox(height: 32),
 
             // Image carousel - 3 ảnh: left, center, right (circular loop)
@@ -118,7 +119,8 @@ class _OnboardingPageState extends State<OnboardingPage> {
           ],
         ),
       ),
-    );
+    ),
+  );
   }
 
   Widget _buildImageCarousel() {

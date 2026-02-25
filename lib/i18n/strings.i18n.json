@@ -66,4 +66,11 @@
   "itsAMatch": "It's a match, Jake!",
   "startConversation": "Start a conversation now with each other",
   "sayHello": "Say hello",
-  "keepSwiping": "Keep swiping"}
+  "keepSwiping": "Keep swiping",
+  "matches": "Matches",
+  "matchesDesc": "This is a list of people who have liked you and your matches.",
+  "today": "Today",
+  "yesterday": "Yesterday",
+  "like": "Like",
+  "dislike": "Dislike"
+}

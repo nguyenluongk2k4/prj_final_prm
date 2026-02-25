@@ -55,7 +55,7 @@ class _VerificationPageState extends State<VerificationPage> {
       showBackButton: true,
       body: Column(
         children: [
-          const SizedBox(height: 28),
+          const SizedBox(height: 16),
 
           // Timer
           Text(_timer, style: AppTextStyles.h1),
@@ -72,7 +72,7 @@ class _VerificationPageState extends State<VerificationPage> {
             ),
           ),
 
-          const SizedBox(height: 48),
+          const SizedBox(height: 28),
 
           // Code inputs
           Padding(
@@ -96,7 +96,7 @@ class _VerificationPageState extends State<VerificationPage> {
             ),
           ),
 
-          const SizedBox(height: 24),
+          const SizedBox(height: 12),
 
           // Keyboard
           Container(

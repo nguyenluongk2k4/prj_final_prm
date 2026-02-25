@@ -79,8 +79,9 @@ class _HomePageState extends State<HomePage> {
     return Scaffold(
       backgroundColor: AppColors.background,
       body: SafeArea(
-        child: Column(
-          children: [
+        child: SingleChildScrollView(
+          child: Column(
+            children: [
             // Header
             Padding(
               padding: EdgeInsets.fromLTRB(
@@ -118,7 +119,8 @@ class _HomePageState extends State<HomePage> {
             SizedBox(height: screenHeight * 0.03),
 
             // Profile Card with CardSwiper
-            Expanded(
+            SizedBox(
+              height: screenHeight * 0.57,
               child: Padding(
                 padding: EdgeInsets.symmetric(horizontal: horizontalPadding),
                 child: CardSwiper(
@@ -259,6 +261,10 @@ class _HomePageState extends State<HomePage> {
             BottomNavBar(
               selectedIndex: _selectedNavIndex,
               onTap: (index) {
+                if (index == 1) {
+                  context.goNamed(AppRoutes.matchesName);
+                  return;
+                }
                 setState(() {
                   _selectedNavIndex = index;
                 });
@@ -267,7 +273,7 @@ class _HomePageState extends State<HomePage> {
           ],
         ),
       ),
-    );
+    ));
   }
 
   Widget _buildProfileCard(ProfileCard profile) {

@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "839291927939",
+    "project_id": "dateting-app",
+    "storage_bucket": "dateting-app.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:839291927939:android:9bd3c6b9905a0924eb0ab6",
+        "android_client_info": {
+          "package_name": "com.example.prj_final_prm"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD9RMD6w3nMSHHPGpMTWAVE9WLomuWp2jY"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

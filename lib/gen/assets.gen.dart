@@ -164,9 +164,33 @@ class $AssetsImagesGen {
   /// File path: assets/images/logo.svg
   SvgGenImage get logo => const SvgGenImage('assets/images/logo.svg');
 
+  /// File path: assets/images/match_annabelle.png
+  AssetGenImage get matchAnnabelle =>
+      const AssetGenImage('assets/images/match_annabelle.png');
+
+  /// File path: assets/images/match_hadley.png
+  AssetGenImage get matchHadley =>
+      const AssetGenImage('assets/images/match_hadley.png');
+
+  /// File path: assets/images/match_kyle1.png
+  AssetGenImage get matchKyle1 =>
+      const AssetGenImage('assets/images/match_kyle1.png');
+
+  /// File path: assets/images/match_kyle2.png
+  AssetGenImage get matchKyle2 =>
+      const AssetGenImage('assets/images/match_kyle2.png');
+
+  /// File path: assets/images/match_leilani.png
+  AssetGenImage get matchLeilani =>
+      const AssetGenImage('assets/images/match_leilani.png');
+
   /// File path: assets/images/match_photos.svg
   SvgGenImage get matchPhotos =>
       const SvgGenImage('assets/images/match_photos.svg');
+
+  /// File path: assets/images/match_reagan.png
+  AssetGenImage get matchReagan =>
+      const AssetGenImage('assets/images/match_reagan.png');
 
   /// File path: assets/images/nav_bar.svg
   SvgGenImage get navBar => const SvgGenImage('assets/images/nav_bar.svg');
@@ -210,7 +234,13 @@ class $AssetsImagesGen {
     googleIcon,
     likeIndicator,
     logo,
+    matchAnnabelle,
+    matchHadley,
+    matchKyle1,
+    matchKyle2,
+    matchLeilani,
     matchPhotos,
+    matchReagan,
     navBar,
     notificationIllustration,
     onboarding1,

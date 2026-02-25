@@ -4,9 +4,9 @@
 /// To regenerate, run: `dart run slang`
 ///
 /// Locales: 2
-/// Strings: 136 (68 per locale)
+/// Strings: 148 (74 per locale)
 ///
-/// Built on 2026-01-15 at 01:17 UTC
+/// Built on 2026-02-25 at 04:25 UTC
 
 // coverage:ignore-file
 // ignore_for_file: type=lint
@@ -216,6 +216,12 @@ class Translations implements BaseTranslations<AppLocale, Translations> {
 	String get startConversation => 'Start a conversation now with each other';
 	String get sayHello => 'Say hello';
 	String get keepSwiping => 'Keep swiping';
+	String get matches => 'Matches';
+	String get matchesDesc => 'This is a list of people who have liked you and your matches.';
+	String get today => 'Today';
+	String get yesterday => 'Yesterday';
+	String get like => 'Like';
+	String get dislike => 'Dislike';
 }
 
 // Path: <root>
@@ -312,6 +318,12 @@ class _StringsVi extends Translations {
 	@override String get startConversation => 'Bắt đầu cuộc trò chuyện với nhau ngay bây giờ';
 	@override String get sayHello => 'Chào hỏi';
 	@override String get keepSwiping => 'Tiếp tục vuốt';
+	@override String get matches => 'Kết nối';
+	@override String get matchesDesc => 'Đây là danh sách những người đã thích bạn và các kết nối của bạn.';
+	@override String get today => 'Hôm nay';
+	@override String get yesterday => 'Hôm qua';
+	@override String get like => 'Thích';
+	@override String get dislike => 'Bỏ qua';
 }
 
 /// Flat map(s) containing all translations.
@@ -388,6 +400,12 @@ extension on Translations {
 			case 'startConversation': return 'Start a conversation now with each other';
 			case 'sayHello': return 'Say hello';
 			case 'keepSwiping': return 'Keep swiping';
+			case 'matches': return 'Matches';
+			case 'matchesDesc': return 'This is a list of people who have liked you and your matches.';
+			case 'today': return 'Today';
+			case 'yesterday': return 'Yesterday';
+			case 'like': return 'Like';
+			case 'dislike': return 'Dislike';
 			default: return null;
 		}
 	}
@@ -464,6 +482,12 @@ extension on _StringsVi {
 			case 'startConversation': return 'Bắt đầu cuộc trò chuyện với nhau ngay bây giờ';
 			case 'sayHello': return 'Chào hỏi';
 			case 'keepSwiping': return 'Tiếp tục vuốt';
+			case 'matches': return 'Kết nối';
+			case 'matchesDesc': return 'Đây là danh sách những người đã thích bạn và các kết nối của bạn.';
+			case 'today': return 'Hôm nay';
+			case 'yesterday': return 'Hôm qua';
+			case 'like': return 'Thích';
+			case 'dislike': return 'Bỏ qua';
 			default: return null;
 		}
 	}

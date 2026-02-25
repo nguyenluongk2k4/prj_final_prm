@@ -66,5 +66,11 @@
   "itsAMatch": "Đã ghép đôi, Jake!",
   "startConversation": "Bắt đầu cuộc trò chuyện với nhau ngay bây giờ",
   "sayHello": "Chào hỏi",
-  "keepSwiping": "Tiếp tục vuốt"
+  "keepSwiping": "Tiếp tục vuốt",
+  "matches": "Kết nối",
+  "matchesDesc": "Đây là danh sách những người đã thích bạn và các kết nối của bạn.",
+  "today": "Hôm nay",
+  "yesterday": "Hôm qua",
+  "like": "Thích",
+  "dislike": "Bỏ qua"
 }
