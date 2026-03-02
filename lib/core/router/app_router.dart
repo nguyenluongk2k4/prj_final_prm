@@ -8,10 +8,11 @@ import '../../features/auth/presentation/pages/gender_selection_page.dart';
 import '../../features/auth/presentation/pages/interests_page.dart';
 import '../../features/auth/presentation/pages/friends_page.dart';
 import '../../features/auth/presentation/pages/notification_page.dart';
-import '../../features/home/presentation/pages/home_page.dart';
+import '../../features/home/presentation/pages/main_page.dart';
 import '../../features/home/presentation/pages/match_page.dart';
-import '../../features/home/presentation/pages/matches_page.dart';
 import '../../features/auth/presentation/pages/login_page.dart';
+import '../../features/auth/presentation/pages/email_login_page.dart';
+import '../../features/auth/presentation/pages/email_register_page.dart';
 import '../../features/auth/presentation/pages/settings_page.dart';
 import '../app_stores.dart';
 import 'app_routes.dart';
@@ -65,10 +66,16 @@ class AppRouter {
         name: AppRoutes.notificationName,
         builder: (context, state) => const NotificationPage(),
       ),
+      // ── Main shell: shared nav bar, tab content via IndexedStack ────────
       GoRoute(
         path: AppRoutes.home,
         name: AppRoutes.homeName,
-        builder: (context, state) => const HomePage(),
+        builder: (context, state) => const MainPage(),
+      ),
+      GoRoute(
+        path: AppRoutes.matches,
+        name: AppRoutes.matchesName,
+        builder: (context, state) => const MainPage(initialTab: 1),
       ),
       GoRoute(
         path: AppRoutes.match,
@@ -76,14 +83,19 @@ class AppRouter {
         builder: (context, state) => const MatchPage(),
       ),
       GoRoute(
-        path: AppRoutes.matches,
-        name: AppRoutes.matchesName,
-        builder: (context, state) => const MatchesPage(),
-      ),
-      GoRoute(
         path: AppRoutes.login,
         name: AppRoutes.loginName,
         builder: (context, state) => const LoginPage(),
+      ),
+      GoRoute(
+        path: AppRoutes.emailLogin,
+        name: AppRoutes.emailLoginName,
+        builder: (context, state) => const EmailLoginPage(),
+      ),
+      GoRoute(
+        path: AppRoutes.emailRegister,
+        name: AppRoutes.emailRegisterName,
+        builder: (context, state) => const EmailRegisterPage(),
       ),
       GoRoute(
         path: AppRoutes.settings,

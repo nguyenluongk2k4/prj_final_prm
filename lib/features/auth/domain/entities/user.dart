@@ -1,8 +1,6 @@
-import 'package:equatable/equatable.dart';
-
 /// Domain Entity - User
 /// Entities là business objects, không phụ thuộc vào framework
-class User extends Equatable {
+class User {
   final String id;
   final String email;
   final String name;
@@ -14,7 +12,4 @@ class User extends Equatable {
     required this.name,
     this.avatar,
   });
-
-  @override
-  List<Object?> get props => [id, email, name, avatar];
 }

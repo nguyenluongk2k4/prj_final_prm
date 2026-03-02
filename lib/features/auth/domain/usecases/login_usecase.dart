@@ -1,28 +1,23 @@
 import 'package:dartz/dartz.dart';
-import 'package:equatable/equatable.dart';
 import 'package:injectable/injectable.dart';
 import '../../../../core/errors/failures.dart';
 import '../../../../core/usecases/usecase.dart';
-import '../entities/user.dart';
+import '../entities/user_profile.dart';
 import '../repositories/auth_repository.dart';
 
-/// UseCase cho Login
 @lazySingleton
-class LoginUseCase implements UseCase<User, LoginParams> {
+class LoginUseCase implements UseCase<UserProfile, LoginParams> {
   final AuthRepository repository;
 
   LoginUseCase(this.repository);
 
   @override
-  Future<Either<Failure, User>> call(LoginParams params) async {
-    return await repository.login(
-      email: params.email,
-      password: params.password,
-    );
+  Future<Either<Failure, UserProfile>> call(LoginParams params) async {
+    return await repository.login(params.email, params.password);
   }
 }
 
-class LoginParams extends Equatable {
+class LoginParams {
   final String email;
   final String password;
 
@@ -30,7 +25,4 @@ class LoginParams extends Equatable {
     required this.email,
     required this.password,
   });
-
-  @override
-  List<Object> get props => [email, password];
 }

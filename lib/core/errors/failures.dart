@@ -1,7 +1,5 @@
-import 'package:equatable/equatable.dart';
-
 /// Base class cho tất cả failures trong app
-abstract class Failure extends Equatable {
+abstract class Failure {
   final String message;
   final int? statusCode;
 
@@ -9,9 +7,6 @@ abstract class Failure extends Equatable {
     required this.message,
     this.statusCode,
   });
-
-  @override
-  List<Object?> get props => [message, statusCode];
 }
 
 /// Lỗi từ server

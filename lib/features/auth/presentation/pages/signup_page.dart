@@ -49,7 +49,7 @@ class SignUpPage extends StatelessWidget {
                   AppPrimaryButton(
                     text: 'Continue with email',
                     onPressed: () {
-                      // Navigate to email sign up
+                      context.pushNamed(AppRoutes.emailLoginName);
                     },
                   ),
 

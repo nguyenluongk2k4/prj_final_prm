@@ -1,22 +1,27 @@
 import 'package:dartz/dartz.dart';
 import '../../../../core/errors/failures.dart';
-import '../entities/user.dart';
+import '../entities/user_profile.dart';
 
-/// Domain Repository Interface
-/// Định nghĩa contract, implementation ở data layer
 abstract class AuthRepository {
-  Future<Either<Failure, User>> login({
-    required String email,
-    required String password,
-  });
+  /// Check if the current user is authenticated via Firebase
+  Future<bool> isAuthenticated();
 
-  Future<Either<Failure, User>> register({
-    required String email,
-    required String password,
-    required String name,
-  });
+  /// Sign in with Phone Number
+  /// Returns a verification ID that needs to be verified with an OTP
+  Future<Either<Failure, String>> signInWithPhone(String phoneNumber);
 
-  Future<Either<Failure, void>> logout();
+  /// Verify OTP
+  Future<Either<Failure, String>> verifyOtp(String verificationId, String smsCode);
 
-  Future<Either<Failure, User?>> getCurrentUser();
+  /// Sign out
+  Future<Either<Failure, void>> signOut();
+
+  /// Sync User profile to Supabase after successful login
+  Future<Either<Failure, UserProfile>> syncProfileToSupabase(String uid, String phoneNumber);
+
+  /// Get Current User Profile from Supabase
+  Future<Either<Failure, UserProfile>> getCurrentProfile();
+
+  /// Đăng nhập bằng Email/Password
+  Future<Either<Failure, UserProfile>> login(String email, String password);
 }

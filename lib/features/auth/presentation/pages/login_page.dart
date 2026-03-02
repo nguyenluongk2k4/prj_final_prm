@@ -1,13 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:go_router/go_router.dart';
-import 'package:prj_final_prm/features/auth/domain/usecases/login_usecase.dart';
-import 'package:prj_final_prm/features/auth/domain/usecases/logout_usecase.dart';
 import '../../../../core/di/injection.dart';
 import '../../../../core/router/app_routes.dart';
 import '../../../../core/presentation/widgets/widgets.dart';
 import '../../../../i18n/strings.g.dart';
-import '../mobx/auth_store.dart';
+import '../store/auth_store.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -20,10 +18,7 @@ class _LoginPageState extends State<LoginPage> {
   final _formKey = GlobalKey<FormState>();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
-  late final _authStore = AuthStore(
-    loginUseCase: getIt<LoginUseCase>(),
-    logoutUseCase: getIt<LogoutUseCase>(),
-  );
+  late final _authStore = getIt<AuthStore>();
 
   @override
   void dispose() {

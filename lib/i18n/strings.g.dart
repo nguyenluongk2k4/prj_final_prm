@@ -4,9 +4,9 @@
 /// To regenerate, run: `dart run slang`
 ///
 /// Locales: 2
-/// Strings: 148 (74 per locale)
+/// Strings: 186 (93 per locale)
 ///
-/// Built on 2026-02-25 at 04:25 UTC
+/// Built on 2026-03-02 at 02:12 UTC
 
 // coverage:ignore-file
 // ignore_for_file: type=lint
@@ -222,6 +222,25 @@ class Translations implements BaseTranslations<AppLocale, Translations> {
 	String get yesterday => 'Yesterday';
 	String get like => 'Like';
 	String get dislike => 'Dislike';
+	String get myEmail => 'My email';
+	String get emailLoginDesc => 'Please enter your email and password to continue.';
+	String get emailHint => 'Enter your email address';
+	String get passwordHint => 'Enter your password';
+	String get forgotPassword => 'Forgot password?';
+	String get noAccount => 'Don\'t have an account?';
+	String get signUpNow => 'Sign up';
+	String get invalidEmail => 'Please enter a valid email';
+	String get createAccount => 'Create account';
+	String get createAccountDesc => 'Fill in your details to get started.';
+	String get fullName => 'Full name';
+	String get fullNameHint => 'Enter your full name';
+	String get confirmPassword => 'Confirm password';
+	String get confirmPasswordHint => 'Re-enter your password';
+	String get passwordMinLength => 'Password must be at least 6 characters';
+	String get passwordsDoNotMatch => 'Passwords do not match';
+	String get alreadyHaveAccount => 'Already have an account?';
+	String get signIn => 'Sign in';
+	String get pleaseEnterFullName => 'Please enter your full name';
 }
 
 // Path: <root>
@@ -324,6 +343,25 @@ class _StringsVi extends Translations {
 	@override String get yesterday => 'Hôm qua';
 	@override String get like => 'Thích';
 	@override String get dislike => 'Bỏ qua';
+	@override String get myEmail => 'Email của tôi';
+	@override String get emailLoginDesc => 'Vui lòng nhập email và mật khẩu để tiếp tục.';
+	@override String get emailHint => 'Nhập địa chỉ email';
+	@override String get passwordHint => 'Nhập mật khẩu';
+	@override String get forgotPassword => 'Quên mật khẩu?';
+	@override String get noAccount => 'Chưa có tài khoản?';
+	@override String get signUpNow => 'Đăng ký';
+	@override String get invalidEmail => 'Vui lòng nhập email hợp lệ';
+	@override String get createAccount => 'Tạo tài khoản';
+	@override String get createAccountDesc => 'Nhập thông tin của bạn để bắt đầu.';
+	@override String get fullName => 'Họ và tên';
+	@override String get fullNameHint => 'Nhập họ và tên';
+	@override String get confirmPassword => 'Xác nhập mật khẩu';
+	@override String get confirmPasswordHint => 'Nhập lại mật khẩu';
+	@override String get passwordMinLength => 'Mật khẩu phải có ít nhất 6 ký tự';
+	@override String get passwordsDoNotMatch => 'Mật khẩu không khớp';
+	@override String get alreadyHaveAccount => 'Đã có tài khoản?';
+	@override String get signIn => 'Đăng nhập';
+	@override String get pleaseEnterFullName => 'Vui lòng nhập họ và tên';
 }
 
 /// Flat map(s) containing all translations.
@@ -406,6 +444,25 @@ extension on Translations {
 			case 'yesterday': return 'Yesterday';
 			case 'like': return 'Like';
 			case 'dislike': return 'Dislike';
+			case 'myEmail': return 'My email';
+			case 'emailLoginDesc': return 'Please enter your email and password to continue.';
+			case 'emailHint': return 'Enter your email address';
+			case 'passwordHint': return 'Enter your password';
+			case 'forgotPassword': return 'Forgot password?';
+			case 'noAccount': return 'Don\'t have an account?';
+			case 'signUpNow': return 'Sign up';
+			case 'invalidEmail': return 'Please enter a valid email';
+			case 'createAccount': return 'Create account';
+			case 'createAccountDesc': return 'Fill in your details to get started.';
+			case 'fullName': return 'Full name';
+			case 'fullNameHint': return 'Enter your full name';
+			case 'confirmPassword': return 'Confirm password';
+			case 'confirmPasswordHint': return 'Re-enter your password';
+			case 'passwordMinLength': return 'Password must be at least 6 characters';
+			case 'passwordsDoNotMatch': return 'Passwords do not match';
+			case 'alreadyHaveAccount': return 'Already have an account?';
+			case 'signIn': return 'Sign in';
+			case 'pleaseEnterFullName': return 'Please enter your full name';
 			default: return null;
 		}
 	}
@@ -488,6 +545,25 @@ extension on _StringsVi {
 			case 'yesterday': return 'Hôm qua';
 			case 'like': return 'Thích';
 			case 'dislike': return 'Bỏ qua';
+			case 'myEmail': return 'Email của tôi';
+			case 'emailLoginDesc': return 'Vui lòng nhập email và mật khẩu để tiếp tục.';
+			case 'emailHint': return 'Nhập địa chỉ email';
+			case 'passwordHint': return 'Nhập mật khẩu';
+			case 'forgotPassword': return 'Quên mật khẩu?';
+			case 'noAccount': return 'Chưa có tài khoản?';
+			case 'signUpNow': return 'Đăng ký';
+			case 'invalidEmail': return 'Vui lòng nhập email hợp lệ';
+			case 'createAccount': return 'Tạo tài khoản';
+			case 'createAccountDesc': return 'Nhập thông tin của bạn để bắt đầu.';
+			case 'fullName': return 'Họ và tên';
+			case 'fullNameHint': return 'Nhập họ và tên';
+			case 'confirmPassword': return 'Xác nhập mật khẩu';
+			case 'confirmPasswordHint': return 'Nhập lại mật khẩu';
+			case 'passwordMinLength': return 'Mật khẩu phải có ít nhất 6 ký tự';
+			case 'passwordsDoNotMatch': return 'Mật khẩu không khớp';
+			case 'alreadyHaveAccount': return 'Đã có tài khoản?';
+			case 'signIn': return 'Đăng nhập';
+			case 'pleaseEnterFullName': return 'Vui lòng nhập họ và tên';
 			default: return null;
 		}
 	}

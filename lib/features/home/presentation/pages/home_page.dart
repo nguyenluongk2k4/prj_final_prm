@@ -1,8 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_card_swiper/flutter_card_swiper.dart';
-import 'package:go_router/go_router.dart';
-import 'package:prj_final_prm/core/router/app_routes.dart';
-import '../../../../core/presentation/widgets/widgets.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../../../../gen/assets.gen.dart';
@@ -62,7 +59,6 @@ class _HomePageState extends State<HomePage> {
   ];
 
   int _currentIndex = 0;
-  int _selectedNavIndex = 0;
 
   @override
   void dispose() {
@@ -255,21 +251,6 @@ class _HomePageState extends State<HomePage> {
               ),
             ),
 
-            SizedBox(height: screenHeight * 0.027),
-
-            // Navigation bar
-            BottomNavBar(
-              selectedIndex: _selectedNavIndex,
-              onTap: (index) {
-                if (index == 1) {
-                  context.goNamed(AppRoutes.matchesName);
-                  return;
-                }
-                setState(() {
-                  _selectedNavIndex = index;
-                });
-              },
-            ),
           ],
         ),
       ),

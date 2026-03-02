@@ -4,7 +4,6 @@ import '../../../../core/errors/failures.dart';
 import '../../../../core/usecases/usecase.dart';
 import '../repositories/auth_repository.dart';
 
-/// UseCase cho Logout
 @lazySingleton
 class LogoutUseCase implements UseCase<void, NoParams> {
   final AuthRepository repository;
@@ -13,6 +12,6 @@ class LogoutUseCase implements UseCase<void, NoParams> {
 
   @override
   Future<Either<Failure, void>> call(NoParams params) async {
-    return await repository.logout();
+    return await repository.signOut();
   }
 }

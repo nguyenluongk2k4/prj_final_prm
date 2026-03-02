@@ -4,6 +4,7 @@ import '../../theme/app_colors.dart';
 import '../../theme/app_text_styles.dart';
 import '../../../gen/assets.gen.dart';
 import '../../../i18n/strings.g.dart';
+import 'app_bar_actions.dart';
 
 class AppScaffold extends StatelessWidget {
   final Widget body;
@@ -15,6 +16,8 @@ class AppScaffold extends StatelessWidget {
   final List<Widget>? actions;
   final Color? backgroundColor;
   final bool centerTitle;
+  /// Show dark/light + language toggle buttons on the right of the AppBar.
+  final bool showQuickActions;
 
   const AppScaffold({
     super.key,
@@ -27,6 +30,7 @@ class AppScaffold extends StatelessWidget {
     this.actions,
     this.backgroundColor,
     this.centerTitle = false,
+    this.showQuickActions = true,
   });
 
   @override
@@ -67,8 +71,12 @@ class AppScaffold extends StatelessWidget {
                     ),
                   ),
                 ),
+                if (showQuickActions) const AppBarActions(),
               ]
-            : actions,
+            : [
+                ...?actions,
+                if (showQuickActions) const AppBarActions(),
+              ],
       ),
       body: SafeArea(child: body),
     );
