@@ -2,17 +2,21 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
 import '../../../../core/theme/app_colors.dart';
+import '../../../../core/theme/app_color_scheme.dart';
 import '../../../../core/presentation/widgets/widgets.dart';
 import '../../../../core/router/app_routes.dart';
+import '../../../../i18n/strings.g.dart';
 
 class SignUpPage extends StatelessWidget {
   const SignUpPage({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final c = context.appColors;
+    final t = Translations.of(context);
 
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: c.background,
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 40),
@@ -34,11 +38,11 @@ class SignUpPage extends StatelessWidget {
                 children: [
                   // Title
                   Text(
-                    'Sign up to continue',
+                    t.signUpToContinue,
                     style: Theme.of(context).textTheme.titleLarge?.copyWith(
                       fontSize: 18,
                       fontWeight: FontWeight.w700,
-                      color: AppColors.textPrimary,
+                      color: c.textPrimary,
                     ),
                     textAlign: TextAlign.center,
                   ),
@@ -47,7 +51,7 @@ class SignUpPage extends StatelessWidget {
 
                   // Continue with email button
                   AppPrimaryButton(
-                    text: 'Continue with email',
+                    text: t.continueWithEmail,
                     onPressed: () {
                       context.pushNamed(AppRoutes.emailLoginName);
                     },
@@ -57,7 +61,7 @@ class SignUpPage extends StatelessWidget {
 
                   // Use phone number button
                   AppOutlineButton(
-                    text: 'Use phone number',
+                    text: t.usePhoneNumber,
                     onPressed: () {
                       context.pushNamed(AppRoutes.phoneSignupName);
                     },
@@ -73,26 +77,26 @@ class SignUpPage extends StatelessWidget {
                   // Divider with text
                   Row(
                     children: [
-                      const Expanded(
+                      Expanded(
                         child: Divider(
-                          color: AppColors.textSecondary,
+                          color: c.border,
                           thickness: 0.5,
                         ),
                       ),
                       Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 14),
                         child: Text(
-                          'or sign up with',
+                          t.orSignUpWith,
                           style: Theme.of(context).textTheme.bodySmall
                               ?.copyWith(
                                 fontSize: 12,
-                                color: AppColors.textPrimary,
+                                color: c.text70,
                               ),
                         ),
                       ),
-                      const Expanded(
+                      Expanded(
                         child: Divider(
-                          color: AppColors.textSecondary,
+                          color: c.border,
                           thickness: 0.5,
                         ),
                       ),
@@ -141,7 +145,7 @@ class SignUpPage extends StatelessWidget {
                       // Show terms of use
                     },
                     child: Text(
-                      'Terms of use',
+                      t.termsOfUse,
                       style: Theme.of(context).textTheme.bodySmall?.copyWith(
                         fontSize: 14,
                         color: AppColors.primary,
@@ -154,7 +158,7 @@ class SignUpPage extends StatelessWidget {
                       // Show privacy policy
                     },
                     child: Text(
-                      'Privacy Policy',
+                      t.privacyPolicy,
                       style: Theme.of(context).textTheme.bodySmall?.copyWith(
                         fontSize: 14,
                         color: AppColors.primary,

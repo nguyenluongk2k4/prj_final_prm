@@ -4,12 +4,11 @@ import 'app_colors.dart';
 class AppTextStyles {
   static const String fontFamily = 'Sk-Modernist';
 
-  // Headings
+  // Headings — no color: inherits white in dark mode, black in light mode via ThemeData
   static const TextStyle h1 = TextStyle(
     fontFamily: fontFamily,
     fontSize: 34,
     fontWeight: FontWeight.w700,
-    color: AppColors.textPrimary,
     height: 1.5,
   );
 
@@ -17,7 +16,6 @@ class AppTextStyles {
     fontFamily: fontFamily,
     fontSize: 24,
     fontWeight: FontWeight.w700,
-    color: AppColors.textPrimary,
     height: 1.5,
   );
 
@@ -25,16 +23,14 @@ class AppTextStyles {
     fontFamily: fontFamily,
     fontSize: 18,
     fontWeight: FontWeight.w700,
-    color: AppColors.textPrimary,
     height: 1.5,
   );
 
-  // Body text
+  // Body text — no color: inherits from theme
   static const TextStyle bodyLarge = TextStyle(
     fontFamily: fontFamily,
     fontSize: 16,
     fontWeight: FontWeight.w400,
-    color: AppColors.textPrimary,
     height: 1.5,
   );
 
@@ -42,7 +38,6 @@ class AppTextStyles {
     fontFamily: fontFamily,
     fontSize: 14,
     fontWeight: FontWeight.w400,
-    color: AppColors.textPrimary,
     height: 1.5,
   );
 
@@ -50,7 +45,6 @@ class AppTextStyles {
     fontFamily: fontFamily,
     fontSize: 12,
     fontWeight: FontWeight.w400,
-    color: AppColors.textPrimary,
     height: 1.5,
   );
 

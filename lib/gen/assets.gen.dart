@@ -26,6 +26,22 @@ class $AssetsIconsGen {
   /// File path: assets/icons/camera.svg
   SvgGenImage get camera => const SvgGenImage('assets/icons/camera.svg');
 
+  /// File path: assets/icons/chat_done_all.png
+  AssetGenImage get chatDoneAll =>
+      const AssetGenImage('assets/icons/chat_done_all.png');
+
+  /// File path: assets/icons/chat_header_back.png
+  AssetGenImage get chatHeaderBack =>
+      const AssetGenImage('assets/icons/chat_header_back.png');
+
+  /// File path: assets/icons/chat_sticker.png
+  AssetGenImage get chatSticker =>
+      const AssetGenImage('assets/icons/chat_sticker.png');
+
+  /// File path: assets/icons/chat_voice.png
+  AssetGenImage get chatVoice =>
+      const AssetGenImage('assets/icons/chat_voice.png');
+
   /// File path: assets/icons/game_handle.svg
   SvgGenImage get gameHandle =>
       const SvgGenImage('assets/icons/game_handle.svg');
@@ -36,6 +52,15 @@ class $AssetsIconsGen {
   /// File path: assets/icons/home_action_buttons.svg
   SvgGenImage get homeActionButtons =>
       const SvgGenImage('assets/icons/home_action_buttons.svg');
+
+  /// File path: assets/icons/ic-back.svg
+  SvgGenImage get icBack => const SvgGenImage('assets/icons/ic-back.svg');
+
+  /// File path: assets/icons/ic_search.svg
+  SvgGenImage get icSearch => const SvgGenImage('assets/icons/ic_search.svg');
+
+  /// File path: assets/icons/ic_setting.svg
+  SvgGenImage get icSetting => const SvgGenImage('assets/icons/ic_setting.svg');
 
   /// File path: assets/icons/music.svg
   SvgGenImage get music => const SvgGenImage('assets/icons/music.svg');
@@ -91,9 +116,16 @@ class $AssetsIconsGen {
     aGitkeep,
     btnBack,
     camera,
+    chatDoneAll,
+    chatHeaderBack,
+    chatSticker,
+    chatVoice,
     gameHandle,
     goblet,
     homeActionButtons,
+    icBack,
+    icSearch,
+    icSetting,
     music,
     navAccountInactive,
     navChatInactive,
@@ -132,6 +164,54 @@ class $AssetsImagesGen {
   /// File path: assets/images/btn_filter.svg
   SvgGenImage get btnFilter =>
       const SvgGenImage('assets/images/btn_filter.svg');
+
+  /// File path: assets/images/chat_activity_amelia.png
+  AssetGenImage get chatActivityAmelia =>
+      const AssetGenImage('assets/images/chat_activity_amelia.png');
+
+  /// File path: assets/images/chat_activity_ava.png
+  AssetGenImage get chatActivityAva =>
+      const AssetGenImage('assets/images/chat_activity_ava.png');
+
+  /// File path: assets/images/chat_activity_emma.png
+  AssetGenImage get chatActivityEmma =>
+      const AssetGenImage('assets/images/chat_activity_emma.png');
+
+  /// File path: assets/images/chat_activity_sophia.png
+  AssetGenImage get chatActivitySophia =>
+      const AssetGenImage('assets/images/chat_activity_sophia.png');
+
+  /// File path: assets/images/chat_activity_you.png
+  AssetGenImage get chatActivityYou =>
+      const AssetGenImage('assets/images/chat_activity_you.png');
+
+  /// File path: assets/images/chat_conv_grace.png
+  AssetGenImage get chatConvGrace =>
+      const AssetGenImage('assets/images/chat_conv_grace.png');
+
+  /// File path: assets/images/chat_msg_abigail.png
+  AssetGenImage get chatMsgAbigail =>
+      const AssetGenImage('assets/images/chat_msg_abigail.png');
+
+  /// File path: assets/images/chat_msg_chloe.png
+  AssetGenImage get chatMsgChloe =>
+      const AssetGenImage('assets/images/chat_msg_chloe.png');
+
+  /// File path: assets/images/chat_msg_elizabeth.png
+  AssetGenImage get chatMsgElizabeth =>
+      const AssetGenImage('assets/images/chat_msg_elizabeth.png');
+
+  /// File path: assets/images/chat_msg_emelie.png
+  AssetGenImage get chatMsgEmelie =>
+      const AssetGenImage('assets/images/chat_msg_emelie.png');
+
+  /// File path: assets/images/chat_msg_grace.png
+  AssetGenImage get chatMsgGrace =>
+      const AssetGenImage('assets/images/chat_msg_grace.png');
+
+  /// File path: assets/images/chat_msg_penelope.png
+  AssetGenImage get chatMsgPenelope =>
+      const AssetGenImage('assets/images/chat_msg_penelope.png');
 
   /// File path: assets/images/dislike_indicator.svg
   SvgGenImage get dislikeIndicator =>
@@ -226,6 +306,18 @@ class $AssetsImagesGen {
     appleIcon,
     btnBack,
     btnFilter,
+    chatActivityAmelia,
+    chatActivityAva,
+    chatActivityEmma,
+    chatActivitySophia,
+    chatActivityYou,
+    chatConvGrace,
+    chatMsgAbigail,
+    chatMsgChloe,
+    chatMsgElizabeth,
+    chatMsgEmelie,
+    chatMsgGrace,
+    chatMsgPenelope,
     dislikeIndicator,
     dotActive,
     dotInactive,

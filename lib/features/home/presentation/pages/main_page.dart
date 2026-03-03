@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../../../core/presentation/widgets/bottom_nav_bar.dart';
+import '../../../chat/presentation/pages/chat_page.dart';
+import 'account_page.dart';
 import 'home_page.dart';
 import 'matches_page.dart';
 
@@ -21,8 +23,8 @@ class _MainPageState extends State<MainPage> {
   static const _pages = <Widget>[
     HomePage(),
     MatchesPage(),
-    _ComingSoonPage(title: 'Chat'),
-    _ComingSoonPage(title: 'Account'),
+    ChatPage(),
+    AccountPage(),
   ];
 
   @override
@@ -41,23 +43,6 @@ class _MainPageState extends State<MainPage> {
       bottomNavigationBar: BottomNavBar(
         selectedIndex: _selectedIndex,
         onTap: (index) => setState(() => _selectedIndex = index),
-      ),
-    );
-  }
-}
-
-class _ComingSoonPage extends StatelessWidget {
-  const _ComingSoonPage({required this.title});
-  final String title;
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      body: Center(
-        child: Text(
-          '$title – coming soon',
-          style: Theme.of(context).textTheme.titleLarge,
-        ),
       ),
     );
   }

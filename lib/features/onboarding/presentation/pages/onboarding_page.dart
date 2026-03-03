@@ -2,8 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
 import '../../../../core/theme/app_colors.dart';
+import '../../../../core/theme/app_color_scheme.dart';
 import '../../../../core/presentation/widgets/widgets.dart';
 import '../../../../core/router/app_routes.dart';
+import '../../../../i18n/strings.g.dart';
 import '../../domain/entities/onboarding_item.dart';
 
 class OnboardingPage extends StatefulWidget {
@@ -16,23 +18,20 @@ class OnboardingPage extends StatefulWidget {
 class _OnboardingPageState extends State<OnboardingPage> {
   int _currentPage = 0;
 
-  final List<OnboardingItem> _onboardingItems = const [
+  List<OnboardingItem> _buildItems(Translations t) => [
     OnboardingItem(
-      title: 'Algorithm',
-      description:
-          'Users going through a vetting process to ensure you never match with bots.',
+      title: t.onboarding1Title,
+      description: t.onboarding1Desc,
       imagePath: 'assets/images/onboarding_1.png',
     ),
     OnboardingItem(
-      title: 'Matches',
-      description:
-          'We match you with people that have a large array of similar interests.',
+      title: t.onboarding2Title,
+      description: t.onboarding2Desc,
       imagePath: 'assets/images/onboarding_2.png',
     ),
     OnboardingItem(
-      title: 'Premium',
-      description:
-          'Sign up today and enjoy the first month of premium benefits on us.',
+      title: t.onboarding3Title,
+      description: t.onboarding3Desc,
       imagePath: 'assets/images/onboarding_3.png',
     ),
   ];
@@ -49,17 +48,17 @@ class _OnboardingPageState extends State<OnboardingPage> {
   }
 
   // Ảnh bên trái: circular loop (page 0 -> ảnh 3, page 1 -> ảnh 1, page 2 -> ảnh 2)
-  int _getLeftImageIndex() {
-    return (_currentPage - 1 + _onboardingItems.length) % _onboardingItems.length;
+  int _getLeftImageIndex(int length) {
+    return (_currentPage - 1 + length) % length;
   }
 
   // Ảnh bên phải: circular loop (page 0 -> ảnh 2, page 1 -> ảnh 3, page 2 -> ảnh 1)
-  int _getRightImageIndex() {
-    return (_currentPage + 1) % _onboardingItems.length;
+  int _getRightImageIndex(int length) {
+    return (_currentPage + 1) % length;
   }
 
-  void _nextPage() {
-    if (_currentPage < _onboardingItems.length - 1) {
+  void _nextPage(List<OnboardingItem> items) {
+    if (_currentPage < items.length - 1) {
       setState(() {
         _currentPage++;
       });
@@ -70,8 +69,10 @@ class _OnboardingPageState extends State<OnboardingPage> {
 
   @override
   Widget build(BuildContext context) {
+    final t = Translations.of(context);
+    final items = _buildItems(t);
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: context.appColors.background,
       body: SafeArea(
         child: SingleChildScrollView(
           child: Column(
@@ -79,12 +80,12 @@ class _OnboardingPageState extends State<OnboardingPage> {
             const SizedBox(height: 32),
 
             // Image carousel - 3 ảnh: left, center, right (circular loop)
-            _buildImageCarousel(),
+            _buildImageCarousel(items),
 
             const SizedBox(height: 44),
 
             // Text content (title, description, indicators)
-            _buildTextContent(_onboardingItems[_currentPage]),
+            _buildTextContent(items[_currentPage], items.length),
 
             // Bottom section
             Padding(
@@ -93,8 +94,8 @@ class _OnboardingPageState extends State<OnboardingPage> {
                 children: [
                   // Create account button
                   AppPrimaryButton(
-                    text: 'Create an account',
-                    onPressed: _nextPage,
+                    text: t.createAnAccount,
+                    onPressed: () => _nextPage(items),
                   ),
 
                   const SizedBox(height: 20),
@@ -103,7 +104,7 @@ class _OnboardingPageState extends State<OnboardingPage> {
                   GestureDetector(
                     onTap: () => context.go(AppRoutes.login),
                     child: Text(
-                      'Already have an account? Sign In',
+                      t.alreadyHaveAccountSignIn,
                       style: TextStyle(
                         fontSize: 14,
                         fontWeight: FontWeight.w700,
@@ -123,24 +124,20 @@ class _OnboardingPageState extends State<OnboardingPage> {
   );
   }
 
-  Widget _buildImageCarousel() {
+  Widget _buildImageCarousel(List<OnboardingItem> items) {
     return SizedBox(
       height: 360,
       child: GestureDetector(
         onHorizontalDragEnd: (details) {
           if (details.primaryVelocity! < 0) {
             // Swipe left -> next page
-            if (_currentPage < _onboardingItems.length - 1) {
-              setState(() {
-                _currentPage++;
-              });
+            if (_currentPage < items.length - 1) {
+              setState(() { _currentPage++; });
             }
           } else if (details.primaryVelocity! > 0) {
             // Swipe right -> previous page
             if (_currentPage > 0) {
-              setState(() {
-                _currentPage--;
-              });
+              setState(() { _currentPage--; });
             }
           }
         },
@@ -158,7 +155,7 @@ class _OnboardingPageState extends State<OnboardingPage> {
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(15),
                   image: DecorationImage(
-                    image: AssetImage(_onboardingItems[_getLeftImageIndex()].imagePath),
+                    image: AssetImage(items[_getLeftImageIndex(items.length)].imagePath),
                     fit: BoxFit.cover,
                   ),
                 ),
@@ -173,7 +170,7 @@ class _OnboardingPageState extends State<OnboardingPage> {
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(15),
                   image: DecorationImage(
-                    image: AssetImage(_onboardingItems[_currentPage].imagePath),
+                    image: AssetImage(items[_currentPage].imagePath),
                     fit: BoxFit.cover,
                   ),
                 ),
@@ -190,7 +187,7 @@ class _OnboardingPageState extends State<OnboardingPage> {
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(15),
                   image: DecorationImage(
-                    image: AssetImage(_onboardingItems[_getRightImageIndex()].imagePath),
+                    image: AssetImage(items[_getRightImageIndex(items.length)].imagePath),
                     fit: BoxFit.cover,
                   ),
                 ),
@@ -202,7 +199,7 @@ class _OnboardingPageState extends State<OnboardingPage> {
     );
   }
 
-  Widget _buildTextContent(OnboardingItem item) {
+  Widget _buildTextContent(OnboardingItem item, int itemCount) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 40),
       child: Column(
@@ -238,7 +235,7 @@ class _OnboardingPageState extends State<OnboardingPage> {
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: List.generate(
-              _onboardingItems.length,
+              itemCount,
               (index) => _buildPageIndicator(index),
             ),
           ),

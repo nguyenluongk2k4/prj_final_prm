@@ -81,6 +81,10 @@ dependencies:
   # Chat & Video Call
   tencent_cloud_chat_sdk: ^8.9.7511
   tencent_calls_uikit: ^2.4.9
+
+  # File / Image Picking
+  file_picker: ^8.0.7
+  image_picker: ^1.1.2
   
   # Environment Variables
   flutter_dotenv: ^5.1.0

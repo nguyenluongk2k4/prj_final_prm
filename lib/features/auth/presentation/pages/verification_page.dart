@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import '../../../../core/presentation/widgets/widgets.dart';
 import '../../../../core/router/app_routes.dart';
 import '../../../../core/theme/app_colors.dart';
+import '../../../../core/theme/app_color_scheme.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../../../../gen/assets.gen.dart';
 import '../../../../i18n/strings.g.dart';
@@ -68,7 +69,7 @@ class _VerificationPageState extends State<VerificationPage> {
             textAlign: TextAlign.center,
             style: AppTextStyles.h3.copyWith(
               fontWeight: FontWeight.w400,
-              color: AppColors.textPrimary70,
+              color: context.appColors.text70,
             ),
           ),
 
@@ -102,10 +103,10 @@ class _VerificationPageState extends State<VerificationPage> {
           Container(
             height: 248,
             decoration: BoxDecoration(
-              color: AppColors.background,
+              color: context.appColors.background,
               boxShadow: [
                 BoxShadow(
-                  color: AppColors.textPrimary.withOpacity(0.05),
+                  color: context.appColors.textPrimary.withOpacity(0.05),
                   blurRadius: 108,
                   offset: const Offset(0, -10),
                 ),
@@ -134,14 +135,15 @@ class _VerificationPageState extends State<VerificationPage> {
   Widget _buildCodeBox(int index) {
     final bool isFilled = _code[index].isNotEmpty;
     final bool isActive = index == _currentIndex;
+    final c = context.appColors;
 
     return Container(
       width: 66,
       height: 70,
       decoration: BoxDecoration(
-        color: isFilled ? AppColors.primary : AppColors.background,
+        color: isFilled ? AppColors.primary : c.background,
         border: Border.all(
-          color: isActive ? AppColors.primary : AppColors.border,
+          color: isActive ? AppColors.primary : c.border,
           width: 1,
         ),
         borderRadius: BorderRadius.circular(15),
@@ -154,7 +156,7 @@ class _VerificationPageState extends State<VerificationPage> {
                 ? AppColors.textWhite
                 : (isActive
                       ? AppColors.primary.withOpacity(0.4)
-                      : AppColors.border),
+                      : c.border),
           ),
         ),
       ),
@@ -173,9 +175,9 @@ class _VerificationPageState extends State<VerificationPage> {
             height: 36,
             child: TextButton(
               onPressed: _onDeleteTap,
-              child: const Icon(
+              child: Icon(
                 Icons.backspace_outlined,
-                color: AppColors.textPrimary,
+                color: context.appColors.textPrimary,
                 size: 24,
               ),
             ),

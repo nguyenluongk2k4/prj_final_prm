@@ -15,11 +15,12 @@ class BottomNavBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final brightness = Theme.of(context).brightness;
     return Container(
-      height: 48,
-      decoration: const BoxDecoration(
-        color: Colors.white,
-        border: Border(top: BorderSide(color: AppColors.border, width: 1)),
+      height: 64,
+      decoration: BoxDecoration(
+        color: AppColors.bg(brightness),
+        border: Border(top: BorderSide(color: AppColors.borderColor(brightness), width: 1)),
       ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceAround,
@@ -68,7 +69,7 @@ class _NavBarItem extends StatelessWidget {
       behavior: HitTestBehavior.opaque,
       child: Container(
         width: 60,
-        height: 48,
+        height: 64,
         alignment: Alignment.center,
         child: Stack(
           alignment: Alignment.center,

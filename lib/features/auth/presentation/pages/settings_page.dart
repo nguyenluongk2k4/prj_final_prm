@@ -15,14 +15,23 @@ class SettingsPage extends StatelessWidget {
     required this.localeStore,
   });
 
+  Future<void> _setLocale(Locale locale) async {
+    await localeStore.setLocale(locale);
+    final appLocale = AppLocale.values.firstWhere(
+      (l) => l.languageCode == locale.languageCode,
+      orElse: () => AppLocale.en,
+    );
+    await LocaleSettings.setLocale(appLocale);
+  }
+
   @override
   Widget build(BuildContext context) {
     final t = Translations.of(context);
 
-    return Scaffold(
-      appBar: AppBarWithBack(
-        title: t.settings,
-      ),
+    return AppScaffold(
+      title: t.settings,
+      showQuickActions: false,
+      showBackButton: true,
       body: ListView(
         children: [
           // Theme Section
@@ -69,21 +78,19 @@ class SettingsPage extends StatelessWidget {
                     leading: Radio<String>(
                       value: 'en',
                       groupValue: localeStore.currentLocale.languageCode,
-                      onChanged: (_) =>
-                          localeStore.setLocale(const Locale('en')),
+                      onChanged: (_) => _setLocale(const Locale('en')),
                     ),
                     title: const Text('English'),
-                    onTap: () => localeStore.setLocale(const Locale('en')),
+                    onTap: () => _setLocale(const Locale('en')),
                   ),
                   ListTile(
                     leading: Radio<String>(
                       value: 'vi',
                       groupValue: localeStore.currentLocale.languageCode,
-                      onChanged: (_) =>
-                          localeStore.setLocale(const Locale('vi')),
+                      onChanged: (_) => _setLocale(const Locale('vi')),
                     ),
                     title: const Text('Tiếng Việt'),
-                    onTap: () => localeStore.setLocale(const Locale('vi')),
+                    onTap: () => _setLocale(const Locale('vi')),
                   ),
                 ],
               );

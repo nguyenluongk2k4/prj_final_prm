@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_card_swiper/flutter_card_swiper.dart';
-import '../../../../core/theme/app_colors.dart';
+import 'package:prj_final_prm/core/theme/app_colors.dart';
+import '../../../../core/presentation/widgets/widgets.dart';
+import '../../../../core/theme/app_color_scheme.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../../../../gen/assets.gen.dart';
 import '../../../../i18n/strings.g.dart';
@@ -59,6 +61,7 @@ class _HomePageState extends State<HomePage> {
   ];
 
   int _currentIndex = 0;
+  bool _filterActive = false;
 
   @override
   void dispose() {
@@ -70,48 +73,35 @@ class _HomePageState extends State<HomePage> {
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
     final screenHeight = MediaQuery.of(context).size.height;
-    final horizontalPadding = screenWidth * 0.1; // 10% of screen width
+    final horizontalPadding = screenWidth * 0.1;
+    final c = context.appColors;
 
-    return Scaffold(
-      backgroundColor: AppColors.background,
-      body: SafeArea(
-        child: SingleChildScrollView(
-          child: Column(
-            children: [
-            // Header
-            Padding(
-              padding: EdgeInsets.fromLTRB(
-                horizontalPadding,
-                screenHeight * 0.054,
-                horizontalPadding,
-                0,
-              ),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  // Back button placeholder (empty for main screen)
-                  Assets.images.btnBack.svg(width: 52, height: 52),
-
-                  // Title
-                  Column(
-                    children: [
-                      Text(t.discover, style: AppTextStyles.h2),
-                      const SizedBox(height: 4),
-                      Text(
-                        _profiles[_currentIndex].location,
-                        style: AppTextStyles.bodySmall.copyWith(
-                          color: AppColors.textPrimary70,
-                        ),
-                      ),
-                    ],
-                  ),
-
-                  // Filter button
-                  Assets.images.btnFilter.svg(width: 52, height: 52),
-                ],
-              ),
-            ),
-
+    return AppScaffold(
+      showQuickActions: false,
+      showBackButton: true,
+      titleWidget: Column(
+        children: [
+          Text(t.discover, style: AppTextStyles.h2),
+          const SizedBox(height: 2),
+          Text(
+            _profiles[_currentIndex].location,
+            style: AppTextStyles.bodySmall.copyWith(color: c.text70),
+          ),
+        ],
+      ),
+      centerTitle: true,
+      secondaryAction: Padding(
+        padding: const EdgeInsets.only(right: 12),
+        child: AppBarIconButton(
+          icon: _filterActive
+              ? Assets.icons.icBack.svg(width: 24, height: 24)
+              : Assets.icons.icSetting.svg(width: 24, height: 24),
+          onTap: () => setState(() => _filterActive = !_filterActive),
+        ),
+      ),
+      body: SingleChildScrollView(
+        child: Column(
+          children: [
             SizedBox(height: screenHeight * 0.03),
 
             // Profile Card with CardSwiper
@@ -162,9 +152,9 @@ class _HomePageState extends State<HomePage> {
                       width: screenWidth * 0.21,
                       height: screenWidth * 0.21,
                       decoration: BoxDecoration(
-                        color: AppColors.background,
+                        color: c.background,
                         shape: BoxShape.circle,
-                        border: Border.all(color: AppColors.border),
+                        border: Border.all(color: c.border),
                         boxShadow: [
                           BoxShadow(
                             color: Colors.black.withOpacity(0.05),
@@ -227,9 +217,9 @@ class _HomePageState extends State<HomePage> {
                       width: screenWidth * 0.21,
                       height: screenWidth * 0.21,
                       decoration: BoxDecoration(
-                        color: AppColors.background,
+                        color: c.background,
                         shape: BoxShape.circle,
-                        border: Border.all(color: AppColors.border),
+                        border: Border.all(color: c.border),
                         boxShadow: [
                           BoxShadow(
                             color: Colors.black.withOpacity(0.05),
@@ -254,7 +244,7 @@ class _HomePageState extends State<HomePage> {
           ],
         ),
       ),
-    ));
+    );
   }
 
   Widget _buildProfileCard(ProfileCard profile) {

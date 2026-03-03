@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import '../../../../core/di/injection.dart';
 import '../../../../core/router/app_routes.dart';
 import '../../../../core/presentation/widgets/widgets.dart';
+import '../../../../gen/assets.gen.dart';
 import '../../../../i18n/strings.g.dart';
 import '../store/auth_store.dart';
 
@@ -40,15 +41,16 @@ class _LoginPageState extends State<LoginPage> {
   Widget build(BuildContext context) {
     final t = Translations.of(context);
     
-    return Scaffold(
-      appBar: AppBarSimple(
-        title: t.login,
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.settings),
-            onPressed: () => context.go(AppRoutes.settings),
-          ),
-        ],
+    return AppScaffold(
+      title: t.login,
+      showQuickActions: false,
+      showBackButton: true,
+      secondaryAction: Padding(
+        padding: const EdgeInsets.only(right: 12),
+        child: AppBarIconButton(
+          icon: Assets.icons.icSetting.svg(width: 24, height: 24),
+          onTap: () => context.go(AppRoutes.settings),
+        ),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),

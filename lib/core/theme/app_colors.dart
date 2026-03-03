@@ -15,6 +15,25 @@ class AppColors {
   // Background Colors
   static const Color background = Color(0xFFFFFFFF);
   static const Color backgroundSecondary = Color(0xFFF3F3F3);
+  static const Color backgroundDark = Color(0xFF121212);
+  static const Color backgroundDarkSecondary = Color(0xFF1E1E1E);
+
+  // Dark mode text
+  static const Color textPrimaryDark = Color(0xFFFFFFFF);
+  static const Color textPrimary70Dark = Color(0xB3FFFFFF); // 70% white
+  static const Color borderDark = Color(0xFF2C2C2C);
+
+  // Helpers — pick based on brightness
+  static Color bg(Brightness b) =>
+      b == Brightness.dark ? backgroundDark : background;
+  static Color bgSecondary(Brightness b) =>
+      b == Brightness.dark ? backgroundDarkSecondary : backgroundSecondary;
+  static Color text(Brightness b) =>
+      b == Brightness.dark ? textPrimaryDark : textPrimary;
+  static Color text70(Brightness b) =>
+      b == Brightness.dark ? textPrimary70Dark : textPrimary70;
+  static Color borderColor(Brightness b) =>
+      b == Brightness.dark ? borderDark : border;
   
   // Border Colors
   static const Color border = Color(0xFFE8E6EA);

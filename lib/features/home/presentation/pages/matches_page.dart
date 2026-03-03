@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import '../../../../core/theme/app_colors.dart';
+import '../../../../core/presentation/widgets/widgets.dart';
+import '../../../../core/theme/app_color_scheme.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../../../../gen/assets.gen.dart';
 import '../../../../i18n/strings.g.dart';
@@ -19,6 +20,7 @@ class _MatchesPageState extends State<MatchesPage> {
       GetMatchesUseCase(MatchesRepositoryImpl());
 
   late Future<List<MatchProfile>> _matchesFuture;
+  bool _filterActive = false;
 
   @override
   void initState() {
@@ -29,41 +31,36 @@ class _MatchesPageState extends State<MatchesPage> {
   @override
   Widget build(BuildContext context) {
     final t = Translations.of(context);
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-    final bgColor = isDark ? const Color(0xFF121212) : AppColors.background;
-    final textColor = isDark ? Colors.white : AppColors.textPrimary;
-    final subTextColor =
-        isDark ? Colors.white60 : AppColors.textPrimary70;
+    final c = context.appColors;
 
-    return Scaffold(
-      backgroundColor: bgColor,
-      body: SafeArea(
-        child: Column(
-          children: [
-            // ── Header ─────────────────────────────────────────────────────
-            Padding(
-              padding:
-                  const EdgeInsets.only(left: 40, right: 40, top: 44),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(
-                    t.matches,
-                    style: AppTextStyles.h1.copyWith(color: textColor),
-                  ),
-                  Assets.images.btnFilter.svg(width: 52, height: 52),
-                ],
-              ),
-            ),
-
+    return AppScaffold(
+      titleWidget: Text(
+        t.matches,
+        style: AppTextStyles.h1.copyWith(color: c.textPrimary),
+      ),
+      centerTitle: false,
+      showQuickActions: false,
+      showBackButton: false,
+      secondaryAction: Padding(
+        padding: const EdgeInsets.only(right: 12),
+        child: AppBarIconButton(
+          icon: _filterActive
+              ? Assets.icons.icBack.svg(width: 24, height: 24)
+              : Assets.icons.icSetting.svg(width: 24, height: 24),
+          onTap: () => setState(() => _filterActive = !_filterActive),
+        ),
+      ),
+      body: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
             // ── Description ─────────────────────────────────────────────
             Padding(
               padding:
-                  const EdgeInsets.only(left: 40, right: 40, top: 16),
+                  const EdgeInsets.only(left: 40, right: 40, top: 8),
               child: Text(
                 t.matchesDesc,
                 style:
-                    AppTextStyles.bodyLarge.copyWith(color: subTextColor),
+                    AppTextStyles.bodyLarge.copyWith(color: c.text70),
               ),
             ),
 
@@ -80,7 +77,7 @@ class _MatchesPageState extends State<MatchesPage> {
                       child: Text(
                         t.error,
                         style:
-                            AppTextStyles.bodyMedium.copyWith(color: textColor),
+                            AppTextStyles.bodyMedium.copyWith(color: c.textPrimary),
                       ),
                     );
                   }
@@ -116,7 +113,6 @@ class _MatchesPageState extends State<MatchesPage> {
                             const SizedBox(height: 20),
                             _SectionDivider(
                               label: t.today,
-                              isDark: isDark,
                             ),
                             const SizedBox(height: 15),
                             _MatchGrid(profiles: todayMatches),
@@ -127,7 +123,6 @@ class _MatchesPageState extends State<MatchesPage> {
                             const SizedBox(height: 28),
                             _SectionDivider(
                               label: t.yesterday,
-                              isDark: isDark,
                               labelOpacity: 0.4,
                             ),
                             const SizedBox(height: 15),
@@ -143,7 +138,6 @@ class _MatchesPageState extends State<MatchesPage> {
 
           ],
         ),
-      ),
     );
   }
 }
@@ -155,20 +149,17 @@ class _MatchesPageState extends State<MatchesPage> {
 class _SectionDivider extends StatelessWidget {
   const _SectionDivider({
     required this.label,
-    required this.isDark,
     this.labelOpacity = 0.7,
   });
 
   final String label;
-  final bool isDark;
   final double labelOpacity;
 
   @override
   Widget build(BuildContext context) {
-    final dividerColor = isDark ? Colors.white24 : AppColors.border;
-    final textColor = isDark
-        ? Colors.white.withOpacity(labelOpacity)
-        : Colors.black.withOpacity(labelOpacity);
+    final c = context.appColors;
+    final dividerColor = c.border;
+    final textColor = c.textPrimary.withOpacity(labelOpacity);
 
     return Row(
       children: [
@@ -334,7 +325,7 @@ class _MatchCard extends StatelessWidget {
                         child: const Center(
                           child: Icon(
                             Icons.favorite,
-                            color: AppColors.primary,
+                            color: Color(0xFFE94057),
                             size: 18,
                           ),
                         ),

@@ -4,9 +4,9 @@
 /// To regenerate, run: `dart run slang`
 ///
 /// Locales: 2
-/// Strings: 186 (93 per locale)
+/// Strings: 268 (134 per locale)
 ///
-/// Built on 2026-03-02 at 02:12 UTC
+/// Built on 2026-03-03 at 07:03 UTC
 
 // coverage:ignore-file
 // ignore_for_file: type=lint
@@ -241,6 +241,47 @@ class Translations implements BaseTranslations<AppLocale, Translations> {
 	String get alreadyHaveAccount => 'Already have an account?';
 	String get signIn => 'Sign in';
 	String get pleaseEnterFullName => 'Please enter your full name';
+	String get messages => 'Messages';
+	String get activities => 'Activities';
+	String get typing => 'Typing..';
+	String get searchMessages => 'Search';
+	String get filters => 'Filters';
+	String get clear => 'Clear';
+	String get interestedIn => 'Interested in';
+	String get girls => 'Girls';
+	String get boys => 'Boys';
+	String get both => 'Both';
+	String get location => 'Location';
+	String get distance => 'Distance';
+	String get age => 'Age';
+	String get account => 'Account';
+	String get editProfile => 'Edit profile';
+	String get myProfile => 'My profile';
+	String get photoAlbum => 'Photo album';
+	String get myReels => 'My reels';
+	String get preferences => 'Preferences';
+	String get notifications => 'Notifications';
+	String get pushNotifications => 'Push notifications';
+	String get newMatchNotif => 'New matches';
+	String get newMessageNotif => 'New messages';
+	String get appLanguage => 'App language';
+	String get privacy => 'Privacy';
+	String get blockedUsers => 'Blocked users';
+	String get deleteAccount => 'Delete account';
+	String get onboarding1Title => 'Algorithm';
+	String get onboarding1Desc => 'Users going through a vetting process to ensure you never match with bots.';
+	String get onboarding2Title => 'Matches';
+	String get onboarding2Desc => 'We match you with people that have a large array of similar interests.';
+	String get onboarding3Title => 'Premium';
+	String get onboarding3Desc => 'Sign up today and enjoy the first month of premium benefits on us.';
+	String get createAnAccount => 'Create an account';
+	String get alreadyHaveAccountSignIn => 'Already have an account? Sign In';
+	String get signUpToContinue => 'Sign up to continue';
+	String get continueWithEmail => 'Continue with email';
+	String get usePhoneNumber => 'Use phone number';
+	String get orSignUpWith => 'or sign up with';
+	String get termsOfUse => 'Terms of use';
+	String get privacyPolicy => 'Privacy Policy';
 }
 
 // Path: <root>
@@ -362,6 +403,47 @@ class _StringsVi extends Translations {
 	@override String get alreadyHaveAccount => 'Đã có tài khoản?';
 	@override String get signIn => 'Đăng nhập';
 	@override String get pleaseEnterFullName => 'Vui lòng nhập họ và tên';
+	@override String get messages => 'Tin nhắn';
+	@override String get activities => 'Hoạt động';
+	@override String get typing => 'Đang gõ..';
+	@override String get searchMessages => 'Tìm kiếm';
+	@override String get filters => 'Bộ lọc';
+	@override String get clear => 'Xóa';
+	@override String get interestedIn => 'Quan tâm đến';
+	@override String get girls => 'Nữ';
+	@override String get boys => 'Nam';
+	@override String get both => 'Tất cả';
+	@override String get location => 'Vị trí';
+	@override String get distance => 'Khoảng cách';
+	@override String get age => 'Độ tuổi';
+	@override String get account => 'Tài khoản';
+	@override String get editProfile => 'Chỉnh sửa hồ sơ';
+	@override String get myProfile => 'Hồ sơ của tôi';
+	@override String get photoAlbum => 'Album ảnh';
+	@override String get myReels => 'Reels của tôi';
+	@override String get preferences => 'Tuỳ chỉnh';
+	@override String get notifications => 'Thông báo';
+	@override String get pushNotifications => 'Thông báo đẩy';
+	@override String get newMatchNotif => 'Kết nối mới';
+	@override String get newMessageNotif => 'Tin nhắn mới';
+	@override String get appLanguage => 'Ngôn ngữ ứng dụng';
+	@override String get privacy => 'Quyền riêng tư';
+	@override String get blockedUsers => 'Người dùng bị chặn';
+	@override String get deleteAccount => 'Xóa tài khoản';
+	@override String get onboarding1Title => 'Thuật toán';
+	@override String get onboarding1Desc => 'Người dùng trải qua quy trình xác minh để đảm bảo bạn không bao giờ ghép đôi với bot.';
+	@override String get onboarding2Title => 'Kết nối';
+	@override String get onboarding2Desc => 'Chúng tôi ghép bạn với những người có nhiều sở thích tương đồng.';
+	@override String get onboarding3Title => 'Cao cấp';
+	@override String get onboarding3Desc => 'Đăng ký ngay hôm nay và tận hưởng tháng đầu tiên ưu đãi cao cấp miễn phí.';
+	@override String get createAnAccount => 'Tạo tài khoản';
+	@override String get alreadyHaveAccountSignIn => 'Đã có tài khoản? Đăng nhập';
+	@override String get signUpToContinue => 'Đăng ký để tiếp tục';
+	@override String get continueWithEmail => 'Tiếp tục với email';
+	@override String get usePhoneNumber => 'Dùng số điện thoại';
+	@override String get orSignUpWith => 'hoặc đăng ký với';
+	@override String get termsOfUse => 'Điều khoản sử dụng';
+	@override String get privacyPolicy => 'Chính sách bảo mật';
 }
 
 /// Flat map(s) containing all translations.
@@ -463,6 +545,47 @@ extension on Translations {
 			case 'alreadyHaveAccount': return 'Already have an account?';
 			case 'signIn': return 'Sign in';
 			case 'pleaseEnterFullName': return 'Please enter your full name';
+			case 'messages': return 'Messages';
+			case 'activities': return 'Activities';
+			case 'typing': return 'Typing..';
+			case 'searchMessages': return 'Search';
+			case 'filters': return 'Filters';
+			case 'clear': return 'Clear';
+			case 'interestedIn': return 'Interested in';
+			case 'girls': return 'Girls';
+			case 'boys': return 'Boys';
+			case 'both': return 'Both';
+			case 'location': return 'Location';
+			case 'distance': return 'Distance';
+			case 'age': return 'Age';
+			case 'account': return 'Account';
+			case 'editProfile': return 'Edit profile';
+			case 'myProfile': return 'My profile';
+			case 'photoAlbum': return 'Photo album';
+			case 'myReels': return 'My reels';
+			case 'preferences': return 'Preferences';
+			case 'notifications': return 'Notifications';
+			case 'pushNotifications': return 'Push notifications';
+			case 'newMatchNotif': return 'New matches';
+			case 'newMessageNotif': return 'New messages';
+			case 'appLanguage': return 'App language';
+			case 'privacy': return 'Privacy';
+			case 'blockedUsers': return 'Blocked users';
+			case 'deleteAccount': return 'Delete account';
+			case 'onboarding1Title': return 'Algorithm';
+			case 'onboarding1Desc': return 'Users going through a vetting process to ensure you never match with bots.';
+			case 'onboarding2Title': return 'Matches';
+			case 'onboarding2Desc': return 'We match you with people that have a large array of similar interests.';
+			case 'onboarding3Title': return 'Premium';
+			case 'onboarding3Desc': return 'Sign up today and enjoy the first month of premium benefits on us.';
+			case 'createAnAccount': return 'Create an account';
+			case 'alreadyHaveAccountSignIn': return 'Already have an account? Sign In';
+			case 'signUpToContinue': return 'Sign up to continue';
+			case 'continueWithEmail': return 'Continue with email';
+			case 'usePhoneNumber': return 'Use phone number';
+			case 'orSignUpWith': return 'or sign up with';
+			case 'termsOfUse': return 'Terms of use';
+			case 'privacyPolicy': return 'Privacy Policy';
 			default: return null;
 		}
 	}
@@ -564,6 +687,47 @@ extension on _StringsVi {
 			case 'alreadyHaveAccount': return 'Đã có tài khoản?';
 			case 'signIn': return 'Đăng nhập';
 			case 'pleaseEnterFullName': return 'Vui lòng nhập họ và tên';
+			case 'messages': return 'Tin nhắn';
+			case 'activities': return 'Hoạt động';
+			case 'typing': return 'Đang gõ..';
+			case 'searchMessages': return 'Tìm kiếm';
+			case 'filters': return 'Bộ lọc';
+			case 'clear': return 'Xóa';
+			case 'interestedIn': return 'Quan tâm đến';
+			case 'girls': return 'Nữ';
+			case 'boys': return 'Nam';
+			case 'both': return 'Tất cả';
+			case 'location': return 'Vị trí';
+			case 'distance': return 'Khoảng cách';
+			case 'age': return 'Độ tuổi';
+			case 'account': return 'Tài khoản';
+			case 'editProfile': return 'Chỉnh sửa hồ sơ';
+			case 'myProfile': return 'Hồ sơ của tôi';
+			case 'photoAlbum': return 'Album ảnh';
+			case 'myReels': return 'Reels của tôi';
+			case 'preferences': return 'Tuỳ chỉnh';
+			case 'notifications': return 'Thông báo';
+			case 'pushNotifications': return 'Thông báo đẩy';
+			case 'newMatchNotif': return 'Kết nối mới';
+			case 'newMessageNotif': return 'Tin nhắn mới';
+			case 'appLanguage': return 'Ngôn ngữ ứng dụng';
+			case 'privacy': return 'Quyền riêng tư';
+			case 'blockedUsers': return 'Người dùng bị chặn';
+			case 'deleteAccount': return 'Xóa tài khoản';
+			case 'onboarding1Title': return 'Thuật toán';
+			case 'onboarding1Desc': return 'Người dùng trải qua quy trình xác minh để đảm bảo bạn không bao giờ ghép đôi với bot.';
+			case 'onboarding2Title': return 'Kết nối';
+			case 'onboarding2Desc': return 'Chúng tôi ghép bạn với những người có nhiều sở thích tương đồng.';
+			case 'onboarding3Title': return 'Cao cấp';
+			case 'onboarding3Desc': return 'Đăng ký ngay hôm nay và tận hưởng tháng đầu tiên ưu đãi cao cấp miễn phí.';
+			case 'createAnAccount': return 'Tạo tài khoản';
+			case 'alreadyHaveAccountSignIn': return 'Đã có tài khoản? Đăng nhập';
+			case 'signUpToContinue': return 'Đăng ký để tiếp tục';
+			case 'continueWithEmail': return 'Tiếp tục với email';
+			case 'usePhoneNumber': return 'Dùng số điện thoại';
+			case 'orSignUpWith': return 'hoặc đăng ký với';
+			case 'termsOfUse': return 'Điều khoản sử dụng';
+			case 'privacyPolicy': return 'Chính sách bảo mật';
 			default: return null;
 		}
 	}

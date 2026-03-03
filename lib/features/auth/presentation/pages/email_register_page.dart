@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 import '../../../../core/presentation/widgets/widgets.dart';
 import '../../../../core/router/app_routes.dart';
 import '../../../../core/theme/app_colors.dart';
+import '../../../../core/theme/app_color_scheme.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../../../../i18n/strings.g.dart';
 
@@ -86,6 +87,7 @@ class _EmailRegisterPageState extends State<EmailRegisterPage> {
   @override
   Widget build(BuildContext context) {
     final t = Translations.of(context);
+    final c = context.appColors;
 
     return AppScaffold(
       showBackButton: true,
@@ -104,7 +106,7 @@ class _EmailRegisterPageState extends State<EmailRegisterPage> {
             Text(
               t.createAccountDesc,
               style: AppTextStyles.bodyMedium.copyWith(
-                color: AppColors.textPrimary70,
+                color: c.text70,
               ),
             ),
 
@@ -118,10 +120,10 @@ class _EmailRegisterPageState extends State<EmailRegisterPage> {
               hint: t.fullNameHint,
               keyboardType: TextInputType.name,
               errorText: _nameError,
-              prefixIcon: const Icon(
+              prefixIcon: Icon(
                 Icons.person_outline,
                 size: 22,
-                color: AppColors.textPrimary70,
+                color: c.text70,
               ),
             ),
 
@@ -135,10 +137,10 @@ class _EmailRegisterPageState extends State<EmailRegisterPage> {
               hint: t.emailHint,
               keyboardType: TextInputType.emailAddress,
               errorText: _emailError,
-              prefixIcon: const Icon(
+              prefixIcon: Icon(
                 Icons.mail_outline,
                 size: 22,
-                color: AppColors.textPrimary70,
+                color: c.text70,
               ),
             ),
 
@@ -152,10 +154,10 @@ class _EmailRegisterPageState extends State<EmailRegisterPage> {
               hint: t.passwordHint,
               obscureText: _obscurePassword,
               errorText: _passwordError,
-              prefixIcon: const Icon(
+              prefixIcon: Icon(
                 Icons.lock_outline,
                 size: 22,
-                color: AppColors.textPrimary70,
+                color: c.text70,
               ),
               suffixIcon: GestureDetector(
                 onTap: () =>
@@ -166,7 +168,7 @@ class _EmailRegisterPageState extends State<EmailRegisterPage> {
                       ? Icons.visibility_off_outlined
                       : Icons.visibility_outlined,
                   size: 22,
-                  color: AppColors.textPrimary70,
+                  color: c.text70,
                 ),
               ),
             ),
@@ -181,10 +183,10 @@ class _EmailRegisterPageState extends State<EmailRegisterPage> {
               hint: t.confirmPasswordHint,
               obscureText: _obscureConfirm,
               errorText: _confirmError,
-              prefixIcon: const Icon(
+              prefixIcon: Icon(
                 Icons.lock_outline,
                 size: 22,
-                color: AppColors.textPrimary70,
+                color: c.text70,
               ),
               suffixIcon: GestureDetector(
                 onTap: () =>
@@ -195,7 +197,7 @@ class _EmailRegisterPageState extends State<EmailRegisterPage> {
                       ? Icons.visibility_off_outlined
                       : Icons.visibility_outlined,
                   size: 22,
-                  color: AppColors.textPrimary70,
+                  color: c.text70,
                 ),
               ),
             ),
@@ -217,7 +219,7 @@ class _EmailRegisterPageState extends State<EmailRegisterPage> {
                 Text(
                   t.alreadyHaveAccount,
                   style: AppTextStyles.bodyMedium.copyWith(
-                    color: AppColors.textPrimary70,
+                    color: c.text70,
                   ),
                 ),
                 const SizedBox(width: 4),
@@ -252,7 +254,7 @@ class _FieldLabel extends StatelessWidget {
       text,
       style: AppTextStyles.bodyMedium.copyWith(
         fontWeight: FontWeight.w600,
-        color: AppColors.textPrimary,
+        color: context.appColors.textPrimary,
       ),
     );
   }

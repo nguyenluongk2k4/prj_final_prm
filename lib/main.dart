@@ -26,7 +26,7 @@ void main() async {
   // Initialize Firebase (vì config thủ công bằng google-services.json nên gọi hàm này là đủ)
   await Firebase.initializeApp();
   
-  // Initialize slang
+  // Initialize slang — will be overridden below after loading saved locale
   LocaleSettings.useDeviceLocale();
   
   // Initialize Dependency Injection
@@ -36,6 +36,13 @@ void main() async {
   final stores = AppStores.instance;
   await stores.themeStore.loadTheme();
   await stores.localeStore.loadLocale();
+
+  // Sync saved locale into slang's TranslationProvider
+  final savedLocale = AppLocale.values.firstWhere(
+    (l) => l.languageCode == stores.localeStore.currentLocale.languageCode,
+    orElse: () => AppLocale.en,
+  );
+  await LocaleSettings.setLocale(savedLocale);
   
   runApp(TranslationProvider(
     child: const MyApp(),

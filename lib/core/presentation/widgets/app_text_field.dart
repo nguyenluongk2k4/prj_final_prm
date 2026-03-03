@@ -1,9 +1,14 @@
 import 'package:flutter/material.dart';
 import '../../theme/app_colors.dart';
+import '../../theme/app_color_scheme.dart';
 import '../../theme/app_text_styles.dart';
 
 /// Styled input box matching the app's design language.
 /// Hint text is hidden on focus and shown again when the field is empty and unfocused.
+///
+/// Set [embedded] = true when placing the field inside its own custom container
+/// (e.g. a chat input bar). In that mode only the bare TextField is rendered —
+/// no outer border, no height constraint, no error label.
 class AppTextField extends StatefulWidget {
   const AppTextField({
     super.key,
@@ -14,6 +19,11 @@ class AppTextField extends StatefulWidget {
     this.prefixIcon,
     this.suffixIcon,
     this.errorText,
+    this.onChanged,
+    this.onSubmitted,
+    this.maxLines = 1,
+    this.minLines,
+    this.embedded = false,
   });
 
   final TextEditingController controller;
@@ -23,6 +33,13 @@ class AppTextField extends StatefulWidget {
   final Widget? prefixIcon;
   final Widget? suffixIcon;
   final String? errorText;
+  final ValueChanged<String>? onChanged;
+  final ValueChanged<String>? onSubmitted;
+  final int maxLines;
+  final int? minLines;
+  /// When true, renders only the inner [TextField] with no outer container or border.
+  /// Use this inside a custom container that already provides its own styling.
+  final bool embedded;
 
   @override
   State<AppTextField> createState() => _AppTextFieldState();
@@ -31,6 +48,8 @@ class AppTextField extends StatefulWidget {
 class _AppTextFieldState extends State<AppTextField> {
   late final FocusNode _focusNode;
   bool _isFocused = false;
+
+  bool get hasError => widget.errorText != null && widget.errorText!.isNotEmpty;
 
   @override
   void initState() {
@@ -49,7 +68,45 @@ class _AppTextFieldState extends State<AppTextField> {
 
   @override
   Widget build(BuildContext context) {
-    final hasError = widget.errorText != null;
+    final c = context.appColors;
+    final textColor = c.textPrimary;
+    final hintColor = c.text70;
+
+    final innerField = TextField(
+      controller: widget.controller,
+      focusNode: _focusNode,
+      keyboardType: widget.keyboardType,
+      obscureText: widget.obscureText,
+      onChanged: widget.onChanged,
+      onSubmitted: widget.onSubmitted,
+      maxLines: widget.obscureText ? 1 : widget.maxLines,
+      minLines: widget.minLines,
+      style: AppTextStyles.bodyMedium.copyWith(color: textColor),
+      decoration: InputDecoration(
+        border: InputBorder.none,
+        enabledBorder: InputBorder.none,
+        focusedBorder: InputBorder.none,
+        errorBorder: InputBorder.none,
+        focusedErrorBorder: InputBorder.none,
+        filled: false,
+        isDense: true,
+        hintText: _isFocused ? null : widget.hint,
+        hintStyle: AppTextStyles.bodyMedium.copyWith(color: hintColor),
+        contentPadding: widget.embedded
+            ? const EdgeInsets.symmetric(vertical: 14)
+            : null,
+      ),
+    );
+
+    // ── Embedded mode: bare field only, no outer container ────────────────
+    if (widget.embedded) return innerField;
+
+    // ── Normal mode: styled container + optional error label ──────────────
+    final borderCol = hasError
+        ? AppColors.primary
+        : _isFocused
+            ? AppColors.primary
+            : c.border;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -57,14 +114,8 @@ class _AppTextFieldState extends State<AppTextField> {
         Container(
           height: 58,
           decoration: BoxDecoration(
-            color: AppColors.background,
-            border: Border.all(
-              color: hasError
-                  ? AppColors.primary
-                  : _isFocused
-                      ? AppColors.primary
-                      : AppColors.border,
-            ),
+            color: c.background,
+            border: Border.all(color: borderCol),
             borderRadius: BorderRadius.circular(15),
           ),
           child: Row(
@@ -75,29 +126,7 @@ class _AppTextFieldState extends State<AppTextField> {
                 const SizedBox(width: 12),
               ] else
                 const SizedBox(width: 20),
-              Expanded(
-                child: TextField(
-                  controller: widget.controller,
-                  focusNode: _focusNode,
-                  keyboardType: widget.keyboardType,
-                  obscureText: widget.obscureText,
-                  style: AppTextStyles.bodyMedium,
-                  decoration: InputDecoration(
-                    border: InputBorder.none,
-                    enabledBorder: InputBorder.none,
-                    focusedBorder: InputBorder.none,
-                    errorBorder: InputBorder.none,
-                    focusedErrorBorder: InputBorder.none,
-                    filled: false,
-                    isDense: true,
-                    // Hide hint while focused
-                    hintText: _isFocused ? null : widget.hint,
-                    hintStyle: AppTextStyles.bodyMedium.copyWith(
-                      color: const Color(0xFFADAFBB), // gray
-                    ),
-                  ),
-                ),
-              ),
+              Expanded(child: innerField),
               if (widget.suffixIcon != null) ...[
                 widget.suffixIcon!,
                 const SizedBox(width: 18),

@@ -3,7 +3,9 @@ import 'package:go_router/go_router.dart';
 import '../../../../core/presentation/widgets/widgets.dart';
 import '../../../../core/router/app_routes.dart';
 import '../../../../core/theme/app_colors.dart';
+import '../../../../core/theme/app_color_scheme.dart';
 import '../../../../core/theme/app_text_styles.dart';
+import '../../../../gen/assets.gen.dart';
 import '../../../../i18n/strings.g.dart';
 
 class EmailLoginPage extends StatefulWidget {
@@ -57,9 +59,18 @@ class _EmailLoginPageState extends State<EmailLoginPage> {
   @override
   Widget build(BuildContext context) {
     final t = Translations.of(context);
+    final c = context.appColors;
 
     return AppScaffold(
       showBackButton: true,
+      showQuickActions: false,
+      secondaryAction: Padding(
+        padding: const EdgeInsets.only(right: 12),
+        child: AppBarIconButton(
+          icon: Assets.icons.icSetting.svg(width: 24, height: 24),
+          onTap: () => context.push(AppRoutes.settings),
+        ),
+      ),
       body: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 40),
         child: Column(
@@ -75,7 +86,7 @@ class _EmailLoginPageState extends State<EmailLoginPage> {
             Text(
               t.emailLoginDesc,
               style: AppTextStyles.bodyMedium.copyWith(
-                color: AppColors.textPrimary70,
+                color: c.text70,
               ),
             ),
 
@@ -87,10 +98,10 @@ class _EmailLoginPageState extends State<EmailLoginPage> {
               hint: t.emailHint,
               keyboardType: TextInputType.emailAddress,
               errorText: _emailError,
-              prefixIcon: const Icon(
+              prefixIcon: Icon(
                 Icons.mail_outline,
                 size: 22,
-                color: AppColors.textPrimary70,
+                color: c.text70,
               ),
             ),
 
@@ -102,10 +113,10 @@ class _EmailLoginPageState extends State<EmailLoginPage> {
               hint: t.passwordHint,
               obscureText: _obscurePassword,
               errorText: _passwordError,
-              prefixIcon: const Icon(
+              prefixIcon: Icon(
                 Icons.lock_outline,
                 size: 22,
-                color: AppColors.textPrimary70,
+                color: c.text70,
               ),
               suffixIcon: GestureDetector(
                 onTap: () =>
@@ -116,7 +127,7 @@ class _EmailLoginPageState extends State<EmailLoginPage> {
                       ? Icons.visibility_off_outlined
                       : Icons.visibility_outlined,
                   size: 22,
-                  color: AppColors.textPrimary70,
+                  color: c.text70,
                 ),
               ),
             ),
@@ -155,7 +166,7 @@ class _EmailLoginPageState extends State<EmailLoginPage> {
                 Text(
                   t.noAccount,
                   style: AppTextStyles.bodyMedium.copyWith(
-                    color: AppColors.textPrimary70,
+                    color: c.text70,
                   ),
                 ),
                 const SizedBox(width: 4),
