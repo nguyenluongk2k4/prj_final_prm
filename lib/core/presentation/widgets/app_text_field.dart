@@ -24,6 +24,7 @@ class AppTextField extends StatefulWidget {
     this.maxLines = 1,
     this.minLines,
     this.embedded = false,
+    this.validator,
   });
 
   final TextEditingController controller;
@@ -40,6 +41,7 @@ class AppTextField extends StatefulWidget {
   /// When true, renders only the inner [TextField] with no outer container or border.
   /// Use this inside a custom container that already provides its own styling.
   final bool embedded;
+  final String? Function(String?)? validator;
 
   @override
   State<AppTextField> createState() => _AppTextFieldState();
@@ -49,7 +51,29 @@ class _AppTextFieldState extends State<AppTextField> {
   late final FocusNode _focusNode;
   bool _isFocused = false;
 
-  bool get hasError => widget.errorText != null && widget.errorText!.isNotEmpty;
+  bool get hasError {
+    final explicitError = widget.errorText != null && widget.errorText!.isNotEmpty;
+    if (explicitError) return true;
+    
+    if (widget.validator != null) {
+      final validationError = widget.validator!(widget.controller.text);
+      return validationError != null && validationError.isNotEmpty;
+    }
+    
+    return false;
+  }
+
+  String? _getErrorMessage() {
+    if (widget.errorText != null && widget.errorText!.isNotEmpty) {
+      return widget.errorText;
+    }
+    
+    if (widget.validator != null) {
+      return widget.validator!(widget.controller.text);
+    }
+    
+    return null;
+  }
 
   @override
   void initState() {
@@ -77,7 +101,12 @@ class _AppTextFieldState extends State<AppTextField> {
       focusNode: _focusNode,
       keyboardType: widget.keyboardType,
       obscureText: widget.obscureText,
-      onChanged: widget.onChanged,
+      onChanged: (value) {
+        widget.onChanged?.call(value);
+        if (widget.validator != null) {
+          setState(() {}); // Trigger validation check
+        }
+      },
       onSubmitted: widget.onSubmitted,
       maxLines: widget.obscureText ? 1 : widget.maxLines,
       minLines: widget.minLines,
@@ -139,7 +168,7 @@ class _AppTextFieldState extends State<AppTextField> {
           Padding(
             padding: const EdgeInsets.only(left: 4),
             child: Text(
-              widget.errorText!,
+              _getErrorMessage() ?? 'Error',
               style: AppTextStyles.bodySmall.copyWith(
                 color: AppColors.primary,
               ),

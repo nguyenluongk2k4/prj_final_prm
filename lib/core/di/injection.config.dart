@@ -21,11 +21,14 @@ import '../../features/auth/domain/usecases/logout_usecase.dart' as _i48;
 import '../../features/auth/domain/usecases/sign_in_phone_usecase.dart'
     as _i256;
 import '../../features/auth/domain/usecases/verify_otp_usecase.dart' as _i503;
+import '../../features/auth/infrastructure/datasources/auth_datasource.dart'
+    as _i696;
 import '../../features/auth/infrastructure/repositories/auth_repository_impl.dart'
     as _i748;
-import '../../features/auth/presentation/store/auth_store.dart' as _i172;
+import '../../features/auth/presentation/stores/auth_store.dart' as _i603;
 import '../network/dio_client.dart' as _i667;
 import '../network/network_info.dart' as _i932;
+import 'auth_module.dart' as _i784;
 import 'register_module.dart' as _i291;
 
 extension GetItInjectableX on _i174.GetIt {
@@ -36,10 +39,14 @@ extension GetItInjectableX on _i174.GetIt {
   }) {
     final gh = _i526.GetItHelper(this, environment, environmentFilter);
     final registerModule = _$RegisterModule();
+    final authModule = _$AuthModule();
     gh.lazySingleton<_i59.FirebaseAuth>(() => registerModule.firebaseAuth);
     gh.lazySingleton<_i454.SupabaseClient>(() => registerModule.supabaseClient);
     gh.lazySingleton<_i667.DioClient>(() => _i667.DioClient());
     gh.lazySingleton<_i932.NetworkInfo>(() => _i932.NetworkInfoImpl());
+    gh.lazySingleton<_i696.AuthDatasource>(
+      () => authModule.authDatasource(gh<_i454.SupabaseClient>()),
+    );
     gh.lazySingleton<_i787.AuthRepository>(
       () => _i748.AuthRepositoryImpl(
         gh<_i59.FirebaseAuth>(),
@@ -61,17 +68,13 @@ extension GetItInjectableX on _i174.GetIt {
     gh.lazySingleton<_i503.VerifyOtpAndSyncProfileUseCase>(
       () => _i503.VerifyOtpAndSyncProfileUseCase(gh<_i787.AuthRepository>()),
     );
-    gh.lazySingleton<_i172.AuthStore>(
-      () => _i172.AuthStore(
-        gh<_i831.CheckAuthUseCase>(),
-        gh<_i256.SignInWithPhoneUseCase>(),
-        gh<_i503.VerifyOtpAndSyncProfileUseCase>(),
-        gh<_i188.LoginUseCase>(),
-        gh<_i48.LogoutUseCase>(),
-      ),
+    gh.lazySingleton<_i603.AuthStore>(
+      () => authModule.authStore(gh<_i696.AuthDatasource>()),
     );
     return this;
   }
 }
 
 class _$RegisterModule extends _i291.RegisterModule {}
+
+class _$AuthModule extends _i784.AuthModule {}

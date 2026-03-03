@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:go_router/go_router.dart';
+import '../../../../core/di/injection.dart';
 import '../../../../core/presentation/widgets/widgets.dart';
 import '../../../../core/router/app_routes.dart';
-import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_color_scheme.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../../../../i18n/strings.g.dart';
+import '../stores/auth_store.dart';
 
 class EmailRegisterPage extends StatefulWidget {
   const EmailRegisterPage({super.key});
@@ -15,18 +17,15 @@ class EmailRegisterPage extends StatefulWidget {
 }
 
 class _EmailRegisterPageState extends State<EmailRegisterPage> {
+  final _formKey = GlobalKey<FormState>();
   final _nameController = TextEditingController();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
   final _confirmPasswordController = TextEditingController();
+  late final _authStore = getIt<AuthStore>();
 
   bool _obscurePassword = true;
   bool _obscureConfirm = true;
-
-  String? _nameError;
-  String? _emailError;
-  String? _passwordError;
-  String? _confirmError;
 
   @override
   void dispose() {
@@ -34,53 +33,26 @@ class _EmailRegisterPageState extends State<EmailRegisterPage> {
     _emailController.dispose();
     _passwordController.dispose();
     _confirmPasswordController.dispose();
+    _authStore.dispose();
     super.dispose();
   }
 
-  void _submit() {
-    final t = Translations.of(context);
-    final name = _nameController.text.trim();
-    final email = _emailController.text.trim();
-    final password = _passwordController.text;
-    final confirm = _confirmPasswordController.text;
+  @override
+  void initState() {
+    super.initState();
+  }
 
-    String? nameErr;
-    String? emailErr;
-    String? passErr;
-    String? confirmErr;
-
-    if (name.isEmpty) nameErr = t.pleaseEnterFullName;
-
-    if (email.isEmpty ||
-        !RegExp(r'^[\w.+\-]+@[\w\-]+\.[a-z]{2,}$').hasMatch(email)) {
-      emailErr = t.invalidEmail;
-    }
-
-    if (password.isEmpty) {
-      passErr = t.pleaseEnterPassword;
-    } else if (password.length < 6) {
-      passErr = t.passwordMinLength;
-    }
-
-    if (confirm.isEmpty) {
-      confirmErr = t.pleaseEnterPassword;
-    } else if (confirm != password) {
-      confirmErr = t.passwordsDoNotMatch;
-    }
-
-    setState(() {
-      _nameError = nameErr;
-      _emailError = emailErr;
-      _passwordError = passErr;
-      _confirmError = confirmErr;
-    });
-
-    if (nameErr == null &&
-        emailErr == null &&
-        passErr == null &&
-        confirmErr == null) {
-      // TODO: wire to AuthStore / Supabase
-      context.pushNamed(AppRoutes.profileDetailsName);
+  void _handleRegister() async {
+    if (_formKey.currentState!.validate()) {
+      await _authStore.signup(
+        email: _emailController.text.trim(),
+        password: _passwordController.text,
+        name: _nameController.text.trim(),
+      );
+      
+      if (_authStore.isAuthenticated && mounted) {
+        context.goNamed(AppRoutes.interestsName);
+      }
     }
   }
 
@@ -90,171 +62,167 @@ class _EmailRegisterPageState extends State<EmailRegisterPage> {
     final c = context.appColors;
 
     return AppScaffold(
+      showQuickActions: false,
       showBackButton: true,
       body: SingleChildScrollView(
-        padding: const EdgeInsets.symmetric(horizontal: 40),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const SizedBox(height: 42),
-
-            // ── Title ─────────────────────────────────────────────────────
-            Text(t.createAccount, style: AppTextStyles.h1),
-
-            const SizedBox(height: 16),
-
-            Text(
-              t.createAccountDesc,
-              style: AppTextStyles.bodyMedium.copyWith(
-                color: c.text70,
-              ),
-            ),
-
-            const SizedBox(height: 40),
-
-            // ── Full name ─────────────────────────────────────────────────
-            _FieldLabel(t.fullName),
-            const SizedBox(height: 8),
-            AppTextField(
-              controller: _nameController,
-              hint: t.fullNameHint,
-              keyboardType: TextInputType.name,
-              errorText: _nameError,
-              prefixIcon: Icon(
-                Icons.person_outline,
-                size: 22,
-                color: c.text70,
-              ),
-            ),
-
-            const SizedBox(height: 20),
-
-            // ── Email ─────────────────────────────────────────────────────
-            _FieldLabel(t.email),
-            const SizedBox(height: 8),
-            AppTextField(
-              controller: _emailController,
-              hint: t.emailHint,
-              keyboardType: TextInputType.emailAddress,
-              errorText: _emailError,
-              prefixIcon: Icon(
-                Icons.mail_outline,
-                size: 22,
-                color: c.text70,
-              ),
-            ),
-
-            const SizedBox(height: 20),
-
-            // ── Password ──────────────────────────────────────────────────
-            _FieldLabel(t.password),
-            const SizedBox(height: 8),
-            AppTextField(
-              controller: _passwordController,
-              hint: t.passwordHint,
-              obscureText: _obscurePassword,
-              errorText: _passwordError,
-              prefixIcon: Icon(
-                Icons.lock_outline,
-                size: 22,
-                color: c.text70,
-              ),
-              suffixIcon: GestureDetector(
-                onTap: () =>
-                    setState(() => _obscurePassword = !_obscurePassword),
-                behavior: HitTestBehavior.opaque,
-                child: Icon(
-                  _obscurePassword
-                      ? Icons.visibility_off_outlined
-                      : Icons.visibility_outlined,
-                  size: 22,
-                  color: c.text70,
-                ),
-              ),
-            ),
-
-            const SizedBox(height: 20),
-
-            // ── Confirm password ──────────────────────────────────────────
-            _FieldLabel(t.confirmPassword),
-            const SizedBox(height: 8),
-            AppTextField(
-              controller: _confirmPasswordController,
-              hint: t.confirmPasswordHint,
-              obscureText: _obscureConfirm,
-              errorText: _confirmError,
-              prefixIcon: Icon(
-                Icons.lock_outline,
-                size: 22,
-                color: c.text70,
-              ),
-              suffixIcon: GestureDetector(
-                onTap: () =>
-                    setState(() => _obscureConfirm = !_obscureConfirm),
-                behavior: HitTestBehavior.opaque,
-                child: Icon(
-                  _obscureConfirm
-                      ? Icons.visibility_off_outlined
-                      : Icons.visibility_outlined,
-                  size: 22,
-                  color: c.text70,
-                ),
-              ),
-            ),
-
-            const SizedBox(height: 40),
-
-            // ── Register button ───────────────────────────────────────────
-            AppPrimaryButton(
-              text: t.register,
-              onPressed: _submit,
-            ),
-
-            const SizedBox(height: 24),
-
-            // ── Sign-in footer ────────────────────────────────────────────
-            Row(
+        child: Padding(
+          padding: const EdgeInsets.all(24.0),
+          child: Form(
+            key: _formKey,
+            child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
+                const SizedBox(height: 40),
                 Text(
-                  t.alreadyHaveAccount,
-                  style: AppTextStyles.bodyMedium.copyWith(
-                    color: c.text70,
+                  t.createAnAccount,
+                  style: AppTextStyles.h1.copyWith(color: c.textPrimary),
+                  textAlign: TextAlign.center,
+                ),
+                const SizedBox(height: 12),
+                Text(
+                  'Join our community',
+                  style: AppTextStyles.bodyMedium.copyWith(color: c.text70),
+                  textAlign: TextAlign.center,
+                ),
+                const SizedBox(height: 40),
+
+                // Name field
+                AppTextField(
+                  controller: _nameController,
+                  hint: t.fullName,
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Name is required';
+                    }
+                    return null;
+                  },
+                ),
+                const SizedBox(height: 16),
+
+                // Email field
+                AppTextField(
+                  controller: _emailController,
+                  hint: t.email,
+                  keyboardType: TextInputType.emailAddress,
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Email is required';
+                    }
+                    if (!value.contains('@')) {
+                      return 'Invalid email';
+                    }
+                    return null;
+                  },
+                ),
+                const SizedBox(height: 16),
+
+                // Password field
+                AppTextField(
+                  controller: _passwordController,
+                  hint: t.password,
+                  obscureText: _obscurePassword,
+                  suffixIcon: GestureDetector(
+                    onTap: () => setState(() => _obscurePassword = !_obscurePassword),
+                    child: Icon(
+                      _obscurePassword ? Icons.visibility_off : Icons.visibility,
+                      color: c.text70,
+                    ),
+                  ),
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Password is required';
+                    }
+                    if (value.length < 6) {
+                      return 'Password must be at least 6 characters';
+                    }
+                    return null;
+                  },
+                ),
+                const SizedBox(height: 16),
+
+                // Confirm password field
+                AppTextField(
+                  controller: _confirmPasswordController,
+                  hint: 'Confirm Password',
+                  obscureText: _obscureConfirm,
+                  suffixIcon: GestureDetector(
+                    onTap: () => setState(() => _obscureConfirm = !_obscureConfirm),
+                    child: Icon(
+                      _obscureConfirm ? Icons.visibility_off : Icons.visibility,
+                      color: c.text70,
+                    ),
+                  ),
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Please confirm password';
+                    }
+                    if (value != _passwordController.text) {
+                      return 'Passwords do not match';
+                    }
+                    return null;
+                  },
+                ),
+                const SizedBox(height: 24),
+
+                // Error message
+                Observer(
+                  builder: (_) => _authStore.hasError
+                      ? Container(
+                          padding: const EdgeInsets.all(12),
+                          decoration: BoxDecoration(
+                            color: const Color(0xFFFFEBEE),
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: Text(
+                            _authStore.errorMessage!,
+                            style: AppTextStyles.bodyMedium.copyWith(
+                              color: const Color(0xFFE94057),
+                            ),
+                          ),
+                        )
+                      : const SizedBox.shrink(),
+                ),
+                const SizedBox(height: 24),
+
+                // Sign up button
+                Observer(
+                  builder: (_) => AppPrimaryButton(
+                    text: t.signUpNow,
+                    isLoading: _authStore.isLoading,
+                    onPressed: _authStore.isLoading ? null : _handleRegister,
                   ),
                 ),
-                const SizedBox(width: 4),
-                GestureDetector(
-                  onTap: () => context.pushNamed(AppRoutes.emailLoginName),
-                  child: Text(
-                    t.signIn,
-                    style: AppTextStyles.bodyMedium.copyWith(
-                      color: AppColors.primary,
-                      fontWeight: FontWeight.w700,
+                const SizedBox(height: 16),
+
+                // Terms & Privacy
+                Center(
+                  child: RichText(
+                    textAlign: TextAlign.center,
+                    text: TextSpan(
+                      text: 'By signing up, you agree to our ',
+                      style: AppTextStyles.bodySmall.copyWith(color: c.text70),
+                      children: [
+                        TextSpan(
+                          text: t.termsOfUse,
+                          style: AppTextStyles.bodySmall.copyWith(color: c.primary),
+                        ),
+                        TextSpan(
+                          text: ' and ',
+                          style: AppTextStyles.bodySmall.copyWith(color: c.text70),
+                        ),
+                        TextSpan(
+                          text: t.privacyPolicy,
+                          style: AppTextStyles.bodySmall.copyWith(color: c.primary),
+                        ),
+                      ],
                     ),
                   ),
                 ),
               ],
             ),
-
-            const SizedBox(height: 40),
-          ],
+          ),
         ),
-      ),
-    );
-  }
-}
-
-class _FieldLabel extends StatelessWidget {
-  const _FieldLabel(this.text);
-  final String text;
-
-  @override
-  Widget build(BuildContext context) {
-    return Text(
-      text,
-      style: AppTextStyles.bodyMedium.copyWith(
-        fontWeight: FontWeight.w600,
-        color: context.appColors.textPrimary,
       ),
     );
   }

@@ -15,7 +15,6 @@ class AppRoutes {
   static const String chat = '/chat';
   static const String account = '/account';
   static const String login = '/login';
-  static const String emailLogin = '/email-login';
   static const String emailRegister = '/email-register';
   static const String settings = '/settings';
   static const String main = '/home';
@@ -31,7 +30,6 @@ class AppRoutes {
   static const String friendsName = 'friends';
   static const String notificationName = 'notification';
   static const String loginName = 'login';
-  static const String emailLoginName = 'email-login';
   static const String emailRegisterName = 'email-register';
   static const String settingsName = 'settings';
   static const String homeName = 'home';

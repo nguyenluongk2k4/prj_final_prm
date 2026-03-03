@@ -10,8 +10,11 @@ export 'domain/usecases/verify_otp_usecase.dart';
 
 // Infrastructure
 export 'infrastructure/models/user_profile_model.dart';
+export 'infrastructure/models/user_model.dart';
+export 'infrastructure/models/auth_response.dart';
+export 'infrastructure/datasources/auth_datasource.dart';
 export 'infrastructure/repositories/auth_repository_impl.dart';
 
 // Presentation
-export 'presentation/store/auth_store.dart';
+export 'presentation/stores/auth_store.dart';
 export 'presentation/pages/login_page.dart';

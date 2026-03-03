@@ -11,7 +11,7 @@ import '../../features/auth/presentation/pages/notification_page.dart';
 import '../../features/home/presentation/pages/main_page.dart';
 import '../../features/home/presentation/pages/match_page.dart';
 import '../../features/auth/presentation/pages/login_page.dart';
-import '../../features/auth/presentation/pages/email_login_page.dart';
+
 import '../../features/auth/presentation/pages/email_register_page.dart';
 import '../../features/auth/presentation/pages/settings_page.dart';
 import '../app_stores.dart';
@@ -87,11 +87,7 @@ class AppRouter {
         name: AppRoutes.loginName,
         builder: (context, state) => const LoginPage(),
       ),
-      GoRoute(
-        path: AppRoutes.emailLogin,
-        name: AppRoutes.emailLoginName,
-        builder: (context, state) => const EmailLoginPage(),
-      ),
+
       GoRoute(
         path: AppRoutes.emailRegister,
         name: AppRoutes.emailRegisterName,

@@ -1,12 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:go_router/go_router.dart';
 import '../../../../core/di/injection.dart';
 import '../../../../core/router/app_routes.dart';
 import '../../../../core/presentation/widgets/widgets.dart';
-import '../../../../gen/assets.gen.dart';
+import '../../../../core/theme/app_color_scheme.dart';
+import '../../../../core/theme/app_text_styles.dart';
 import '../../../../i18n/strings.g.dart';
-import '../store/auth_store.dart';
+import '../stores/auth_store.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -25,90 +27,146 @@ class _LoginPageState extends State<LoginPage> {
   void dispose() {
     _emailController.dispose();
     _passwordController.dispose();
+    _authStore.dispose();
     super.dispose();
   }
 
-  void _handleLogin() {
+  @override
+  void initState() {
+    super.initState();
+  }
+
+  void _handleLogin() async {
     if (_formKey.currentState!.validate()) {
-      _authStore.login(
-        _emailController.text,
-        _passwordController.text,
+      await _authStore.login(
+        email: _emailController.text.trim(),
+        password: _passwordController.text,
       );
+      
+      if (_authStore.isAuthenticated && mounted) {
+        context.goNamed(AppRoutes.homeName);
+      }
     }
   }
 
   @override
   Widget build(BuildContext context) {
     final t = Translations.of(context);
-    
+    final c = context.appColors;
+
     return AppScaffold(
-      title: t.login,
       showQuickActions: false,
       showBackButton: true,
-      secondaryAction: Padding(
-        padding: const EdgeInsets.only(right: 12),
-        child: AppBarIconButton(
-          icon: Assets.icons.icSetting.svg(width: 24, height: 24),
-          onTap: () => context.go(AppRoutes.settings),
-        ),
-      ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Form(
-          key: _formKey,
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              TextFormField(
-                controller: _emailController,
-                decoration: InputDecoration(
-                  labelText: t.email,
+      body: SingleChildScrollView(
+        child: Padding(
+          padding: const EdgeInsets.all(24.0),
+          child: Form(
+            key: _formKey,
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                const SizedBox(height: 40),
+                Text(
+                  t.login,
+                  style: AppTextStyles.h1.copyWith(color: c.textPrimary),
+                  textAlign: TextAlign.center,
                 ),
-                keyboardType: TextInputType.emailAddress,
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return t.pleaseEnterEmail;
-                  }
-                  return null;
-                },
-              ),
-              const SizedBox(height: 16),
-              TextFormField(
-                controller: _passwordController,
-                decoration: InputDecoration(
-                  labelText: t.password,
+                const SizedBox(height: 12),
+                Text(
+                  'Welcome back',
+                  style: AppTextStyles.bodyMedium.copyWith(color: c.text70),
+                  textAlign: TextAlign.center,
                 ),
-                obscureText: true,
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return t.pleaseEnterPassword;
-                  }
-                  return null;
-                },
-              ),
-              const SizedBox(height: 24),
-              Observer(
-                builder: (_) {
-                  if (_authStore.errorMessage != null) {
-                    WidgetsBinding.instance.addPostFrameCallback((_) {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(
-                          content: Text(_authStore.errorMessage!),
-                          backgroundColor: Theme.of(context).colorScheme.error,
-                        ),
-                      );
-                      _authStore.clearError();
-                    });
-                  }
+                const SizedBox(height: 40),
 
-                  return AppPrimaryButton(
+                // Email field
+                AppTextField(
+                  controller: _emailController,
+                  hint: t.email,
+                  keyboardType: TextInputType.emailAddress,
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Email is required';
+                    }
+                    if (!value.contains('@')) {
+                      return 'Invalid email';
+                    }
+                    return null;
+                  },
+                ),
+                const SizedBox(height: 16),
+
+                // Password field
+                AppTextField(
+                  controller: _passwordController,
+                  hint: t.password,
+                  obscureText: true,
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Password is required';
+                    }
+                    if (value.length < 6) {
+                      return 'Password must be at least 6 characters';
+                    }
+                    return null;
+                  },
+                ),
+                const SizedBox(height: 24),
+
+                // Error message
+                Observer(
+                  builder: (_) => _authStore.hasError
+                      ? Container(
+                          padding: const EdgeInsets.all(12),
+                          decoration: BoxDecoration(
+                            color: const Color(0xFFFFEBEE),
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: Text(
+                            _authStore.errorMessage!,
+                            style: AppTextStyles.bodyMedium.copyWith(
+                              color: const Color(0xFFE94057),
+                            ),
+                          ),
+                        )
+                      : const SizedBox.shrink(),
+                ),
+                const SizedBox(height: 24),
+
+                // Login button
+                Observer(
+                  builder: (_) => AppPrimaryButton(
                     text: t.login,
-                    onPressed: _handleLogin,
                     isLoading: _authStore.isLoading,
-                  );
-                },
-              ),
-            ],
+                    onPressed: _authStore.isLoading ? null : _handleLogin,
+                  ),
+                ),
+                const SizedBox(height: 16),
+
+                // Sign up link
+                Center(
+                  child: RichText(
+                    text: TextSpan(
+                      text: 'Don\'t have an account? ',
+                      style: AppTextStyles.bodyMedium.copyWith(color: c.text70),
+                      children: [
+                        TextSpan(
+                          text: t.signUpNow,
+                          style: AppTextStyles.bodyMedium.copyWith(
+                            color: c.primary,
+                            fontWeight: FontWeight.bold,
+                          ),
+                          recognizer: TapGestureRecognizer()
+                            ..onTap =
+                                () => context.pushNamed(AppRoutes.signupName),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
       ),
