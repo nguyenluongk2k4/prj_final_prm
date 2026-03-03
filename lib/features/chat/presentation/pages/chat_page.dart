@@ -163,11 +163,9 @@ class _ChatPageState extends State<ChatPage> {
             ),
           ),
 
-          const SizedBox(height: 20),
-
           // ── Messages header ─────────────────────────────────────────────
           Padding(
-            padding: const EdgeInsets.only(left: 24, bottom: 8),
+            padding: const EdgeInsets.only(left: 24, bottom: 6),
             child: Text(t.messages, style: AppTextStyles.h3),
           ),
 
@@ -250,7 +248,7 @@ class _MessageTile extends StatelessWidget {
       onTap: onTap,
       behavior: HitTestBehavior.opaque,
       child: Padding(
-      padding: const EdgeInsets.symmetric(vertical: 14),
+      padding: const EdgeInsets.symmetric(vertical: 10),
       child: Row(
         children: [
           // Avatar

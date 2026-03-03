@@ -50,6 +50,7 @@ class AppScaffold extends StatelessWidget {
       appBar: AppBar(
         backgroundColor: bg,
         elevation: 0,
+        scrolledUnderElevation: 0,
         automaticallyImplyLeading: false,
         centerTitle: centerTitle,
         leadingWidth: 64,
