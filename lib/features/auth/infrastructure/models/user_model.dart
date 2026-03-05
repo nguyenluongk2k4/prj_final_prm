@@ -2,7 +2,7 @@ import 'package:json_annotation/json_annotation.dart';
 
 part 'user_model.g.dart';
 
-@JsonSerializable()
+@JsonSerializable(fieldRename: FieldRename.snake)
 class UserModel {
   final String id; // UUID từ Supabase Auth
   final String email;
@@ -14,7 +14,9 @@ class UserModel {
   final String? targetGender; // Tìm kiếm giới tính nào
   final String? bio;
   final DateTime? birthDate;
-  final String? location; // Vị trí hiện tại (text hoặc lat,lng)
+  final int? provinceId;
+  final double? latitude;
+  final double? longitude;
   final bool isOnline;
   final DateTime? lastActive;
   final DateTime? createdAt;
@@ -31,7 +33,9 @@ class UserModel {
     this.targetGender,
     this.bio,
     this.birthDate,
-    this.location,
+    this.provinceId,
+    this.latitude,
+    this.longitude,
     this.isOnline = false,
     this.lastActive,
     this.createdAt,
@@ -54,14 +58,16 @@ class UserModel {
     String? targetGender,
     String? bio,
     DateTime? birthDate,
-    String? location,
+    int? provinceId,
+    double? latitude,
+    double? longitude,
     bool? isOnline,
     DateTime? lastActive,
     DateTime? createdAt,
     DateTime? updatedAt,
   }) {
     return UserModel(
-      id: id ?? this.id,
+    id: id ?? this.id,
       email: email ?? this.email,
       name: name ?? this.name,
       phone: phone ?? this.phone,
@@ -71,7 +77,9 @@ class UserModel {
       targetGender: targetGender ?? this.targetGender,
       bio: bio ?? this.bio,
       birthDate: birthDate ?? this.birthDate,
-      location: location ?? this.location,
+      provinceId: provinceId ?? this.provinceId,
+      latitude: latitude ?? this.latitude,
+      longitude: longitude ?? this.longitude,
       isOnline: isOnline ?? this.isOnline,
       lastActive: lastActive ?? this.lastActive,
       createdAt: createdAt ?? this.createdAt,

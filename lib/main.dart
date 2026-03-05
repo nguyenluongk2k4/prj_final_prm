@@ -8,8 +8,11 @@ import 'core/router/app_router.dart';
 import 'i18n/strings.g.dart';
 
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:get_it/get_it.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'features/auth/infrastructure/datasources/auth_datasource.dart';
+import 'features/auth/presentation/stores/auth_store.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -31,7 +34,19 @@ void main() async {
   
   // Initialize Dependency Injection
   await configureDependencies();
-  
+
+  // Check session: nếu đã có session thì fetch user → vào thẳng home, không cần login lại
+  final supabase = Supabase.instance.client;
+  if (supabase.auth.currentSession != null) {
+    final authStore = GetIt.I<AuthStore>();
+    final authDatasource = GetIt.I<AuthDatasource>();
+    final user = await authDatasource.getCurrentUser();
+    if (user != null) {
+      authStore.currentUser = user;
+      authStore.isAuthenticated = true;
+    }
+  }
+
   // Load saved preferences
   final stores = AppStores.instance;
   await stores.themeStore.loadTheme();

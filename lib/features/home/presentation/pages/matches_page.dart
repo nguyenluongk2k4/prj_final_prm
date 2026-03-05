@@ -102,7 +102,7 @@ class _MatchesPageState extends State<MatchesPage> {
                       .toList();
 
                   return SingleChildScrollView(
-                    padding: const EdgeInsets.only(bottom: 16),
+                    padding: EdgeInsets.only(bottom: 100 + MediaQuery.of(context).padding.bottom),
                     child: Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 40),
                       child: Column(

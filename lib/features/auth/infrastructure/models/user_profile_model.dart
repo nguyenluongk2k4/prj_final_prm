@@ -1,5 +1,10 @@
+import 'package:json_annotation/json_annotation.dart';
 import '../../domain/entities/user_profile.dart';
 
+part 'user_profile_model.g.dart';
+
+/// fieldRename.snake: tự động map camelCase → snake_case (khớp với Supabase)
+@JsonSerializable(fieldRename: FieldRename.snake)
 class UserProfileModel extends UserProfile {
   UserProfileModel({
     required super.id,
@@ -13,33 +18,8 @@ class UserProfileModel extends UserProfile {
     required super.lastActive,
   });
 
-  factory UserProfileModel.fromJson(Map<String, dynamic> json) {
-    return UserProfileModel(
-      id: json['id'] as String,
-      displayName: json['display_name'] as String,
-      bio: json['bio'] as String?,
-      gender: json['gender'] as String?,
-      targetGender: json['target_gender'] as String?,
-      birthDate: json['birth_date'] != null ? DateTime.parse(json['birth_date']) : null,
-      avatarUrl: json['avatar_url'] as String?,
-      isOnline: json['is_online'] as bool? ?? false,
-      lastActive: json['last_active'] != null 
-          ? DateTime.parse(json['last_active']) 
-          : DateTime.now(),
-    );
-  }
+  factory UserProfileModel.fromJson(Map<String, dynamic> json) =>
+      _$UserProfileModelFromJson(json);
 
-  Map<String, dynamic> toJson() {
-    return {
-      'id': id,
-      'display_name': displayName,
-      'bio': bio,
-      'gender': gender,
-      'target_gender': targetGender,
-      'birth_date': birthDate?.toIso8601String(),
-      'avatar_url': avatarUrl,
-      'is_online': isOnline,
-      'last_active': lastActive.toIso8601String(),
-    };
-  }
+  Map<String, dynamic> toJson() => _$UserProfileModelToJson(this);
 }

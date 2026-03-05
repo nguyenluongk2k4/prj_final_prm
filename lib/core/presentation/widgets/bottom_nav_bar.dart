@@ -16,54 +16,60 @@ class BottomNavBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final brightness = Theme.of(context).brightness;
-    return Stack(
-      children: [
-        Container(
-          height: 56,
-          decoration: BoxDecoration(
-            color: AppColors.bg(brightness),
-            border: Border(top: BorderSide(color: AppColors.borderColor(brightness), width: 1)),
-          ),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceAround,
-            children: [
-              _NavBarItem(
-                iconPath: Assets.icons.navHomeInactive.path,
-                isSelected: selectedIndex == 0,
-                onTap: () => onTap(0),
+    return Container(
+      color: AppColors.bg(brightness),
+      child: SafeArea(
+        bottom: true,
+        child: Stack(
+          children: [
+            Container(
+              height: 56,
+              decoration: BoxDecoration(
+                color: AppColors.bg(brightness),
+                border: Border(top: BorderSide(color: AppColors.borderColor(brightness), width: 1)),
               ),
-              _NavBarItem(
-                iconPath: Assets.icons.navMatchesInactive.path,
-                isSelected: selectedIndex == 1,
-                onTap: () => onTap(1),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceAround,
+                children: [
+                  _NavBarItem(
+                    iconPath: Assets.icons.navHomeInactive.path,
+                    isSelected: selectedIndex == 0,
+                    onTap: () => onTap(0),
+                  ),
+                  _NavBarItem(
+                    iconPath: Assets.icons.navMatchesInactive.path,
+                    isSelected: selectedIndex == 1,
+                    onTap: () => onTap(1),
+                  ),
+                  _NavBarItem(
+                    iconPath: Assets.icons.navChatInactive.path,
+                    isSelected: selectedIndex == 2,
+                    onTap: () => onTap(2),
+                  ),
+                  _NavBarItem(
+                    iconPath: Assets.icons.navAccountInactive.path,
+                    isSelected: selectedIndex == 3,
+                    onTap: () => onTap(3),
+                  ),
+                ],
               ),
-              _NavBarItem(
-                iconPath: Assets.icons.navChatInactive.path,
-                isSelected: selectedIndex == 2,
-                onTap: () => onTap(2),
-              ),
-              _NavBarItem(
-                iconPath: Assets.icons.navAccountInactive.path,
-                isSelected: selectedIndex == 3,
-                onTap: () => onTap(3),
-              ),
-            ],
-          ),
-        ),
-        AnimatedPositioned(
-          top: 0,
-          left: (MediaQuery.of(context).size.width / 4) * selectedIndex + (MediaQuery.of(context).size.width / 8) - 30,
-          duration: const Duration(milliseconds: 300),
-          curve: Curves.easeInOutCubic,
-          child: Container(
-            width: 60,
-            height: 3,
-            decoration: const BoxDecoration(
-              color: Color(0xFFE94057),
             ),
-          ),
+            AnimatedPositioned(
+              top: 0,
+              left: (MediaQuery.of(context).size.width / 4) * selectedIndex + (MediaQuery.of(context).size.width / 8) - 30,
+              duration: const Duration(milliseconds: 300),
+              curve: Curves.easeInOutCubic,
+              child: Container(
+                width: 60,
+                height: 3,
+                decoration: const BoxDecoration(
+                  color: Color(0xFFE94057),
+                ),
+              ),
+            ),
+          ],
         ),
-      ],
+      ),
     );
   }
 }

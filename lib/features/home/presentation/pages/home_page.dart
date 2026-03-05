@@ -1,11 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_card_swiper/flutter_card_swiper.dart';
 import 'package:prj_final_prm/core/theme/app_colors.dart';
+import 'package:prj_final_prm/features/auth/infrastructure/models/user_model.dart';
 import '../../../../core/presentation/widgets/widgets.dart';
 import '../../../../core/theme/app_color_scheme.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../../../../gen/assets.gen.dart';
 import '../../../../i18n/strings.g.dart';
+import 'package:permission_handler/permission_handler.dart';
+import 'package:flutter_mobx/flutter_mobx.dart';
+import '../../../../core/di/injection.dart';
+import '../stores/discover_store.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -16,52 +21,24 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   final CardSwiperController _swiperController = CardSwiperController();
+  late final DiscoverStore _discoverStore;
 
-  final List<ProfileCard> _profiles = [
-    ProfileCard(
-      name: 'Jessica Parker',
-      age: 23,
-      profession: 'Professional model',
-      distance: '1 km',
-      location: 'Chicago, II',
-      imageUrl: Assets.images.profileExample.path,
-    ),
-    ProfileCard(
-      name: 'Camila Snow',
-      age: 23,
-      profession: 'Marketer',
-      distance: '2 km',
-      location: 'New York, NY',
-      imageUrl: Assets.images.profileExample.path,
-    ),
-    ProfileCard(
-      name: 'Bred Jackson',
-      age: 25,
-      profession: 'Photograph',
-      distance: '3 km',
-      location: 'Los Angeles, CA',
-      imageUrl: Assets.images.profileExample.path,
-    ),
-    ProfileCard(
-      name: 'Emma Wilson',
-      age: 24,
-      profession: 'Designer',
-      distance: '1.5 km',
-      location: 'San Francisco, CA',
-      imageUrl: Assets.images.profileExample.path,
-    ),
-    ProfileCard(
-      name: 'Sophia Martinez',
-      age: 22,
-      profession: 'Artist',
-      distance: '4 km',
-      location: 'Miami, FL',
-      imageUrl: Assets.images.profileExample.path,
-    ),
-  ];
-
-  int _currentIndex = 0;
   bool _filterActive = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _discoverStore = getIt<DiscoverStore>();
+    _discoverStore.fetchInitialBatch();
+    _checkLocationPermission();
+  }
+
+  Future<void> _checkLocationPermission() async {
+    final status = await Permission.locationWhenInUse.status;
+    if (status.isDenied || status.isRestricted) {
+      await Permission.locationWhenInUse.request();
+    }
+  }
 
   @override
   void dispose() {
@@ -78,14 +55,21 @@ class _HomePageState extends State<HomePage> {
 
     return AppScaffold(
       showQuickActions: false,
-      showBackButton: true,
+      showBackButton: false,
       titleWidget: Column(
         children: [
           Text(t.discover, style: AppTextStyles.h2),
           const SizedBox(height: 2),
-          Text(
-            _profiles[_currentIndex].location,
-            style: AppTextStyles.bodySmall.copyWith(color: c.text70),
+          Observer(
+            builder: (_) {
+              if (_discoverStore.profiles.isEmpty) {
+                return const SizedBox.shrink();
+              }
+              return Text(
+                'Nearby', // Since we don't fetch city yet
+                style: AppTextStyles.bodySmall.copyWith(color: c.text70),
+              );
+            }
           ),
         ],
       ),
@@ -99,7 +83,13 @@ class _HomePageState extends State<HomePage> {
           onTap: () => setState(() => _filterActive = !_filterActive),
         ),
       ),
-      body: SingleChildScrollView(
+      body: RefreshIndicator(
+        onRefresh: () async {
+          await _discoverStore.fetchInitialBatch();
+        },
+        child: SingleChildScrollView(
+          physics: const AlwaysScrollableScrollPhysics(),
+          padding: EdgeInsets.only(bottom: 24 + MediaQuery.of(context).padding.bottom),
         child: Column(
           children: [
             SizedBox(height: screenHeight * 0.03),
@@ -109,29 +99,47 @@ class _HomePageState extends State<HomePage> {
               height: screenHeight * 0.57,
               child: Padding(
                 padding: EdgeInsets.symmetric(horizontal: horizontalPadding),
-                child: CardSwiper(
-                  controller: _swiperController,
-                  cardsCount: _profiles.length,
-                  numberOfCardsDisplayed: 2,
-                  backCardOffset: const Offset(0, -30),
-                  padding: EdgeInsets.zero,
-                  isLoop: true,
-                  scale: 0.9,
-                  onSwipe: _onSwipe,
-                  onUndo: _onUndo,
-                  allowedSwipeDirection: AllowedSwipeDirection.symmetric(
-                    horizontal: true,
-                    vertical: false,
-                  ),
-                  cardBuilder:
-                      (
-                        context,
-                        index,
-                        horizontalOffsetPercentage,
-                        verticalOffsetPercentage,
-                      ) {
-                        return _buildProfileCard(_profiles[index]);
-                      },
+                child: Observer(
+                  builder: (context) {
+                    if (_discoverStore.isLoading && _discoverStore.profiles.isEmpty) {
+                      return const Center(child: CircularProgressIndicator());
+                    }
+
+                    if (_discoverStore.profiles.isEmpty) {
+                      return Center(
+                        child: Text(
+                          'No more profiles to discover right now.',
+                          style: AppTextStyles.bodyLarge,
+                          textAlign: TextAlign.center,
+                        ),
+                      );
+                    }
+
+                    return CardSwiper(
+                      controller: _swiperController,
+                      cardsCount: _discoverStore.profiles.length,
+                      numberOfCardsDisplayed: _discoverStore.profiles.length > 1 ? 2 : 1,
+                      backCardOffset: const Offset(0, -30),
+                      padding: EdgeInsets.zero,
+                      isLoop: false, // Changed to false for dynamic list
+                      scale: 0.9,
+                      onSwipe: _onSwipe,
+                      onUndo: _onUndo,
+                      allowedSwipeDirection: const AllowedSwipeDirection.symmetric(
+                        horizontal: true,
+                        vertical: false,
+                      ),
+                      cardBuilder:
+                          (
+                            context,
+                            index,
+                            horizontalOffsetPercentage,
+                            verticalOffsetPercentage,
+                          ) {
+                            return _buildProfileCard(_discoverStore.profiles[index]);
+                          },
+                    );
+                  }
                 ),
               ),
             ),
@@ -244,12 +252,24 @@ class _HomePageState extends State<HomePage> {
           ],
         ),
       ),
+      ),
     );
   }
 
-  Widget _buildProfileCard(ProfileCard profile) {
+  Widget _buildProfileCard(UserModel user) {
     final screenHeight = MediaQuery.of(context).size.height;
     final cardHeight = screenHeight * 0.57;
+    
+    // Calculate age from birthDate
+    int age = 0;
+    if (user.birthDate != null) {
+      final today = DateTime.now();
+      age = (today.year - user.birthDate!.year).toInt();
+      if (today.month < user.birthDate!.month || 
+         (today.month == user.birthDate!.month && today.day < user.birthDate!.day)) {
+        age -= 1;
+      }
+    }
 
     return Container(
       width: double.infinity,
@@ -257,7 +277,9 @@ class _HomePageState extends State<HomePage> {
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(15),
         image: DecorationImage(
-          image: AssetImage(profile.imageUrl),
+          image: user.avatarUrl != null 
+              ? NetworkImage(user.avatarUrl!) as ImageProvider
+              : AssetImage(Assets.images.profileExample.path),
           fit: BoxFit.cover,
         ),
       ),
@@ -299,7 +321,7 @@ class _HomePageState extends State<HomePage> {
                   const Icon(Icons.location_on, color: Colors.white, size: 14),
                   const SizedBox(width: 4),
                   Text(
-                    profile.distance,
+                    'Nearby', // Placeholder until location mapping is set
                     style: AppTextStyles.bodySmall.copyWith(
                       color: AppColors.textWhite,
                       fontWeight: FontWeight.w700,
@@ -341,12 +363,12 @@ class _HomePageState extends State<HomePage> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  '${profile.name}, ${profile.age}',
+                  '${user.name ?? user.id.substring(0, 5)}${age > 0 ? ', $age' : ''}',
                   style: AppTextStyles.h2.copyWith(color: AppColors.textWhite),
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  profile.profession,
+                  user.bio ?? 'No bio',
                   style: AppTextStyles.bodyMedium.copyWith(
                     color: AppColors.textWhite,
                   ),
@@ -364,26 +386,29 @@ class _HomePageState extends State<HomePage> {
     int? currentIndex,
     CardSwiperDirection direction,
   ) {
-    final profile = _profiles[previousIndex];
+    if (previousIndex < _discoverStore.profiles.length) {
+      final profile = _discoverStore.profiles[previousIndex];
 
-    switch (direction) {
-      case CardSwiperDirection.left:
-        debugPrint('Disliked: ${profile.name}');
-        break;
-      case CardSwiperDirection.right:
-        debugPrint('Liked: ${profile.name}');
-        break;
-      case CardSwiperDirection.top:
-        debugPrint('Super Liked: ${profile.name}');
-        break;
-      default:
-        break;
+      switch (direction) {
+        case CardSwiperDirection.left:
+          debugPrint('Disliked: ${profile.name}');
+          _discoverStore.onSwiped(profile, false);
+          break;
+        case CardSwiperDirection.right:
+          debugPrint('Liked: ${profile.name}');
+          _discoverStore.onSwiped(profile, true);
+          break;
+        case CardSwiperDirection.top:
+          debugPrint('Super Liked: ${profile.name}');
+          _discoverStore.onSwiped(profile, true);
+          break;
+        default:
+          break;
+      }
     }
 
     if (currentIndex != null) {
-      setState(() {
-        _currentIndex = currentIndex;
-      });
+      // Intentionally left blank as CardSwiper UI updates automatically
     }
 
     return true;
@@ -394,27 +419,6 @@ class _HomePageState extends State<HomePage> {
     int currentIndex,
     CardSwiperDirection direction,
   ) {
-    setState(() {
-      _currentIndex = currentIndex;
-    });
     return true;
   }
-}
-
-class ProfileCard {
-  final String name;
-  final int age;
-  final String profession;
-  final String distance;
-  final String location;
-  final String imageUrl;
-
-  ProfileCard({
-    required this.name,
-    required this.age,
-    required this.profession,
-    required this.distance,
-    required this.location,
-    required this.imageUrl,
-  });
 }

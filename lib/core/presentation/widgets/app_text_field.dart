@@ -50,12 +50,14 @@ class AppTextField extends StatefulWidget {
 class _AppTextFieldState extends State<AppTextField> {
   late final FocusNode _focusNode;
   bool _isFocused = false;
+  bool _isTouched = false;
 
   bool get hasError {
     final explicitError = widget.errorText != null && widget.errorText!.isNotEmpty;
     if (explicitError) return true;
     
-    if (widget.validator != null) {
+    // Only show validation errors if field has been touched
+    if (_isTouched && widget.validator != null) {
       final validationError = widget.validator!(widget.controller.text);
       return validationError != null && validationError.isNotEmpty;
     }
@@ -68,7 +70,8 @@ class _AppTextFieldState extends State<AppTextField> {
       return widget.errorText;
     }
     
-    if (widget.validator != null) {
+    // Only show validation error if field has been touched
+    if (_isTouched && widget.validator != null) {
       return widget.validator!(widget.controller.text);
     }
     
@@ -80,7 +83,13 @@ class _AppTextFieldState extends State<AppTextField> {
     super.initState();
     _focusNode = FocusNode()
       ..addListener(() {
-        setState(() => _isFocused = _focusNode.hasFocus);
+        setState(() {
+          _isFocused = _focusNode.hasFocus;
+          // Mark as touched when focused
+          if (_isFocused) {
+            _isTouched = true;
+          }
+        });
       });
   }
 
@@ -88,6 +97,11 @@ class _AppTextFieldState extends State<AppTextField> {
   void dispose() {
     _focusNode.dispose();
     super.dispose();
+  }
+
+  /// Mark this field as touched to show validation errors
+  void markAsTouched() {
+    setState(() => _isTouched = true);
   }
 
   @override

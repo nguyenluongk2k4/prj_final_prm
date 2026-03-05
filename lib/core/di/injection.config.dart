@@ -26,8 +26,18 @@ import '../../features/auth/infrastructure/datasources/auth_datasource.dart'
 import '../../features/auth/infrastructure/repositories/auth_repository_impl.dart'
     as _i748;
 import '../../features/auth/presentation/stores/auth_store.dart' as _i603;
+import '../../features/auth/presentation/stores/interests_store.dart' as _i499;
+import '../../features/home/data/repositories/discover_repository_impl.dart'
+    as _i90;
+import '../../features/home/domain/repositories/discover_repository.dart'
+    as _i952;
+import '../../features/home/domain/usecases/get_discover_batch_usecase.dart'
+    as _i236;
+import '../../features/home/domain/usecases/submit_swipe_usecase.dart' as _i219;
+import '../../features/home/presentation/stores/discover_store.dart' as _i436;
 import '../network/dio_client.dart' as _i667;
 import '../network/network_info.dart' as _i932;
+import '../services/image_upload_service.dart' as _i606;
 import 'auth_module.dart' as _i784;
 import 'register_module.dart' as _i291;
 
@@ -43,9 +53,21 @@ extension GetItInjectableX on _i174.GetIt {
     gh.lazySingleton<_i59.FirebaseAuth>(() => registerModule.firebaseAuth);
     gh.lazySingleton<_i454.SupabaseClient>(() => registerModule.supabaseClient);
     gh.lazySingleton<_i667.DioClient>(() => _i667.DioClient());
+    gh.lazySingleton<_i606.ImageUploadService>(
+      () => _i606.ImageUploadService(),
+    );
     gh.lazySingleton<_i932.NetworkInfo>(() => _i932.NetworkInfoImpl());
     gh.lazySingleton<_i696.AuthDatasource>(
       () => authModule.authDatasource(gh<_i454.SupabaseClient>()),
+    );
+    gh.factory<_i952.DiscoverRepository>(
+      () => _i90.DiscoverRepositoryImpl(supabase: gh<_i454.SupabaseClient>()),
+    );
+    gh.factory<_i236.GetDiscoverBatchUseCase>(
+      () => _i236.GetDiscoverBatchUseCase(gh<_i952.DiscoverRepository>()),
+    );
+    gh.factory<_i219.SubmitSwipeUseCase>(
+      () => _i219.SubmitSwipeUseCase(gh<_i952.DiscoverRepository>()),
     );
     gh.lazySingleton<_i787.AuthRepository>(
       () => _i748.AuthRepositoryImpl(
@@ -68,8 +90,23 @@ extension GetItInjectableX on _i174.GetIt {
     gh.lazySingleton<_i503.VerifyOtpAndSyncProfileUseCase>(
       () => _i503.VerifyOtpAndSyncProfileUseCase(gh<_i787.AuthRepository>()),
     );
+    gh.factory<_i436.DiscoverStore>(
+      () => _i436.DiscoverStore(
+        gh<_i236.GetDiscoverBatchUseCase>(),
+        gh<_i219.SubmitSwipeUseCase>(),
+      ),
+    );
     gh.lazySingleton<_i603.AuthStore>(
-      () => authModule.authStore(gh<_i696.AuthDatasource>()),
+      () => authModule.authStore(
+        gh<_i696.AuthDatasource>(),
+        gh<_i606.ImageUploadService>(),
+      ),
+    );
+    gh.lazySingleton<_i499.InterestsStore>(
+      () => authModule.interestsStore(
+        gh<_i696.AuthDatasource>(),
+        gh<_i603.AuthStore>(),
+      ),
     );
     return this;
   }

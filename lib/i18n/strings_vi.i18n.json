@@ -89,6 +89,10 @@
   "confirmPasswordHint": "Nhập lại mật khẩu",
   "passwordMinLength": "Mật khẩu phải có ít nhất 6 ký tự",
   "passwordsDoNotMatch": "Mật khẩu không khớp",
+  "nameRequired": "Vui lòng nhập tên",
+  "emailRequired": "Vui lòng nhập email",
+  "passwordRequired": "Vui lòng nhập mật khẩu",
+  "confirmPasswordRequired": "Vui lòng xác nhận mật khẩu",
   "alreadyHaveAccount": "Đã có tài khoản?",
   "signIn": "Đăng nhập",
   "pleaseEnterFullName": "Vui lòng nhập họ và tên",
@@ -132,5 +136,13 @@
   "usePhoneNumber": "Dùng số điện thoại",
   "orSignUpWith": "hoặc đăng ký với",
   "termsOfUse": "Điều khoản sử dụng",
-  "privacyPolicy": "Chính sách bảo mật"
+  "privacyPolicy": "Chính sách bảo mật",
+  "bio": "Tiểu sử",
+  "yourGender": "Giới tính của bạn",
+  "lookingFor": "Đang tìm kiếm",
+  "selectGender": "Chọn giới tính",
+  "saveChanges": "Lưu thay đổi",
+  "male": "Nam",
+  "female": "Nữ",
+  "uploadNewPicture": "Tải ảnh mới lên"
 }

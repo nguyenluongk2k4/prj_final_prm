@@ -1,12 +1,16 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
+import '../../../../core/di/injection.dart';
 import '../../../../core/presentation/widgets/widgets.dart';
 import '../../../../core/router/app_routes.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../../../../gen/assets.gen.dart';
 import '../../../../i18n/strings.g.dart';
+import '../constants/preferences_constants.dart';
+import '../stores/interests_store.dart';
 
 class InterestsPage extends StatefulWidget {
   const InterestsPage({super.key});
@@ -16,22 +20,25 @@ class InterestsPage extends StatefulWidget {
 }
 
 class _InterestsPageState extends State<InterestsPage> {
-  late final List<Interest> _interests = [
-    Interest(name: t.photography, icon: '177:332', isSelected: false),
-    Interest(name: t.shopping, icon: '177:328', isSelected: true),
-    Interest(name: t.karaoke, icon: '177:324', isSelected: false),
-    Interest(name: t.yoga, icon: '177:334', isSelected: false),
-    Interest(name: t.cooking, icon: '177:329', isSelected: false),
-    Interest(name: t.tennis, icon: '177:325', isSelected: false),
-    Interest(name: t.run, icon: '177:326', isSelected: true),
-    Interest(name: t.swimming, icon: '177:336', isSelected: false),
-    Interest(name: t.art, icon: '177:327', isSelected: false),
-    Interest(name: t.traveling, icon: '177:333', isSelected: true),
-    Interest(name: t.extreme, icon: '177:330', isSelected: false),
-    Interest(name: t.music, icon: '177:401', isSelected: false),
-    Interest(name: t.drink, icon: '177:335', isSelected: false),
-    Interest(name: t.videoGames, icon: '177:337', isSelected: false),
-  ];
+  late final List<InterestUI> _interests;
+  late final _interestsStore = getIt<InterestsStore>();
+
+  @override
+  void initState() {
+    super.initState();
+    _initializeInterests();
+  }
+
+  void _initializeInterests() {
+    _interests = PreferencesConstants.allPreferences.map((pref) {
+      return InterestUI(
+        id: pref.id,
+        translationKey: pref.translationKey,
+        iconAsset: pref.iconAsset,
+        isSelected: false,
+      );
+    }).toList();
+  }
 
   void _toggleInterest(int index) {
     setState(() {
@@ -39,12 +46,68 @@ class _InterestsPageState extends State<InterestsPage> {
     });
   }
 
+  Future<void> _handleContinue() async {
+    final selectedIds = _interests
+        .where((i) => i.isSelected)
+        .map((i) => i.id)
+        .toList();
+
+    await _interestsStore.savePreferences(selectedIds);
+
+    if (!mounted) return;
+    if (_interestsStore.errorMessage != null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(_interestsStore.errorMessage!)),
+      );
+      _interestsStore.clearError();
+    } else {
+      context.goNamed(AppRoutes.locationName);
+    }
+  }
+
+  String _getTranslationForPreference(Translations t, String key) {
+    switch (key) {
+      case 'photography':
+        return t.photography;
+      case 'shopping':
+        return t.shopping;
+      case 'karaoke':
+        return t.karaoke;
+      case 'yoga':
+        return t.yoga;
+      case 'cooking':
+        return t.cooking;
+      case 'tennis':
+        return t.tennis;
+      case 'run':
+        return t.run;
+      case 'swimming':
+        return t.swimming;
+      case 'art':
+        return t.art;
+      case 'traveling':
+        return t.traveling;
+      case 'extreme':
+        return t.extreme;
+      case 'music':
+        return t.music;
+      case 'drink':
+        return t.drink;
+      case 'videoGames':
+        return t.videoGames;
+      default:
+        return '';
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
+    final t = Translations.of(context);
+    
     return AppScaffold(
       showBackButton: true,
       showSkipButton: true,
-      onSkip: () => context.goNamed(AppRoutes.homeName),
+      onSkip: () => context.goNamed(AppRoutes.locationName),
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -83,7 +146,7 @@ class _InterestsPageState extends State<InterestsPage> {
                 ),
                 itemCount: _interests.length,
                 itemBuilder: (context, index) {
-                  return _buildInterestChip(_interests[index], index);
+                  return _buildInterestChip(t, _interests[index], index);
                 },
               ),
             ),
@@ -92,11 +155,12 @@ class _InterestsPageState extends State<InterestsPage> {
           // Continue button
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 40),
-            child: AppPrimaryButton(
-              text: t.continueLabel,
-              onPressed: () {
-                context.pushNamed(AppRoutes.friendsName);
-              },
+            child: Observer(
+              builder: (_) => AppPrimaryButton(
+                text: t.continueLabel,
+                isLoading: _interestsStore.isLoading,
+                onPressed: _handleContinue,
+              ),
             ),
           ),
 
@@ -106,7 +170,7 @@ class _InterestsPageState extends State<InterestsPage> {
     );
   }
 
-  Widget _buildInterestChip(Interest interest, int index) {
+  Widget _buildInterestChip(Translations t, InterestUI interest, int index) {
     return GestureDetector(
       onTap: () => _toggleInterest(index),
       child: Container(
@@ -136,7 +200,7 @@ class _InterestsPageState extends State<InterestsPage> {
               SizedBox(
                 width: 19,
                 height: 19,
-                child: _getIcon(interest.name).svg(
+                child: _getIcon(interest.iconAsset).svg(
                   colorFilter: ColorFilter.mode(
                     interest.isSelected
                         ? AppColors.textWhite
@@ -148,7 +212,7 @@ class _InterestsPageState extends State<InterestsPage> {
               const SizedBox(width: 8),
               Expanded(
                 child: Text(
-                  interest.name,
+                  _getTranslationForPreference(t, interest.translationKey),
                   style: AppTextStyles.bodyMedium.copyWith(
                     fontWeight: interest.isSelected
                         ? FontWeight.w700
@@ -167,29 +231,37 @@ class _InterestsPageState extends State<InterestsPage> {
     );
   }
 
-  SvgGenImage _getIcon(String name) {
-    if (name == t.photography) return Assets.icons.camera;
-    if (name == t.shopping) return Assets.icons.shopping;
-    if (name == t.karaoke) return Assets.icons.voice;
-    if (name == t.yoga) return Assets.icons.yoga;
-    if (name == t.cooking) return Assets.icons.noodles;
-    if (name == t.tennis) return Assets.icons.tennis;
-    if (name == t.run) return Assets.icons.sport;
-    if (name == t.swimming) return Assets.icons.ripple;
-    if (name == t.art) return Assets.icons.platte;
-    if (name == t.traveling) return Assets.icons.outdoor;
-    if (name == t.extreme) return Assets.icons.parachute;
-    if (name == t.music) return Assets.icons.music;
-    if (name == t.drink) return Assets.icons.goblet;
-    if (name == t.videoGames) return Assets.icons.gameHandle;
-    return Assets.icons.camera;
+  SvgGenImage _getIcon(String iconAsset) {
+    switch (iconAsset) {
+      case 'camera': return Assets.icons.camera;
+      case 'shopping': return Assets.icons.shopping;
+      case 'voice': return Assets.icons.voice;
+      case 'yoga': return Assets.icons.yoga;
+      case 'noodles': return Assets.icons.noodles;
+      case 'tennis': return Assets.icons.tennis;
+      case 'sport': return Assets.icons.sport;
+      case 'ripple': return Assets.icons.ripple;
+      case 'platte': return Assets.icons.platte;
+      case 'outdoor': return Assets.icons.outdoor;
+      case 'parachute': return Assets.icons.parachute;
+      case 'music': return Assets.icons.music;
+      case 'goblet': return Assets.icons.goblet;
+      case 'gameHandle': return Assets.icons.gameHandle;
+      default: return Assets.icons.camera;
+    }
   }
 }
 
-class Interest {
-  final String name;
-  final String icon;
+class InterestUI {
+  final String id;
+  final String translationKey;
+  final String iconAsset;
   bool isSelected;
 
-  Interest({required this.name, required this.icon, required this.isSelected});
+  InterestUI({
+    required this.id,
+    required this.translationKey,
+    required this.iconAsset,
+    required this.isSelected,
+  });
 }

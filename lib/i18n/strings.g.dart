@@ -4,9 +4,9 @@
 /// To regenerate, run: `dart run slang`
 ///
 /// Locales: 2
-/// Strings: 268 (134 per locale)
+/// Strings: 292 (146 per locale)
 ///
-/// Built on 2026-03-03 at 07:03 UTC
+/// Built on 2026-03-05 at 12:43 UTC
 
 // coverage:ignore-file
 // ignore_for_file: type=lint
@@ -238,6 +238,10 @@ class Translations implements BaseTranslations<AppLocale, Translations> {
 	String get confirmPasswordHint => 'Re-enter your password';
 	String get passwordMinLength => 'Password must be at least 6 characters';
 	String get passwordsDoNotMatch => 'Passwords do not match';
+	String get nameRequired => 'Name is required';
+	String get emailRequired => 'Email is required';
+	String get passwordRequired => 'Password is required';
+	String get confirmPasswordRequired => 'Please confirm password';
 	String get alreadyHaveAccount => 'Already have an account?';
 	String get signIn => 'Sign in';
 	String get pleaseEnterFullName => 'Please enter your full name';
@@ -282,6 +286,14 @@ class Translations implements BaseTranslations<AppLocale, Translations> {
 	String get orSignUpWith => 'or sign up with';
 	String get termsOfUse => 'Terms of use';
 	String get privacyPolicy => 'Privacy Policy';
+	String get bio => 'Bio';
+	String get yourGender => 'Your Gender';
+	String get lookingFor => 'Looking for';
+	String get selectGender => 'Select gender';
+	String get saveChanges => 'Save Changes';
+	String get male => 'Male';
+	String get female => 'Female';
+	String get uploadNewPicture => 'Upload new picture';
 }
 
 // Path: <root>
@@ -400,6 +412,10 @@ class _StringsVi extends Translations {
 	@override String get confirmPasswordHint => 'Nhập lại mật khẩu';
 	@override String get passwordMinLength => 'Mật khẩu phải có ít nhất 6 ký tự';
 	@override String get passwordsDoNotMatch => 'Mật khẩu không khớp';
+	@override String get nameRequired => 'Vui lòng nhập tên';
+	@override String get emailRequired => 'Vui lòng nhập email';
+	@override String get passwordRequired => 'Vui lòng nhập mật khẩu';
+	@override String get confirmPasswordRequired => 'Vui lòng xác nhận mật khẩu';
 	@override String get alreadyHaveAccount => 'Đã có tài khoản?';
 	@override String get signIn => 'Đăng nhập';
 	@override String get pleaseEnterFullName => 'Vui lòng nhập họ và tên';
@@ -444,6 +460,14 @@ class _StringsVi extends Translations {
 	@override String get orSignUpWith => 'hoặc đăng ký với';
 	@override String get termsOfUse => 'Điều khoản sử dụng';
 	@override String get privacyPolicy => 'Chính sách bảo mật';
+	@override String get bio => 'Tiểu sử';
+	@override String get yourGender => 'Giới tính của bạn';
+	@override String get lookingFor => 'Đang tìm kiếm';
+	@override String get selectGender => 'Chọn giới tính';
+	@override String get saveChanges => 'Lưu thay đổi';
+	@override String get male => 'Nam';
+	@override String get female => 'Nữ';
+	@override String get uploadNewPicture => 'Tải ảnh mới lên';
 }
 
 /// Flat map(s) containing all translations.
@@ -542,6 +566,10 @@ extension on Translations {
 			case 'confirmPasswordHint': return 'Re-enter your password';
 			case 'passwordMinLength': return 'Password must be at least 6 characters';
 			case 'passwordsDoNotMatch': return 'Passwords do not match';
+			case 'nameRequired': return 'Name is required';
+			case 'emailRequired': return 'Email is required';
+			case 'passwordRequired': return 'Password is required';
+			case 'confirmPasswordRequired': return 'Please confirm password';
 			case 'alreadyHaveAccount': return 'Already have an account?';
 			case 'signIn': return 'Sign in';
 			case 'pleaseEnterFullName': return 'Please enter your full name';
@@ -586,6 +614,14 @@ extension on Translations {
 			case 'orSignUpWith': return 'or sign up with';
 			case 'termsOfUse': return 'Terms of use';
 			case 'privacyPolicy': return 'Privacy Policy';
+			case 'bio': return 'Bio';
+			case 'yourGender': return 'Your Gender';
+			case 'lookingFor': return 'Looking for';
+			case 'selectGender': return 'Select gender';
+			case 'saveChanges': return 'Save Changes';
+			case 'male': return 'Male';
+			case 'female': return 'Female';
+			case 'uploadNewPicture': return 'Upload new picture';
 			default: return null;
 		}
 	}
@@ -684,6 +720,10 @@ extension on _StringsVi {
 			case 'confirmPasswordHint': return 'Nhập lại mật khẩu';
 			case 'passwordMinLength': return 'Mật khẩu phải có ít nhất 6 ký tự';
 			case 'passwordsDoNotMatch': return 'Mật khẩu không khớp';
+			case 'nameRequired': return 'Vui lòng nhập tên';
+			case 'emailRequired': return 'Vui lòng nhập email';
+			case 'passwordRequired': return 'Vui lòng nhập mật khẩu';
+			case 'confirmPasswordRequired': return 'Vui lòng xác nhận mật khẩu';
 			case 'alreadyHaveAccount': return 'Đã có tài khoản?';
 			case 'signIn': return 'Đăng nhập';
 			case 'pleaseEnterFullName': return 'Vui lòng nhập họ và tên';
@@ -728,6 +768,14 @@ extension on _StringsVi {
 			case 'orSignUpWith': return 'hoặc đăng ký với';
 			case 'termsOfUse': return 'Điều khoản sử dụng';
 			case 'privacyPolicy': return 'Chính sách bảo mật';
+			case 'bio': return 'Tiểu sử';
+			case 'yourGender': return 'Giới tính của bạn';
+			case 'lookingFor': return 'Đang tìm kiếm';
+			case 'selectGender': return 'Chọn giới tính';
+			case 'saveChanges': return 'Lưu thay đổi';
+			case 'male': return 'Nam';
+			case 'female': return 'Nữ';
+			case 'uploadNewPicture': return 'Tải ảnh mới lên';
 			default: return null;
 		}
 	}

@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
 import '../../../../core/presentation/widgets/widgets.dart';
 import '../../../../core/router/app_routes.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_styles.dart';
-import '../../../../gen/assets.gen.dart';
+import 'package:flutter_mobx/flutter_mobx.dart';
+import '../../../../core/di/injection.dart';
+import '../stores/auth_store.dart';
 import '../../../../i18n/strings.g.dart';
 
 class ProfileDetailsPage extends StatefulWidget {
@@ -16,19 +17,41 @@ class ProfileDetailsPage extends StatefulWidget {
 }
 
 class _ProfileDetailsPageState extends State<ProfileDetailsPage> {
-  final TextEditingController _firstNameController = TextEditingController(
-    text: 'David',
-  );
-  final TextEditingController _lastNameController = TextEditingController(
-    text: 'Peterson',
-  );
-  String? _selectedDate;
+  final TextEditingController _firstNameController = TextEditingController();
+  final TextEditingController _lastNameController = TextEditingController();
+  final TextEditingController _phoneController = TextEditingController();
+  String? _selectedDateS;
+  DateTime? _birthDate;
+  final _authStore = getIt<AuthStore>();
 
   @override
   void dispose() {
     _firstNameController.dispose();
     _lastNameController.dispose();
+    _phoneController.dispose();
     super.dispose();
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    final user = _authStore.currentUser;
+    if (user != null) {
+      if (user.name != null) {
+        final parts = user.name!.split(' ');
+        if (parts.length > 1) {
+          _firstNameController.text = parts.first;
+          _lastNameController.text = parts.sublist(1).join(' ');
+        } else {
+          _firstNameController.text = user.name!;
+        }
+      }
+      _phoneController.text = user.phone ?? '';
+      if (user.birthDate != null) {
+        _birthDate = user.birthDate;
+        _selectedDateS = '${_birthDate!.day.toString().padLeft(2, '0')}/${_birthDate!.month.toString().padLeft(2, '0')}/${_birthDate!.year}';
+      }
+    }
   }
 
   Future<void> _selectDate(BuildContext context) async {
@@ -40,9 +63,39 @@ class _ProfileDetailsPageState extends State<ProfileDetailsPage> {
     );
     if (picked != null) {
       setState(() {
-        _selectedDate =
+        _birthDate = picked;
+        _selectedDateS =
             '${picked.day.toString().padLeft(2, '0')}/${picked.month.toString().padLeft(2, '0')}/${picked.year}';
       });
+    }
+  }
+
+  void _handleContinue() async {
+    if (_firstNameController.text.trim().isEmpty || _lastNameController.text.trim().isEmpty || _birthDate == null) {
+       ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Vui lòng điền đầy đủ thông tin')),
+      );
+      return;
+    }
+
+    await _authStore.updateProfile(
+      name: '${_firstNameController.text.trim()} ${_lastNameController.text.trim()}',
+      phone: _phoneController.text.trim(),
+      bio: _authStore.currentUser?.bio ?? '',
+      birthDate: _birthDate,
+      gender: _authStore.currentUser?.gender,
+      targetGender: _authStore.currentUser?.targetGender,
+      provinceId: _authStore.currentUser?.provinceId,
+    );
+
+    if (!mounted) return;
+
+    if (_authStore.hasError) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(_authStore.errorMessage!)),
+      );
+    } else {
+      context.pushNamed(AppRoutes.genderSelectionName);
     }
   }
 
@@ -144,7 +197,7 @@ class _ProfileDetailsPageState extends State<ProfileDetailsPage> {
                         ),
                         const SizedBox(width: 17.5),
                         Text(
-                          _selectedDate ?? t.birthday,
+                          _selectedDateS ?? t.birthday,
                           style: AppTextStyles.bodyMedium.copyWith(
                             fontWeight: FontWeight.w700,
                             color: AppColors.primary,
@@ -156,14 +209,23 @@ class _ProfileDetailsPageState extends State<ProfileDetailsPage> {
                 ),
               ),
 
+              const SizedBox(height: 16),
+
+              // Phone number input
+              _buildInputField(
+                controller: _phoneController,
+                label: 'Phone number',
+              ),
+
               const SizedBox(height: 86),
 
               // Confirm button
-              AppPrimaryButton(
-                text: t.continueLabel,
-                onPressed: () {
-                  context.pushNamed(AppRoutes.genderSelectionName);
-                },
+              Observer(
+                builder: (_) => AppPrimaryButton(
+                  text: t.continueLabel,
+                  isLoading: _authStore.isLoading,
+                  onPressed: _handleContinue,
+                ),
               ),
 
               const SizedBox(height: 40),

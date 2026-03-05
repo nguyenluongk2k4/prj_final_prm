@@ -172,7 +172,11 @@ class _ChatPageState extends State<ChatPage> {
           // ── Messages list ───────────────────────────────────────────────
           Expanded(
             child: ListView.separated(
-              padding: const EdgeInsets.symmetric(horizontal: 24),
+              padding: EdgeInsets.only(
+                left: 24, 
+                right: 24, 
+                bottom: 100 + MediaQuery.of(context).padding.bottom
+              ),
               itemCount: _filtered.length,
               separatorBuilder: (_, __) => Divider(
                 height: 1,

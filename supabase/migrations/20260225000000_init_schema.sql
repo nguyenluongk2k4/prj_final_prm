@@ -144,6 +144,11 @@ CREATE POLICY "Users can view own record"
   FOR SELECT
   USING (auth.uid() = id);
 
+CREATE POLICY "Users can insert own record"
+  ON public.users
+  FOR INSERT
+  WITH CHECK (auth.uid() = id);
+
 CREATE POLICY "Users can update own record"
   ON public.users
   FOR UPDATE
@@ -154,6 +159,11 @@ CREATE POLICY "Users can view own profile"
   ON public.profiles
   FOR SELECT
   USING (auth.uid() = user_id);
+
+CREATE POLICY "Users can insert own profile"
+  ON public.profiles
+  FOR INSERT
+  WITH CHECK (auth.uid() = user_id);
 
 CREATE POLICY "Users can update own profile"
   ON public.profiles
@@ -172,9 +182,14 @@ CREATE POLICY "Users can view own preferences"
   FOR SELECT
   USING (auth.uid() = user_id);
 
+CREATE POLICY "Users can insert own preferences"
+  ON public.user_preferences
+  FOR INSERT
+  WITH CHECK (auth.uid() = user_id);
+
 CREATE POLICY "Users can manage own preferences"
   ON public.user_preferences
-  FOR ALL
+  FOR UPDATE
   USING (auth.uid() = user_id);
 
 -- Bật Realtime trên db để có thể track vị trí

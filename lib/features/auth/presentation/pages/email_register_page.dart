@@ -49,9 +49,11 @@ class _EmailRegisterPageState extends State<EmailRegisterPage> {
         password: _passwordController.text,
         name: _nameController.text.trim(),
       );
-      
-      if (_authStore.isAuthenticated && mounted) {
-        context.goNamed(AppRoutes.interestsName);
+
+      if (!mounted) return;
+
+      if (_authStore.isAuthenticated) {
+        context.goNamed(AppRoutes.profileDetailsName);
       }
     }
   }
@@ -64,6 +66,7 @@ class _EmailRegisterPageState extends State<EmailRegisterPage> {
     return AppScaffold(
       showQuickActions: false,
       showBackButton: true,
+      actions: const [AppBarActions()],
       body: SingleChildScrollView(
         child: Padding(
           padding: const EdgeInsets.all(24.0),
@@ -93,7 +96,7 @@ class _EmailRegisterPageState extends State<EmailRegisterPage> {
                   hint: t.fullName,
                   validator: (value) {
                     if (value == null || value.isEmpty) {
-                      return 'Name is required';
+                      return t.nameRequired;
                     }
                     return null;
                   },
@@ -107,10 +110,10 @@ class _EmailRegisterPageState extends State<EmailRegisterPage> {
                   keyboardType: TextInputType.emailAddress,
                   validator: (value) {
                     if (value == null || value.isEmpty) {
-                      return 'Email is required';
+                      return t.emailRequired;
                     }
                     if (!value.contains('@')) {
-                      return 'Invalid email';
+                      return t.invalidEmail;
                     }
                     return null;
                   },
@@ -131,10 +134,10 @@ class _EmailRegisterPageState extends State<EmailRegisterPage> {
                   ),
                   validator: (value) {
                     if (value == null || value.isEmpty) {
-                      return 'Password is required';
+                      return t.passwordRequired;
                     }
                     if (value.length < 6) {
-                      return 'Password must be at least 6 characters';
+                      return t.passwordMinLength;
                     }
                     return null;
                   },
@@ -144,7 +147,7 @@ class _EmailRegisterPageState extends State<EmailRegisterPage> {
                 // Confirm password field
                 AppTextField(
                   controller: _confirmPasswordController,
-                  hint: 'Confirm Password',
+                  hint: t.confirmPassword,
                   obscureText: _obscureConfirm,
                   suffixIcon: GestureDetector(
                     onTap: () => setState(() => _obscureConfirm = !_obscureConfirm),
@@ -155,10 +158,10 @@ class _EmailRegisterPageState extends State<EmailRegisterPage> {
                   ),
                   validator: (value) {
                     if (value == null || value.isEmpty) {
-                      return 'Please confirm password';
+                      return t.confirmPasswordRequired;
                     }
                     if (value != _passwordController.text) {
-                      return 'Passwords do not match';
+                      return t.passwordsDoNotMatch;
                     }
                     return null;
                   },

@@ -71,8 +71,9 @@ class _OnboardingPageState extends State<OnboardingPage> {
   Widget build(BuildContext context) {
     final t = Translations.of(context);
     final items = _buildItems(t);
-    return Scaffold(
-      backgroundColor: context.appColors.background,
+    return AppScaffold(
+      showQuickActions: false,
+      actions: const [AppBarActions()],
       body: SafeArea(
         child: SingleChildScrollView(
           child: Column(

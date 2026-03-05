@@ -9,6 +9,8 @@ class AppRoutes {
   static const String interests = '/interests';
   static const String friends = '/friends';
   static const String notification = '/notification';
+  static const String location = '/location';
+  static const String bioProvince = '/bio-province';
   static const String home = '/home';
   static const String match = '/match';
   static const String matches = '/matches';
@@ -17,6 +19,7 @@ class AppRoutes {
   static const String login = '/login';
   static const String emailRegister = '/email-register';
   static const String settings = '/settings';
+  static const String editProfile = '/edit-profile';
   static const String main = '/home';
 
   // Route names
@@ -29,6 +32,8 @@ class AppRoutes {
   static const String interestsName = 'interests';
   static const String friendsName = 'friends';
   static const String notificationName = 'notification';
+  static const String locationName = 'location';
+  static const String bioProvinceName = 'bio-province';
   static const String loginName = 'login';
   static const String emailRegisterName = 'email-register';
   static const String settingsName = 'settings';
@@ -37,4 +42,5 @@ class AppRoutes {
   static const String matchesName = 'matches';
   static const String chatName = 'chat';
   static const String accountName = 'account';
+  static const String editProfileName = 'edit-profile';
 }

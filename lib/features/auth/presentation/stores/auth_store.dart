@@ -1,9 +1,11 @@
 import 'dart:async';
 
+import 'dart:io';
 import 'package:mobx/mobx.dart';
 import 'package:supabase_flutter/supabase_flutter.dart' hide AuthResponse;
 import '../../infrastructure/datasources/datasources.dart';
 import '../../infrastructure/models/models.dart';
+import '../../../../core/services/image_upload_service.dart';
 
 part 'auth_store.g.dart';
 
@@ -11,12 +13,14 @@ class AuthStore = _AuthStore with _$AuthStore;
 
 abstract class _AuthStore with Store {
   final AuthDatasource authDatasource;
+  final ImageUploadService imageUploadService;
 
   late StreamSubscription<AuthState> _authSubscription;
 
-  _AuthStore({required this.authDatasource}) {
+  _AuthStore({required this.authDatasource, required this.imageUploadService}) {
     _initAuthListener();
-    _restoreSession();
+    // Startup session restore được xử lý trong main.dart trước runApp()
+    // để đảm bảo isAuthenticated được set trước khi GoRouter khởi tạo
   }
 
   @observable
@@ -42,34 +46,19 @@ abstract class _AuthStore with Store {
 
   /// Initialize auth state listener
   void _initAuthListener() {
-    _authSubscription = authDatasource.authStateChanges.listen((data) {
+    _authSubscription = authDatasource.authStateChanges.listen((data) async {
       final session = data.session;
       isAuthenticated = session != null;
       if (session == null) {
         currentUser = null;
+      } else if (currentUser == null) {
+        currentUser = await authDatasource.getCurrentUser();
       }
     });
   }
 
-  /// Restore session on app restart
-  Future<void> _restoreSession() async {
-    try {
-      final session = authDatasource.getCurrentSession();
-      if (session != null) {
-        final user = await authDatasource.getCurrentUser();
-        currentUser = user;
-        isAuthenticated = true;
-      }
-    } catch (e) {
-      print('Error restoring session: $e');
-    }
-  }
-
   @action
-  Future<void> login({
-    required String email,
-    required String password,
-  }) async {
+  Future<void> login({required String email, required String password}) async {
     isLoading = true;
     errorMessage = null;
     successMessage = null;
@@ -98,7 +87,6 @@ abstract class _AuthStore with Store {
     required String name,
     String? phone,
     List<String>? preferences,
-    String? location,
   }) async {
     isLoading = true;
     errorMessage = null;
@@ -109,8 +97,9 @@ abstract class _AuthStore with Store {
       password: password,
       name: name,
       phone: phone,
+      latitude: null,
+      longitude: null,
       preferences: preferences,
-      location: location,
     );
 
     if (response.success) {
@@ -120,6 +109,114 @@ abstract class _AuthStore with Store {
     } else {
       errorMessage = response.errorMessage;
       isAuthenticated = false;
+    }
+
+    isLoading = false;
+  }
+
+  @action
+  void updatePreferences(List<String> preferences) {
+    if (currentUser != null) {
+      currentUser = currentUser!.copyWith(preferences: preferences);
+    }
+  }
+
+  @action
+  Future<void> updateProfile({
+    required String name,
+    required String phone,
+    required String bio,
+    required DateTime? birthDate,
+    required String? gender,
+    required String? targetGender,
+    required int? provinceId,
+  }) async {
+    isLoading = true;
+    errorMessage = null;
+    successMessage = null;
+
+    final response = await authDatasource.updateProfile(
+      name: name,
+      phone: phone,
+      bio: bio,
+      birthDate: birthDate,
+      gender: gender,
+      targetGender: targetGender,
+      provinceId: provinceId,
+    );
+
+    if (response.success) {
+      currentUser = response.data;
+      successMessage = 'Profile updated successfully';
+    } else {
+      errorMessage = response.errorMessage;
+    }
+
+    isLoading = false;
+  }
+
+  @action
+  Future<void> updateBioAndProvince({
+    required String bio,
+    required int provinceId,
+  }) async {
+    isLoading = true;
+    errorMessage = null;
+
+    final response = await authDatasource.updateBioAndProvince(
+      bio: bio,
+      provinceId: provinceId,
+    );
+
+    if (response.success) {
+      currentUser = response.data;
+    } else {
+      errorMessage = response.errorMessage;
+    }
+
+    isLoading = false;
+  }
+
+  @action
+  Future<void> updateLocation({
+    required double latitude,
+    required double longitude,
+  }) async {
+    isLoading = true;
+    errorMessage = null;
+
+    final response = await authDatasource.updateLocation(
+      latitude: latitude,
+      longitude: longitude,
+    );
+
+    if (response.success) {
+      currentUser = response.data;
+    } else {
+      errorMessage = response.errorMessage;
+    }
+
+    isLoading = false;
+  }
+
+  @action
+  Future<void> uploadAvatar(File imageFile) async {
+    isLoading = true;
+    errorMessage = null;
+    successMessage = null;
+
+    final url = await imageUploadService.uploadImage(imageFile);
+
+    if (url != null) {
+      final response = await authDatasource.updateAvatar(url);
+      if (response.success) {
+        currentUser = response.data;
+        successMessage = 'Avatar updated successfully';
+      } else {
+        errorMessage = response.errorMessage;
+      }
+    } else {
+      errorMessage = 'Failed to upload image. Check configuration or network.';
     }
 
     isLoading = false;

@@ -89,6 +89,10 @@
   "confirmPasswordHint": "Re-enter your password",
   "passwordMinLength": "Password must be at least 6 characters",
   "passwordsDoNotMatch": "Passwords do not match",
+  "nameRequired": "Name is required",
+  "emailRequired": "Email is required",
+  "passwordRequired": "Password is required",
+  "confirmPasswordRequired": "Please confirm password",
   "alreadyHaveAccount": "Already have an account?",
   "signIn": "Sign in",
   "pleaseEnterFullName": "Please enter your full name",
@@ -132,5 +136,13 @@
   "usePhoneNumber": "Use phone number",
   "orSignUpWith": "or sign up with",
   "termsOfUse": "Terms of use",
-  "privacyPolicy": "Privacy Policy"
+  "privacyPolicy": "Privacy Policy",
+  "bio": "Bio",
+  "yourGender": "Your Gender",
+  "lookingFor": "Looking for",
+  "selectGender": "Select gender",
+  "saveChanges": "Save Changes",
+  "male": "Male",
+  "female": "Female",
+  "uploadNewPicture": "Upload new picture"
 }

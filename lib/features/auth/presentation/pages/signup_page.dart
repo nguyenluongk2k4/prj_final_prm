@@ -15,8 +15,9 @@ class SignUpPage extends StatelessWidget {
     final c = context.appColors;
     final t = Translations.of(context);
 
-    return Scaffold(
-      backgroundColor: c.background,
+    return AppScaffold(
+      showQuickActions: false,
+      actions: const [AppBarActions()],
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 40),

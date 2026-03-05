@@ -1,4 +1,6 @@
+import 'package:get_it/get_it.dart';
 import 'package:go_router/go_router.dart';
+import '../../features/auth/presentation/stores/auth_store.dart';
 import '../../features/onboarding/presentation/pages/onboarding_page.dart';
 import '../../features/auth/presentation/pages/signup_page.dart';
 import '../../features/auth/presentation/pages/phone_signup_page.dart';
@@ -6,6 +8,8 @@ import '../../features/auth/presentation/pages/verification_page.dart';
 import '../../features/auth/presentation/pages/profile_details_page.dart';
 import '../../features/auth/presentation/pages/gender_selection_page.dart';
 import '../../features/auth/presentation/pages/interests_page.dart';
+import '../../features/auth/presentation/pages/bio_province_page.dart';
+import '../../features/auth/presentation/pages/enable_location_page.dart';
 import '../../features/auth/presentation/pages/friends_page.dart';
 import '../../features/auth/presentation/pages/notification_page.dart';
 import '../../features/home/presentation/pages/main_page.dart';
@@ -14,12 +18,15 @@ import '../../features/auth/presentation/pages/login_page.dart';
 
 import '../../features/auth/presentation/pages/email_register_page.dart';
 import '../../features/auth/presentation/pages/settings_page.dart';
+import '../../features/home/presentation/pages/edit_profile_page.dart';
 import '../app_stores.dart';
 import 'app_routes.dart';
 
 class AppRouter {
   static final GoRouter router = GoRouter(
-    initialLocation: AppRoutes.onboarding,
+    initialLocation: GetIt.I<AuthStore>().isAuthenticated
+        ? AppRoutes.home
+        : AppRoutes.onboarding,
     routes: [
       GoRoute(
         path: AppRoutes.onboarding,
@@ -66,6 +73,16 @@ class AppRouter {
         name: AppRoutes.notificationName,
         builder: (context, state) => const NotificationPage(),
       ),
+      GoRoute(
+        path: AppRoutes.location,
+        name: AppRoutes.locationName,
+        builder: (context, state) => const EnableLocationPage(),
+      ),
+      GoRoute(
+        path: AppRoutes.bioProvince,
+        name: AppRoutes.bioProvinceName,
+        builder: (context, state) => const BioProvincePage(),
+      ),
       // ── Main shell: shared nav bar, tab content via IndexedStack ────────
       GoRoute(
         path: AppRoutes.home,
@@ -103,6 +120,11 @@ class AppRouter {
             localeStore: stores.localeStore,
           );
         },
+      ),
+      GoRoute(
+        path: AppRoutes.editProfile,
+        name: AppRoutes.editProfileName,
+        builder: (context, state) => const EditProfilePage(),
       ),
     ],
     // Handle deep links

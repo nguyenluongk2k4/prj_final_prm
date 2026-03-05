@@ -138,7 +138,6 @@ mixin _$AuthStore on _AuthStore, Store {
     required String name,
     String? phone,
     List<String>? preferences,
-    String? location,
   }) {
     return _$signupAsyncAction.run(
       () => super.signup(
@@ -147,9 +146,76 @@ mixin _$AuthStore on _AuthStore, Store {
         name: name,
         phone: phone,
         preferences: preferences,
-        location: location,
       ),
     );
+  }
+
+  late final _$updateProfileAsyncAction = AsyncAction(
+    '_AuthStore.updateProfile',
+    context: context,
+  );
+
+  @override
+  Future<void> updateProfile({
+    required String name,
+    required String phone,
+    required String bio,
+    required DateTime? birthDate,
+    required String? gender,
+    required String? targetGender,
+    required int? provinceId,
+  }) {
+    return _$updateProfileAsyncAction.run(
+      () => super.updateProfile(
+        name: name,
+        phone: phone,
+        bio: bio,
+        birthDate: birthDate,
+        gender: gender,
+        targetGender: targetGender,
+        provinceId: provinceId,
+      ),
+    );
+  }
+
+  late final _$updateBioAndProvinceAsyncAction = AsyncAction(
+    '_AuthStore.updateBioAndProvince',
+    context: context,
+  );
+
+  @override
+  Future<void> updateBioAndProvince({
+    required String bio,
+    required int provinceId,
+  }) {
+    return _$updateBioAndProvinceAsyncAction.run(
+      () => super.updateBioAndProvince(bio: bio, provinceId: provinceId),
+    );
+  }
+
+  late final _$updateLocationAsyncAction = AsyncAction(
+    '_AuthStore.updateLocation',
+    context: context,
+  );
+
+  @override
+  Future<void> updateLocation({
+    required double latitude,
+    required double longitude,
+  }) {
+    return _$updateLocationAsyncAction.run(
+      () => super.updateLocation(latitude: latitude, longitude: longitude),
+    );
+  }
+
+  late final _$uploadAvatarAsyncAction = AsyncAction(
+    '_AuthStore.uploadAvatar',
+    context: context,
+  );
+
+  @override
+  Future<void> uploadAvatar(File imageFile) {
+    return _$uploadAvatarAsyncAction.run(() => super.uploadAvatar(imageFile));
   }
 
   late final _$logoutAsyncAction = AsyncAction(
@@ -166,6 +232,18 @@ mixin _$AuthStore on _AuthStore, Store {
     name: '_AuthStore',
     context: context,
   );
+
+  @override
+  void updatePreferences(List<String> preferences) {
+    final _$actionInfo = _$_AuthStoreActionController.startAction(
+      name: '_AuthStore.updatePreferences',
+    );
+    try {
+      return super.updatePreferences(preferences);
+    } finally {
+      _$_AuthStoreActionController.endAction(_$actionInfo);
+    }
+  }
 
   @override
   void clearMessages() {

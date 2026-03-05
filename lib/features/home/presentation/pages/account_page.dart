@@ -1,5 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
+import 'package:get_it/get_it.dart';
+import 'package:go_router/go_router.dart';
+import '../../../../core/router/app_routes.dart';
+import '../../../auth/presentation/stores/auth_store.dart';
 import '../../../../core/app_stores.dart';
 import '../../../../core/presentation/widgets/widgets.dart';
 import '../../../../core/theme/app_color_scheme.dart';
@@ -18,6 +22,7 @@ class AccountPage extends StatefulWidget {
 class _AccountPageState extends State<AccountPage> {
   final _themeStore = AppStores.instance.themeStore;
   final _localeStore = AppStores.instance.localeStore;
+  final _authStore = GetIt.I<AuthStore>();
 
   bool _pushNotifications = true;
   bool _newMatchNotif = true;
@@ -44,7 +49,11 @@ class _AccountPageState extends State<AccountPage> {
       ),
       showQuickActions: false,
       body: ListView(
-        padding: const EdgeInsets.symmetric(horizontal: 24),
+        padding: EdgeInsets.only(
+          left: 24, 
+          right: 24, 
+          bottom: 100 + MediaQuery.of(context).padding.bottom
+        ),
         children: [
           const SizedBox(height: 24),
 
@@ -56,11 +65,6 @@ class _AccountPageState extends State<AccountPage> {
           // ── Profile section ─────────────────────────────────────────────
           _SectionHeader(t.myProfile),
           const SizedBox(height: 12),
-          _SettingsTile(
-            icon: Icons.person_outline_rounded,
-            label: t.editProfile,
-            onTap: () {},
-          ),
           _SettingsTile(
             icon: Icons.photo_library_outlined,
             label: t.photoAlbum,
@@ -137,7 +141,12 @@ class _AccountPageState extends State<AccountPage> {
             label: t.logout,
             iconColor: AppColors.primary,
             labelColor: AppColors.primary,
-            onTap: () {},
+            onTap: () async {
+              await _authStore.logout();
+              if (context.mounted) {
+                context.go(AppRoutes.login);
+              }
+            },
           ),
 
           const SizedBox(height: 40),
@@ -200,56 +209,75 @@ class _AccountPageState extends State<AccountPage> {
 // ─── Profile header ───────────────────────────────────────────────────────────
 
 class _ProfileHeader extends StatelessWidget {
+  final _authStore = GetIt.I<AuthStore>();
+
   @override
   Widget build(BuildContext context) {
     final c = context.appColors;
     final t = Translations.of(context);
-    return Row(
-      children: [
-        Stack(
+    
+    return Observer(
+      builder: (_) {
+        final user = _authStore.currentUser;
+        final name = user?.name ?? 'Anonymous User';
+        final email = user?.email ?? '';
+        final avatarUrl = user?.avatarUrl;
+
+        return Column(
           children: [
-            ClipOval(
-              child: Assets.images.chatActivityYou.image(
-                width: 80,
-                height: 80,
-                fit: BoxFit.cover,
+            Center(
+              child: ClipOval(
+                child: avatarUrl != null && avatarUrl.isNotEmpty
+                    ? Image.network(
+                        avatarUrl,
+                        width: 100,
+                        height: 100,
+                        fit: BoxFit.cover,
+                        errorBuilder: (_, __, ___) => Assets.images.chatActivityYou.image(
+                          width: 100,
+                          height: 100,
+                          fit: BoxFit.cover,
+                        ),
+                      )
+                    : Assets.images.chatActivityYou.image(
+                        width: 100,
+                        height: 100,
+                        fit: BoxFit.cover,
+                      ),
               ),
             ),
-            Positioned(
-              bottom: 0,
-              right: 0,
-              child: Container(
-                width: 26,
-                height: 26,
-                decoration: BoxDecoration(
-                  color: AppColors.primary,
-                  shape: BoxShape.circle,
-                  border: Border.all(color: c.background, width: 2),
+            const SizedBox(height: 16),
+            Text(
+              name,
+              style: AppTextStyles.h2.copyWith(color: c.textPrimary),
+              textAlign: TextAlign.center,
+            ),
+            if (email.isNotEmpty)
+              Padding(
+                padding: const EdgeInsets.only(top: 4),
+                child: Text(
+                  email,
+                  style: AppTextStyles.bodyMedium.copyWith(color: c.text70),
+                  textAlign: TextAlign.center,
                 ),
-                child: const Icon(Icons.edit, color: Colors.white, size: 13),
               ),
+            const SizedBox(height: 24),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Expanded(
+                  child: AppPrimaryButton(
+                    text: t.editProfile,
+                    onPressed: () {
+                      context.pushNamed(AppRoutes.editProfileName);
+                    },
+                  ),
+                ),
+              ],
             ),
           ],
-        ),
-        const SizedBox(width: 20),
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                'Jessica Parker',
-                style: AppTextStyles.h3.copyWith(color: c.textPrimary),
-              ),
-              const SizedBox(height: 4),
-              Text(
-                'jessica.parker@email.com',
-                style: AppTextStyles.bodySmall.copyWith(color: c.text70),
-              ),
-            ],
-          ),
-        ),
-        
-      ],
+        );
+      }
     );
   }
 }
