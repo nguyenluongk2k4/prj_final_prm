@@ -21,9 +21,13 @@ class SignUpPage extends StatelessWidget {
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 40),
-          child: Column(
-            children: [
-              const SizedBox(height: 128),
+          child: CustomScrollView(
+            slivers: [
+              SliverFillRemaining(
+                hasScrollBody: false,
+                child: Column(
+                  children: [
+                    const SizedBox(height: 128),
 
               // Logo/Trademark
               SvgPicture.asset(
@@ -66,6 +70,30 @@ class SignUpPage extends StatelessWidget {
                     onPressed: () {
                       context.pushNamed(AppRoutes.phoneSignupName);
                     },
+                  ),
+                  const SizedBox(height: 16),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text(
+                        'Already have an account?',
+                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                              color: c.text70,
+                            ),
+                      ),
+                      TextButton(
+                        onPressed: () {
+                          context.goNamed(AppRoutes.loginName);
+                        },
+                        child: Text(
+                          t.login,
+                          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                                color: AppColors.primary,
+                                fontWeight: FontWeight.bold,
+                              ),
+                        ),
+                      ),
+                    ],
                   ),
                 ],
               ),
@@ -141,35 +169,44 @@ class SignUpPage extends StatelessWidget {
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  TextButton(
-                    onPressed: () {
-                      // Show terms of use
-                    },
-                    child: Text(
-                      t.termsOfUse,
-                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                        fontSize: 14,
-                        color: AppColors.primary,
+                  Expanded(
+                    child: TextButton(
+                      onPressed: () {
+                        // Show terms of use
+                      },
+                      child: Text(
+                        t.termsOfUse,
+                        textAlign: TextAlign.center,
+                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                          fontSize: 14,
+                          color: AppColors.primary,
+                        ),
                       ),
                     ),
                   ),
-                  const SizedBox(width: 16),
-                  TextButton(
-                    onPressed: () {
-                      // Show privacy policy
-                    },
-                    child: Text(
-                      t.privacyPolicy,
-                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                        fontSize: 14,
-                        color: AppColors.primary,
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: TextButton(
+                      onPressed: () {
+                        // Show privacy policy
+                      },
+                      child: Text(
+                        t.privacyPolicy,
+                        textAlign: TextAlign.center,
+                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                          fontSize: 14,
+                          color: AppColors.primary,
+                        ),
                       ),
                     ),
                   ),
                 ],
               ),
 
-              const SizedBox(height: 20),
+                    const SizedBox(height: 20),
+                  ],
+                ),
+              ),
             ],
           ),
         ),

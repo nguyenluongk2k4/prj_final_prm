@@ -20,8 +20,10 @@ class _ProfileDetailsPageState extends State<ProfileDetailsPage> {
   final TextEditingController _firstNameController = TextEditingController();
   final TextEditingController _lastNameController = TextEditingController();
   final TextEditingController _phoneController = TextEditingController();
+  final TextEditingController _bioController = TextEditingController();
   String? _selectedDateS;
   DateTime? _birthDate;
+  int? _selectedProvinceId;
   final _authStore = getIt<AuthStore>();
 
   @override
@@ -29,6 +31,7 @@ class _ProfileDetailsPageState extends State<ProfileDetailsPage> {
     _firstNameController.dispose();
     _lastNameController.dispose();
     _phoneController.dispose();
+    _bioController.dispose();
     super.dispose();
   }
 
@@ -47,11 +50,14 @@ class _ProfileDetailsPageState extends State<ProfileDetailsPage> {
         }
       }
       _phoneController.text = user.phone ?? '';
+      _bioController.text = user.bio ?? '';
+      _selectedProvinceId = user.provinceId;
       if (user.birthDate != null) {
         _birthDate = user.birthDate;
         _selectedDateS = '${_birthDate!.day.toString().padLeft(2, '0')}/${_birthDate!.month.toString().padLeft(2, '0')}/${_birthDate!.year}';
       }
     }
+    _authStore.fetchProvinces();
   }
 
   Future<void> _selectDate(BuildContext context) async {
@@ -71,7 +77,10 @@ class _ProfileDetailsPageState extends State<ProfileDetailsPage> {
   }
 
   void _handleContinue() async {
-    if (_firstNameController.text.trim().isEmpty || _lastNameController.text.trim().isEmpty || _birthDate == null) {
+    if (_firstNameController.text.trim().isEmpty || 
+        _lastNameController.text.trim().isEmpty || 
+        _birthDate == null ||
+        _selectedProvinceId == null) {
        ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Vui lòng điền đầy đủ thông tin')),
       );
@@ -81,11 +90,11 @@ class _ProfileDetailsPageState extends State<ProfileDetailsPage> {
     await _authStore.updateProfile(
       name: '${_firstNameController.text.trim()} ${_lastNameController.text.trim()}',
       phone: _phoneController.text.trim(),
-      bio: _authStore.currentUser?.bio ?? '',
+      bio: _bioController.text.trim(),
       birthDate: _birthDate,
       gender: _authStore.currentUser?.gender,
       targetGender: _authStore.currentUser?.targetGender,
-      provinceId: _authStore.currentUser?.provinceId,
+      provinceId: _selectedProvinceId,
     );
 
     if (!mounted) return;
@@ -217,7 +226,23 @@ class _ProfileDetailsPageState extends State<ProfileDetailsPage> {
                 label: 'Phone number',
               ),
 
-              const SizedBox(height: 86),
+              const SizedBox(height: 16),
+
+              // Bio input
+              _buildInputField(
+                controller: _bioController,
+                label: t.bio,
+                maxLines: 4,
+              ),
+
+              const SizedBox(height: 16),
+
+              // Province Dropdown
+              _buildLabel(t.location),
+              const SizedBox(height: 8),
+              _buildProvinceDropdown(),
+
+              const SizedBox(height: 46),
 
               // Confirm button
               Observer(
@@ -239,6 +264,7 @@ class _ProfileDetailsPageState extends State<ProfileDetailsPage> {
   Widget _buildInputField({
     required TextEditingController controller,
     required String label,
+    int maxLines = 1,
   }) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -265,6 +291,7 @@ class _ProfileDetailsPageState extends State<ProfileDetailsPage> {
           ),
           child: TextField(
             controller: controller,
+            maxLines: maxLines,
             style: AppTextStyles.bodyMedium.copyWith(
               color: AppColors.textPrimary,
             ),
@@ -278,6 +305,52 @@ class _ProfileDetailsPageState extends State<ProfileDetailsPage> {
           ),
         ),
       ],
+    );
+  }
+
+  Widget _buildLabel(String text) {
+    return Container(
+      margin: const EdgeInsets.only(left: 28),
+      padding: const EdgeInsets.symmetric(horizontal: 4),
+      color: AppColors.background,
+      child: Text(
+        text,
+        style: AppTextStyles.bodySmall.copyWith(
+          color: AppColors.textSecondary,
+        ),
+      ),
+    );
+  }
+
+  Widget _buildProvinceDropdown() {
+    return Observer(
+      builder: (_) => Container(
+        height: 58,
+        padding: const EdgeInsets.symmetric(horizontal: 16),
+        decoration: BoxDecoration(
+          color: AppColors.background,
+          border: Border.all(color: AppColors.border),
+          borderRadius: BorderRadius.circular(15),
+        ),
+        child: DropdownButtonHideUnderline(
+          child: DropdownButton<int>(
+            isExpanded: true,
+            value: _selectedProvinceId,
+            hint: Text('Select your province', style: AppTextStyles.bodyMedium.copyWith(color: AppColors.textSecondary)),
+            items: _authStore.provinces.map((prov) {
+              return DropdownMenuItem<int>(
+                value: prov.id,
+                child: Text(prov.name, style: AppTextStyles.bodyMedium),
+              );
+            }).toList(),
+            onChanged: (val) {
+              setState(() {
+                _selectedProvinceId = val;
+              });
+            },
+          ),
+        ),
+      ),
     );
   }
 }

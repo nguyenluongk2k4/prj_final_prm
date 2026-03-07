@@ -42,6 +42,24 @@ mixin _$AuthStore on _AuthStore, Store {
     });
   }
 
+  late final _$provincesAtom = Atom(
+    name: '_AuthStore.provinces',
+    context: context,
+  );
+
+  @override
+  ObservableList<ProvinceModel> get provinces {
+    _$provincesAtom.reportRead();
+    return super.provinces;
+  }
+
+  @override
+  set provinces(ObservableList<ProvinceModel> value) {
+    _$provincesAtom.reportWrite(value, super.provinces, () {
+      super.provinces = value;
+    });
+  }
+
   late final _$isLoadingAtom = Atom(
     name: '_AuthStore.isLoading',
     context: context,
@@ -228,6 +246,16 @@ mixin _$AuthStore on _AuthStore, Store {
     return _$logoutAsyncAction.run(() => super.logout());
   }
 
+  late final _$fetchProvincesAsyncAction = AsyncAction(
+    '_AuthStore.fetchProvinces',
+    context: context,
+  );
+
+  @override
+  Future<void> fetchProvinces() {
+    return _$fetchProvincesAsyncAction.run(() => super.fetchProvinces());
+  }
+
   late final _$_AuthStoreActionController = ActionController(
     name: '_AuthStore',
     context: context,
@@ -261,6 +289,7 @@ mixin _$AuthStore on _AuthStore, Store {
   String toString() {
     return '''
 currentUser: ${currentUser},
+provinces: ${provinces},
 isLoading: ${isLoading},
 isAuthenticated: ${isAuthenticated},
 errorMessage: ${errorMessage},

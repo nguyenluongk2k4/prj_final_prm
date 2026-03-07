@@ -67,7 +67,7 @@ class _EnableLocationPageState extends State<EnableLocationPage> {
       if (!mounted) return;
 
       if (permission == LocationPermission.whileInUse || permission == LocationPermission.always) {
-        context.pushNamed(AppRoutes.friendsName); // Move to next screen only if allowed
+        context.goNamed(AppRoutes.homeName); // Move to Home after location
       }
     } catch (e) {
       if (!mounted) return;
@@ -90,7 +90,7 @@ class _EnableLocationPageState extends State<EnableLocationPage> {
   Widget build(BuildContext context) {
     return AppScaffold(
       showSkipButton: true,
-      onSkip: () => context.pushNamed(AppRoutes.friendsName), // Navigate to next step
+      onSkip: () => context.goNamed(AppRoutes.homeName), // Skip to Home
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [

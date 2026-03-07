@@ -41,6 +41,6 @@ class ValidationFailure extends Failure {
 /// Lỗi unauthorized
 class UnauthorizedFailure extends Failure {
   const UnauthorizedFailure({
-    String message = 'Unauthorized',
-  }) : super(message: message, statusCode: 401);
+    super.message = 'Unauthorized',
+  }) : super(statusCode: 401);
 }

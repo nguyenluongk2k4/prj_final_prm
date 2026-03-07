@@ -85,14 +85,6 @@ abstract class _DiscoverStore with Store {
 
   @action
   void onSwiped(UserModel profile, bool isLike) {
-    // Optimistically remove from list
-    profiles.remove(profile);
-
-    // If we're running low on profiles (e.g. less than 3 left), fetch more
-    if (profiles.length < 3 && !hasReachedEnd) {
-      fetchNextBatch();
-    }
-
     // Call API in background
     _submitSwipe.execute(swipedId: profile.id, isLike: isLike);
   }

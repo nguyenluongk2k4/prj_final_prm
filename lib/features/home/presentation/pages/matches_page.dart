@@ -1,12 +1,20 @@
 import 'package:flutter/material.dart';
 import '../../../../core/presentation/widgets/widgets.dart';
 import '../../../../core/theme/app_color_scheme.dart';
+import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../../../../gen/assets.gen.dart';
 import '../../../../i18n/strings.g.dart';
 import '../../data/repositories/matches_repository_impl.dart';
 import '../../domain/entities/match_profile.dart';
 import '../../domain/usecases/get_matches_usecase.dart';
+import '../../../chat/presentation/widgets/chat_filter_sheet.dart';
+
+import 'package:supabase_flutter/supabase_flutter.dart';
+import '../../../../core/di/injection.dart';
+import '../../../chat/domain/usecases/update_friend_status_usecase.dart';
+import '../../../chat/domain/entities/friend_profile.dart';
+import '../../infrastructure/datasources/matches_datasource.dart';
 
 class MatchesPage extends StatefulWidget {
   const MatchesPage({super.key});
@@ -16,16 +24,23 @@ class MatchesPage extends StatefulWidget {
 }
 
 class _MatchesPageState extends State<MatchesPage> {
-  final GetMatchesUseCase _getMatchesUseCase =
-      GetMatchesUseCase(MatchesRepositoryImpl());
+  late final GetMatchesUseCase _getMatchesUseCase;
 
   late Future<List<MatchProfile>> _matchesFuture;
-  bool _filterActive = false;
-
   @override
   void initState() {
     super.initState();
+    _getMatchesUseCase = GetMatchesUseCase(
+      MatchesRepositoryImpl(MatchesDatasource(Supabase.instance.client)),
+    );
     _matchesFuture = _getMatchesUseCase();
+  }
+
+  Future<void> _refreshMatches() async {
+    setState(() {
+      _matchesFuture = _getMatchesUseCase();
+    });
+    await _matchesFuture;
   }
 
   @override
@@ -44,10 +59,8 @@ class _MatchesPageState extends State<MatchesPage> {
       secondaryAction: Padding(
         padding: const EdgeInsets.only(right: 12),
         child: AppBarIconButton(
-          icon: _filterActive
-              ? Assets.icons.icBack.svg(width: 24, height: 24)
-              : Assets.icons.icSetting.svg(width: 24, height: 24),
-          onTap: () => setState(() => _filterActive = !_filterActive),
+          icon: Assets.icons.icSetting.svg(width: 24, height: 24),
+          onTap: () => showChatFilterSheet(context),
         ),
       ),
       body: Column(
@@ -70,7 +83,11 @@ class _MatchesPageState extends State<MatchesPage> {
                 future: _matchesFuture,
                 builder: (context, snapshot) {
                   if (snapshot.connectionState == ConnectionState.waiting) {
-                    return const Center(child: CircularProgressIndicator());
+                    return const Center(
+                      child: CircularProgressIndicator(
+                        valueColor: AlwaysStoppedAnimation<Color>(AppColors.primary),
+                      ),
+                    );
                   }
                   if (snapshot.hasError || !snapshot.hasData) {
                     return Center(
@@ -101,34 +118,45 @@ class _MatchesPageState extends State<MatchesPage> {
                       })
                       .toList();
 
-                  return SingleChildScrollView(
-                    padding: EdgeInsets.only(bottom: 100 + MediaQuery.of(context).padding.bottom),
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 40),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          // Today section
-                          if (todayMatches.isNotEmpty) ...[
-                            const SizedBox(height: 20),
-                            _SectionDivider(
-                              label: t.today,
-                            ),
-                            const SizedBox(height: 15),
-                            _MatchGrid(profiles: todayMatches),
+                  return RefreshIndicator(
+                    onRefresh: _refreshMatches,
+                    color: AppColors.primary,
+                    child: SingleChildScrollView(
+                      physics: const AlwaysScrollableScrollPhysics(),
+                      padding: EdgeInsets.only(bottom: 100 + MediaQuery.of(context).padding.bottom),
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 40),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            // Today section
+                            if (todayMatches.isNotEmpty) ...[
+                              const SizedBox(height: 20),
+                              _SectionDivider(
+                                label: t.today,
+                              ),
+                              const SizedBox(height: 15),
+                              _MatchGrid(
+                                profiles: todayMatches,
+                                onActionComplete: _refreshMatches,
+                              ),
+                            ],
+  
+                            // Yesterday section
+                            if (yesterdayMatches.isNotEmpty) ...[
+                              const SizedBox(height: 28),
+                              _SectionDivider(
+                                label: t.yesterday,
+                                labelOpacity: 0.4,
+                              ),
+                              const SizedBox(height: 15),
+                              _MatchGrid(
+                                profiles: yesterdayMatches,
+                                onActionComplete: _refreshMatches,
+                              ),
+                            ],
                           ],
-
-                          // Yesterday section
-                          if (yesterdayMatches.isNotEmpty) ...[
-                            const SizedBox(height: 28),
-                            _SectionDivider(
-                              label: t.yesterday,
-                              labelOpacity: 0.4,
-                            ),
-                            const SizedBox(height: 15),
-                            _MatchGrid(profiles: yesterdayMatches),
-                          ],
-                        ],
+                        ),
                       ),
                     ),
                   );
@@ -182,9 +210,13 @@ class _SectionDivider extends StatelessWidget {
 // ─────────────────────────────────────────────────────────────────────────────
 
 class _MatchGrid extends StatelessWidget {
-  const _MatchGrid({required this.profiles});
+  const _MatchGrid({
+    required this.profiles,
+    required this.onActionComplete,
+  });
 
   final List<MatchProfile> profiles;
+  final VoidCallback onActionComplete;
 
   @override
   Widget build(BuildContext context) {
@@ -196,11 +228,11 @@ class _MatchGrid extends StatelessWidget {
       rows.add(
         Row(
           children: [
-            Expanded(child: _MatchCard(profile: left)),
+            Expanded(child: _MatchCard(profile: left, onActionComplete: onActionComplete)),
             const SizedBox(width: 15),
             Expanded(
               child: right != null
-                  ? _MatchCard(profile: right)
+                  ? _MatchCard(profile: right, onActionComplete: onActionComplete)
                   : const SizedBox.shrink(),
             ),
           ],
@@ -219,11 +251,20 @@ class _MatchGrid extends StatelessWidget {
 // Individual match card (Figma: 140×200, photo + name + like/dislike bar)
 // ─────────────────────────────────────────────────────────────────────────────
 
-class _MatchCard extends StatelessWidget {
-  const _MatchCard({required this.profile});
+class _MatchCard extends StatefulWidget {
+  const _MatchCard({
+    required this.profile,
+    required this.onActionComplete,
+  });
 
   final MatchProfile profile;
+  final VoidCallback onActionComplete;
 
+  @override
+  State<_MatchCard> createState() => _MatchCardState();
+}
+
+class _MatchCardState extends State<_MatchCard> {
   // Constant colors (avoid withOpacity per-frame)
   static const _bottomOverlayColor = Color(0xFF000000);
   static const _dividerColor = Color(0x80FFFFFF); // white 50%
@@ -231,6 +272,39 @@ class _MatchCard extends StatelessWidget {
     color: Color(0x33000000),
     blurRadius: 2,
   );
+
+  bool _isLoading = false;
+
+  void _handleAction(FriendStatus status) async {
+    if (_isLoading) return;
+    setState(() => _isLoading = true);
+
+    final useCase = getIt<UpdateFriendStatusUseCase>();
+    final result = await useCase.execute(
+      swipedId: widget.profile.id,
+      status: status,
+    );
+
+    if (!mounted) return;
+    setState(() => _isLoading = false);
+
+    result.fold(
+      (error) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(error)),
+        );
+      },
+      (_) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(status == FriendStatus.accepted ? 'Added to friends!' : 'Match hidden.'),
+            duration: const Duration(seconds: 2),
+          ),
+        );
+        widget.onActionComplete();
+      },
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -242,10 +316,20 @@ class _MatchCard extends StatelessWidget {
           fit: StackFit.expand,
           children: [
             // ── Photo ───────────────────────────────────────────────────
-            Image.asset(
-              profile.imagePath,
-              fit: BoxFit.cover,
-            ),
+            if (widget.profile.avatarUrl != null && widget.profile.avatarUrl!.isNotEmpty)
+              Image.network(
+                widget.profile.avatarUrl!,
+                fit: BoxFit.cover,
+                errorBuilder: (_, __, ___) => Image.asset(
+                  Assets.images.profileExample.path,
+                  fit: BoxFit.cover,
+                ),
+              )
+            else
+              Image.asset(
+                widget.profile.imagePath ?? Assets.images.profileExample.path,
+                fit: BoxFit.cover,
+              ),
 
             // ── Bottom gradient overlay ──────────────────────────────────
             Positioned(
@@ -274,7 +358,7 @@ class _MatchCard extends StatelessWidget {
               // 200 total - 40 bottom bar - 24 text - some padding
               bottom: 48,
               child: Text(
-                '${profile.name}, ${profile.age}',
+                '${widget.profile.name}, ${widget.profile.age}',
                 style: AppTextStyles.bodyLarge.copyWith(
                   color: Colors.white,
                   fontWeight: FontWeight.w700,
@@ -293,46 +377,57 @@ class _MatchCard extends StatelessWidget {
               height: 40,
               child: Container(
                 color: Colors.black,
-                child: Row(
-                  children: [
-                    // Dislike button
-                    Expanded(
-                      child: GestureDetector(
-                        onTap: () {},
-                        behavior: HitTestBehavior.opaque,
-                        child: const Center(
-                          child: Icon(
-                            Icons.close,
-                            color: Colors.white,
-                            size: 18,
+                child: _isLoading
+                    ? const Center(
+                        child: SizedBox(
+                          width: 16,
+                          height: 16,
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2,
+                            valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
                           ),
                         ),
-                      ),
-                    ),
-
-                    // Divider
-                    Container(
-                      width: 1,
-                      height: 40,
-                      color: _dividerColor,
-                    ),
-
-                    // Like button
-                    Expanded(
-                      child: GestureDetector(
-                        onTap: () {},
-                        behavior: HitTestBehavior.opaque,
-                        child: const Center(
-                          child: Icon(
-                            Icons.favorite,
-                            color: Color(0xFFE94057),
-                            size: 18,
+                      )
+                    : Row(
+                        children: [
+                          // Dislike button
+                          Expanded(
+                            child: GestureDetector(
+                              onTap: () => _handleAction(FriendStatus.rejected),
+                              behavior: HitTestBehavior.opaque,
+                              child: const Center(
+                                child: Icon(
+                                  Icons.close,
+                                  color: Colors.white,
+                                  size: 18,
+                                ),
+                              ),
+                            ),
                           ),
-                        ),
+
+                          // Divider
+                          Container(
+                            width: 1,
+                            height: 40,
+                            color: _dividerColor,
+                          ),
+
+                          // Like button
+                          Expanded(
+                            child: GestureDetector(
+                              onTap: () => _handleAction(FriendStatus.accepted),
+                              behavior: HitTestBehavior.opaque,
+                              child: const Center(
+                                child: Icon(
+                                  Icons.favorite,
+                                  color: Color(0xFFE94057),
+                                  size: 18,
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
                       ),
-                    ),
-                  ],
-                ),
               ),
             ),
           ],

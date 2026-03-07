@@ -8,7 +8,6 @@ import '../../features/auth/presentation/pages/verification_page.dart';
 import '../../features/auth/presentation/pages/profile_details_page.dart';
 import '../../features/auth/presentation/pages/gender_selection_page.dart';
 import '../../features/auth/presentation/pages/interests_page.dart';
-import '../../features/auth/presentation/pages/bio_province_page.dart';
 import '../../features/auth/presentation/pages/enable_location_page.dart';
 import '../../features/auth/presentation/pages/friends_page.dart';
 import '../../features/auth/presentation/pages/notification_page.dart';
@@ -77,11 +76,6 @@ class AppRouter {
         path: AppRoutes.location,
         name: AppRoutes.locationName,
         builder: (context, state) => const EnableLocationPage(),
-      ),
-      GoRoute(
-        path: AppRoutes.bioProvince,
-        name: AppRoutes.bioProvinceName,
-        builder: (context, state) => const BioProvincePage(),
       ),
       // ── Main shell: shared nav bar, tab content via IndexedStack ────────
       GoRoute(

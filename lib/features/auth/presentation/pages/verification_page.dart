@@ -1,12 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
 import '../../../../core/presentation/widgets/widgets.dart';
 import '../../../../core/router/app_routes.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_color_scheme.dart';
 import '../../../../core/theme/app_text_styles.dart';
-import '../../../../gen/assets.gen.dart';
 import '../../../../i18n/strings.g.dart';
 
 class VerificationPage extends StatefulWidget {
@@ -19,7 +17,7 @@ class VerificationPage extends StatefulWidget {
 class _VerificationPageState extends State<VerificationPage> {
   final List<String> _code = ['7', '2', '0', ''];
   int _currentIndex = 3;
-  String _timer = '00:42';
+  final String _timer = '00:42';
 
   void _onNumberTap(String number) {
     if (_currentIndex < 4) {

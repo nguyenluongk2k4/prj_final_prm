@@ -27,6 +27,9 @@ abstract class _AuthStore with Store {
   UserModel? currentUser;
 
   @observable
+  ObservableList<ProvinceModel> provinces = ObservableList<ProvinceModel>();
+
+  @observable
   bool isLoading = false;
 
   @observable
@@ -51,8 +54,8 @@ abstract class _AuthStore with Store {
       isAuthenticated = session != null;
       if (session == null) {
         currentUser = null;
-      } else if (currentUser == null) {
-        currentUser = await authDatasource.getCurrentUser();
+      } else {
+        currentUser ??= await authDatasource.getCurrentUser();
       }
     });
   }
@@ -243,6 +246,17 @@ abstract class _AuthStore with Store {
   void clearMessages() {
     errorMessage = null;
     successMessage = null;
+  }
+
+  @action
+  Future<void> fetchProvinces() async {
+    try {
+      final list = await authDatasource.getProvinces();
+      provinces.clear();
+      provinces.addAll(list);
+    } catch (e) {
+      errorMessage = 'Failed to fetch provinces: ${e.toString()}';
+    }
   }
 
   void dispose() {

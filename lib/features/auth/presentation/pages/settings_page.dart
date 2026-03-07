@@ -21,7 +21,7 @@ class SettingsPage extends StatelessWidget {
       (l) => l.languageCode == locale.languageCode,
       orElse: () => AppLocale.en,
     );
-    await LocaleSettings.setLocale(appLocale);
+    LocaleSettings.setLocale(appLocale);
   }
 
   @override

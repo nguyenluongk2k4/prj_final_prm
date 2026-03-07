@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:go_router/go_router.dart';
 import '../../../../core/di/injection.dart';
+import '../../../../core/enums/gender.dart';
 import '../../../../core/presentation/widgets/widgets.dart';
 import '../../../../core/router/app_routes.dart';
 import '../../../../core/theme/app_colors.dart';
@@ -79,22 +80,22 @@ class _GenderSelectionPageState extends State<GenderSelectionPage> {
             const SizedBox(height: 20),
             _buildGenderOption(
               label: t.woman,
-              value: 'woman',
-              isSelected: _selectedGender == 'woman',
+              value: Gender.female.name,
+              isSelected: _selectedGender == Gender.female.name,
               onSelect: (val) => setState(() => _selectedGender = val),
             ),
             const SizedBox(height: 10),
             _buildGenderOption(
               label: t.man,
-              value: 'man',
-              isSelected: _selectedGender == 'man',
+              value: Gender.male.name,
+              isSelected: _selectedGender == Gender.male.name,
               onSelect: (val) => setState(() => _selectedGender = val),
             ),
             const SizedBox(height: 10),
             _buildGenderOption(
               label: t.other,
-              value: 'other',
-              isSelected: _selectedGender == 'other',
+              value: Gender.other.name,
+              isSelected: _selectedGender == Gender.other.name,
               onSelect: (val) => setState(() => _selectedGender = val),
             ),
 
@@ -103,22 +104,22 @@ class _GenderSelectionPageState extends State<GenderSelectionPage> {
             const SizedBox(height: 20),
             _buildGenderOption(
               label: t.woman,
-              value: 'woman',
-              isSelected: _selectedTargetGender == 'woman',
+              value: Gender.female.name,
+              isSelected: _selectedTargetGender == Gender.female.name,
               onSelect: (val) => setState(() => _selectedTargetGender = val),
             ),
             const SizedBox(height: 10),
             _buildGenderOption(
               label: t.man,
-              value: 'man',
-              isSelected: _selectedTargetGender == 'man',
+              value: Gender.male.name,
+              isSelected: _selectedTargetGender == Gender.male.name,
               onSelect: (val) => setState(() => _selectedTargetGender = val),
             ),
             const SizedBox(height: 10),
             _buildGenderOption(
               label: t.both,
-              value: 'both',
-              isSelected: _selectedTargetGender == 'both',
+              value: Gender.both.name,
+              isSelected: _selectedTargetGender == Gender.both.name,
               onSelect: (val) => setState(() => _selectedTargetGender = val),
             ),
 

@@ -49,5 +49,11 @@
 	<string>This app needs access to location when open so we can find people nearby.</string>
 	<key>NSLocationAlwaysUsageDescription</key>
 	<string>This app needs access to location when in the background to notify you about matches nearby.</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>This app requires access to the photo library to upload your profile picture.</string>
+	<key>NSCameraUsageDescription</key>
+	<string>This app requires access to the camera to take your profile picture.</string>
+	<key>NSMicrophoneUsageDescription</key>
+	<string>This app requires access to the microphone for picking videos.</string>
 </dict>
 </plist>

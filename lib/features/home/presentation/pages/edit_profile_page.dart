@@ -10,6 +10,7 @@ import '../../../../core/theme/app_color_scheme.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../../../../i18n/strings.g.dart';
 import '../../../auth/presentation/stores/auth_store.dart';
+import '../../../../core/enums/gender.dart';
 
 class EditProfilePage extends StatefulWidget {
   const EditProfilePage({super.key});
@@ -27,6 +28,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
 
   String? _gender;
   String? _targetGender;
+  int? _provinceId;
 
   final _imagePicker = ImagePicker();
 
@@ -39,6 +41,8 @@ class _EditProfilePageState extends State<EditProfilePage> {
     _bioController = TextEditingController(text: user?.bio ?? '');
     _gender = user?.gender;
     _targetGender = user?.targetGender;
+    _provinceId = user?.provinceId;
+    _authStore.fetchProvinces();
   }
 
   @override
@@ -57,7 +61,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
       gender: _gender,
       targetGender: _targetGender,
       birthDate: _authStore.currentUser?.birthDate,
-      provinceId: _authStore.currentUser?.provinceId,
+      provinceId: _provinceId,
     );
     if (mounted && !_authStore.hasError) {
       context.pop();
@@ -200,6 +204,16 @@ class _EditProfilePageState extends State<EditProfilePage> {
                   },
                   context: context,
                 ),
+                const SizedBox(height: 24),
+                Text(
+                  t.location,
+                  style: AppTextStyles.bodyMedium.copyWith(
+                    fontWeight: FontWeight.w600,
+                    color: c.textPrimary,
+                  ),
+                ),
+                const SizedBox(height: 8),
+                _buildProvinceDropdown(context),
                 const SizedBox(height: 48),
                 AppPrimaryButton(
                   text: t.saveChanges,
@@ -238,7 +252,11 @@ class _EditProfilePageState extends State<EditProfilePage> {
     final c = context.appColors;
     final t = Translations.of(context);
     // Use underlying keys for values, map them for display
-    final List<String> genders = ['male', 'female', 'other'];
+    final List<String> genders = [
+      Gender.male.name,
+      Gender.female.name,
+      Gender.other.name
+    ];
 
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -262,9 +280,9 @@ class _EditProfilePageState extends State<EditProfilePage> {
           style: AppTextStyles.bodyMedium.copyWith(color: c.textPrimary),
           items: genders.map((String gender) {
             String localizedText = gender;
-            if (gender == 'male') localizedText = t.male;
-            if (gender == 'female') localizedText = t.female;
-            if (gender == 'other') localizedText = t.other;
+            if (gender == Gender.male.name) localizedText = t.male;
+            if (gender == Gender.female.name) localizedText = t.female;
+            if (gender == Gender.other.name) localizedText = t.other;
 
             return DropdownMenuItem<String>(
               value: gender,
@@ -272,6 +290,42 @@ class _EditProfilePageState extends State<EditProfilePage> {
             );
           }).toList(),
           onChanged: onChanged,
+        ),
+      ),
+    );
+  }
+
+  Widget _buildProvinceDropdown(BuildContext context) {
+    final c = context.appColors;
+    return Observer(
+      builder: (_) => Container(
+        padding: const EdgeInsets.symmetric(horizontal: 16),
+        decoration: BoxDecoration(
+          color: c.backgroundSecondary,
+          borderRadius: BorderRadius.circular(12),
+        ),
+        child: DropdownButtonHideUnderline(
+          child: DropdownButton<int>(
+            value: _provinceId,
+            isExpanded: true,
+            hint: Text(
+              'Select your province',
+              style: AppTextStyles.bodyMedium.copyWith(color: c.text70),
+            ),
+            dropdownColor: c.backgroundSecondary,
+            style: AppTextStyles.bodyMedium.copyWith(color: c.textPrimary),
+            items: _authStore.provinces.map((prov) {
+              return DropdownMenuItem<int>(
+                value: prov.id,
+                child: Text(prov.name),
+              );
+            }).toList(),
+            onChanged: (val) {
+              setState(() {
+                _provinceId = val;
+              });
+            },
+          ),
         ),
       ),
     );

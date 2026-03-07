@@ -11,6 +11,7 @@ import 'package:permission_handler/permission_handler.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import '../../../../core/di/injection.dart';
 import '../stores/discover_store.dart';
+import '../../../chat/presentation/widgets/chat_filter_sheet.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -22,8 +23,6 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   final CardSwiperController _swiperController = CardSwiperController();
   late final DiscoverStore _discoverStore;
-
-  bool _filterActive = false;
 
   @override
   void initState() {
@@ -77,10 +76,8 @@ class _HomePageState extends State<HomePage> {
       secondaryAction: Padding(
         padding: const EdgeInsets.only(right: 12),
         child: AppBarIconButton(
-          icon: _filterActive
-              ? Assets.icons.icBack.svg(width: 24, height: 24)
-              : Assets.icons.icSetting.svg(width: 24, height: 24),
-          onTap: () => setState(() => _filterActive = !_filterActive),
+          icon: Assets.icons.icSetting.svg(width: 24, height: 24),
+          onTap: () => showChatFilterSheet(context),
         ),
       ),
       body: RefreshIndicator(
@@ -408,7 +405,14 @@ class _HomePageState extends State<HomePage> {
     }
 
     if (currentIndex != null) {
-      // Intentionally left blank as CardSwiper UI updates automatically
+      final remainingCards = _discoverStore.profiles.length - currentIndex;
+      if (remainingCards < 3 && !_discoverStore.hasReachedEnd) {
+        _discoverStore.fetchNextBatch();
+      }
+    } else {
+      if (!_discoverStore.hasReachedEnd) {
+        _discoverStore.fetchNextBatch();
+      }
     }
 
     return true;

@@ -34,7 +34,7 @@ class _AccountPageState extends State<AccountPage> {
       (l) => l.languageCode == locale.languageCode,
       orElse: () => AppLocale.en,
     );
-    await LocaleSettings.setLocale(appLocale);
+    LocaleSettings.setLocale(appLocale);
   }
 
   @override
@@ -406,7 +406,7 @@ class _ToggleTile extends StatelessWidget {
           Switch(
             value: value,
             onChanged: onChanged,
-            activeColor: AppColors.primary,
+            activeThumbColor: AppColors.primary,
           ),
         ],
       ),
@@ -480,7 +480,7 @@ class _NotificationsSectionState extends State<_NotificationsSection> {
                 Switch(
                   value: widget.pushNotifications,
                   onChanged: widget.onPushChanged,
-                  activeColor: AppColors.primary,
+                  activeThumbColor: AppColors.primary,
                 ),
                 Icon(
                   _expanded
@@ -555,7 +555,7 @@ class _SubToggle extends StatelessWidget {
           Switch(
             value: value && enabled,
             onChanged: enabled ? onChanged : null,
-            activeColor: AppColors.primary,
+            activeThumbColor: AppColors.primary,
           ),
         ],
       ),

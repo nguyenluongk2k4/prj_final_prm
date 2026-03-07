@@ -57,7 +57,7 @@ void main() async {
     (l) => l.languageCode == stores.localeStore.currentLocale.languageCode,
     orElse: () => AppLocale.en,
   );
-  await LocaleSettings.setLocale(savedLocale);
+  LocaleSettings.setLocale(savedLocale);
   
   runApp(TranslationProvider(
     child: const MyApp(),

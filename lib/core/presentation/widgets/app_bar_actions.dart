@@ -44,7 +44,7 @@ class AppBarActions extends StatelessWidget {
                     localeStore.currentLocale.languageCode,
                 orElse: () => AppLocale.en,
               );
-              await LocaleSettings.setLocale(appLocale);
+              LocaleSettings.setLocale(appLocale);
             },
           ),
 

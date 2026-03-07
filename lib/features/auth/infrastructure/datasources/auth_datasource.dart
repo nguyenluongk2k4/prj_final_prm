@@ -1,6 +1,5 @@
 import 'package:supabase_flutter/supabase_flutter.dart' hide AuthResponse;
 import '../models/models.dart';
-import '../models/user_model.dart';
 
 class AuthDatasource {
   final SupabaseClient _supabaseClient;
@@ -360,7 +359,22 @@ class AuthDatasource {
   Future<List<Map<String, dynamic>>> getPreferences() async {
     try {
       final response = await _supabaseClient.from('preferences').select('*');
-      return response as List<Map<String, dynamic>>;
+      return response;
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  /// Lấy danh sách tất cả tỉnh thành từ DB
+  Future<List<ProvinceModel>> getProvinces() async {
+    try {
+      final response = await _supabaseClient
+          .from('provinces')
+          .select('*')
+          .order('name');
+      return (response as List)
+          .map((p) => ProvinceModel.fromJson(p as Map<String, dynamic>))
+          .toList();
     } catch (e) {
       rethrow;
     }

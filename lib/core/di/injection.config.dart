@@ -27,6 +27,14 @@ import '../../features/auth/infrastructure/repositories/auth_repository_impl.dar
     as _i748;
 import '../../features/auth/presentation/stores/auth_store.dart' as _i603;
 import '../../features/auth/presentation/stores/interests_store.dart' as _i499;
+import '../../features/chat/data/repositories/friends_repository_impl.dart'
+    as _i189;
+import '../../features/chat/domain/repositories/friends_repository.dart'
+    as _i473;
+import '../../features/chat/domain/usecases/update_friend_status_usecase.dart'
+    as _i578;
+import '../../features/chat/infrastructure/datasources/friends_datasource.dart'
+    as _i38;
 import '../../features/home/data/repositories/discover_repository_impl.dart'
     as _i90;
 import '../../features/home/domain/repositories/discover_repository.dart'
@@ -57,6 +65,9 @@ extension GetItInjectableX on _i174.GetIt {
       () => _i606.ImageUploadService(),
     );
     gh.lazySingleton<_i932.NetworkInfo>(() => _i932.NetworkInfoImpl());
+    gh.lazySingleton<_i38.FriendsDatasource>(
+      () => _i38.FriendsDatasource(gh<_i454.SupabaseClient>()),
+    );
     gh.lazySingleton<_i696.AuthDatasource>(
       () => authModule.authDatasource(gh<_i454.SupabaseClient>()),
     );
@@ -95,6 +106,12 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i236.GetDiscoverBatchUseCase>(),
         gh<_i219.SubmitSwipeUseCase>(),
       ),
+    );
+    gh.factory<_i473.FriendsRepository>(
+      () => _i189.FriendsRepositoryImpl(gh<_i38.FriendsDatasource>()),
+    );
+    gh.factory<_i578.UpdateFriendStatusUseCase>(
+      () => _i578.UpdateFriendStatusUseCase(gh<_i473.FriendsRepository>()),
     );
     gh.lazySingleton<_i603.AuthStore>(
       () => authModule.authStore(
