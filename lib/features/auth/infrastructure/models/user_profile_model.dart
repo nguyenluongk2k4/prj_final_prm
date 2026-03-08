@@ -8,6 +8,7 @@ part 'user_profile_model.g.dart';
 class UserProfileModel extends UserProfile {
   UserProfileModel({
     required super.id,
+    super.userId,
     required super.displayName,
     super.bio,
     super.gender,
@@ -16,6 +17,10 @@ class UserProfileModel extends UserProfile {
     super.avatarUrl,
     super.isOnline = false,
     required super.lastActive,
+    super.interests,
+    super.provinceId,
+    super.latitude,
+    super.longitude,
   });
 
   factory UserProfileModel.fromJson(Map<String, dynamic> json) =>

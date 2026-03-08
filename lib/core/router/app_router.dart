@@ -9,7 +9,7 @@ import '../../features/auth/presentation/pages/profile_details_page.dart';
 import '../../features/auth/presentation/pages/gender_selection_page.dart';
 import '../../features/auth/presentation/pages/interests_page.dart';
 import '../../features/auth/presentation/pages/enable_location_page.dart';
-import '../../features/auth/presentation/pages/friends_page.dart';
+import '../../features/chat/presentation/pages/friend_list_page.dart';
 import '../../features/auth/presentation/pages/notification_page.dart';
 import '../../features/home/presentation/pages/main_page.dart';
 import '../../features/home/presentation/pages/match_page.dart';
@@ -18,6 +18,7 @@ import '../../features/auth/presentation/pages/login_page.dart';
 import '../../features/auth/presentation/pages/email_register_page.dart';
 import '../../features/auth/presentation/pages/settings_page.dart';
 import '../../features/home/presentation/pages/edit_profile_page.dart';
+import '../../features/home/presentation/pages/profile_page.dart';
 import '../app_stores.dart';
 import 'app_routes.dart';
 
@@ -65,7 +66,7 @@ class AppRouter {
       GoRoute(
         path: AppRoutes.friends,
         name: AppRoutes.friendsName,
-        builder: (context, state) => const FriendsPage(),
+        builder: (context, state) => const FriendListPage(),
       ),
       GoRoute(
         path: AppRoutes.notification,
@@ -119,6 +120,13 @@ class AppRouter {
         path: AppRoutes.editProfile,
         name: AppRoutes.editProfileName,
         builder: (context, state) => const EditProfilePage(),
+      ),
+      GoRoute(
+        path: '${AppRoutes.profile}/:userId',
+        name: AppRoutes.profileName,
+        builder: (context, state) => ProfilePage(
+          userId: state.pathParameters['userId'],
+        ),
       ),
     ],
     // Handle deep links

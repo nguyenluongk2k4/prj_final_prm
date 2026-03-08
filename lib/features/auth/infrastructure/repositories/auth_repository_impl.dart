@@ -92,7 +92,7 @@ class AuthRepositoryImpl implements AuthRepository {
       // Đánh dấu offline trên DB nếu có current user
       if (uid != null) {
          try {
-           await _supabaseClient.from('profiles').update({'is_online': false}).eq('id', uid);
+           await _supabaseClient.from('profiles').update({'is_online': false}).eq('user_id', uid);
          } catch(_) {}
       }
       await _firebaseAuth.signOut();
@@ -106,14 +106,14 @@ class AuthRepositoryImpl implements AuthRepository {
   Future<Either<Failure, UserProfile>> syncProfileToSupabase(String uid, String phoneNumber) async {
     try {
       // 1. Kiểm tra xem profile đã có trong Postgres chưa?
-      final response = await _supabaseClient.from('profiles').select().eq('id', uid).maybeSingle();
+      final response = await _supabaseClient.from('profiles').select().eq('user_id', uid).maybeSingle();
       
       if (response != null) {
         // Đã có -> set trạng thái online
         final updatedData = await _supabaseClient.from('profiles').update({
           'is_online': true,
           'last_active': DateTime.now().toIso8601String()
-        }).eq('id', uid).select().single();
+        }).eq('user_id', uid).select().single();
         
         return Right(UserProfileModel.fromJson(updatedData));
       } else {
@@ -145,7 +145,10 @@ class AuthRepositoryImpl implements AuthRepository {
       if (user == null) {
         return Left(ServerFailure(message: "Bấm đăng nhập trước khi gọi API này."));
       }
-      final response = await _supabaseClient.from('profiles').select().eq('id', user.uid).single();
+      final response = await _supabaseClient.from('profiles').select().eq('user_id', user.uid).maybeSingle();
+      if (response == null) {
+        return Left(ServerFailure(message: "Không tìm thấy profile cho user hiện tại."));
+      }
       return Right(UserProfileModel.fromJson(response));
     } catch (e) {
       return Left(ServerFailure(message: e.toString()));
@@ -166,6 +169,34 @@ class AuthRepositoryImpl implements AuthRepository {
       }
     } on FirebaseAuthException catch (e) {
       return Left(ServerFailure(message: e.message ?? "Đăng nhập thất bại"));
+    } catch (e) {
+      return Left(ServerFailure(message: e.toString()));
+    }
+  }
+
+  @override
+  Future<Either<Failure, UserProfile>> getUserProfile(String userId) async {
+    try {
+      final profileResponse = await _supabaseClient.from('profiles').select().eq('user_id', userId).maybeSingle();
+      
+      if (profileResponse == null) {
+        return Left(ServerFailure(message: "Không tìm thấy thông tin profile cho user này."));
+      }
+      
+      // Fetch interests from user_preferences table
+      final prefsResponse = await _supabaseClient
+          .from('user_preferences')
+          .select('preference_id')
+          .eq('user_id', userId);
+      
+      final List<String> interests = (prefsResponse as List)
+          .map((p) => p['preference_id'] as String)
+          .toList();
+
+      final Map<String, dynamic> data = Map<String, dynamic>.from(profileResponse);
+      data['interests'] = interests;
+      
+      return Right(UserProfileModel.fromJson(data));
     } catch (e) {
       return Left(ServerFailure(message: e.toString()));
     }

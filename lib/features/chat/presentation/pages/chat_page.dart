@@ -1,35 +1,20 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_mobx/flutter_mobx.dart';
+import 'package:get_it/get_it.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:timeago/timeago.dart' as timeago;
 import '../../../../core/presentation/widgets/widgets.dart';
 import '../../../../core/theme/app_color_scheme.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../../../../gen/assets.gen.dart';
 import '../../../../i18n/strings.g.dart';
-import '../widgets/chat_conversation_sheet.dart';
+import '../../domain/entities/friend_profile.dart';
+import '../stores/friend_list_store.dart';
 import '../widgets/chat_filter_sheet.dart';
+import 'conservation_detail.dart';
 
 // ─── Data model ──────────────────────────────────────────────────────────────
-
-class _ActivityItem {
-  final String name;
-  final AssetGenImage image;
-  const _ActivityItem({required this.name, required this.image});
-}
-
-class _MessageItem {
-  final String name;
-  final String lastMessage;
-  final String time;
-  final AssetGenImage avatar;
-  final int unread;
-  const _MessageItem({
-    required this.name,
-    required this.lastMessage,
-    required this.time,
-    required this.avatar,
-    this.unread = 0,
-  });
-}
 
 // ─── Page ─────────────────────────────────────────────────────────────────────
 
@@ -43,71 +28,32 @@ class ChatPage extends StatefulWidget {
 class _ChatPageState extends State<ChatPage> {
   final TextEditingController _searchController = TextEditingController();
   String _searchQuery = '';
+  final _store = GetIt.I<FriendListStore>();
+  String? _currentUserId;
 
-  static final List<_ActivityItem> _activities = [
-    _ActivityItem(name: 'You', image: Assets.images.chatActivityYou),
-    _ActivityItem(name: 'Emma', image: Assets.images.chatActivityEmma),
-    _ActivityItem(name: 'Ava', image: Assets.images.chatActivityAva),
-    _ActivityItem(name: 'Sophia', image: Assets.images.chatActivitySophia),
-    _ActivityItem(name: 'Amelia', image: Assets.images.chatActivityAmelia),
-  ];
-
-  static final List<_MessageItem> _messages = [
-    _MessageItem(
-      name: 'Emelie',
-      lastMessage: 'Sticker 😍',
-      time: '23 min',
-      avatar: Assets.images.chatMsgEmelie,
-      unread: 1,
-    ),
-    _MessageItem(
-      name: 'Abigail',
-      lastMessage: 'Typing..',
-      time: '27 min',
-      avatar: Assets.images.chatMsgAbigail,
-      unread: 2,
-    ),
-    _MessageItem(
-      name: 'Elizabeth',
-      lastMessage: 'Ok, see you then.',
-      time: '33 min',
-      avatar: Assets.images.chatMsgElizabeth,
-    ),
-    _MessageItem(
-      name: 'Penelope',
-      lastMessage: 'You: Hey! What\'s up, long time..',
-      time: '50 min',
-      avatar: Assets.images.chatMsgPenelope,
-    ),
-    _MessageItem(
-      name: 'Chloe',
-      lastMessage: 'You: Hello how are you?',
-      time: '55 min',
-      avatar: Assets.images.chatMsgChloe,
-    ),
-    _MessageItem(
-      name: 'Grace',
-      lastMessage: 'You: Great I will write later..',
-      time: '1 hour',
-      avatar: Assets.images.chatMsgGrace,
-    ),
-  ];
+  @override
+  void initState() {
+    super.initState();
+    _store.fetchFriends();
+    final currentUser = Supabase.instance.client.auth.currentUser;
+    if (currentUser != null) {
+      _currentUserId = currentUser.id;
+      _store.startRealtime(currentUser.id);
+    }
+  }
 
   @override
   void dispose() {
     _searchController.dispose();
+    _store.stopRealtime();
     super.dispose();
   }
 
-  List<_MessageItem> get _filtered => _searchQuery.isEmpty
-      ? _messages
-      : _messages
-          .where(
-            (m) =>
-                m.name.toLowerCase().contains(_searchQuery.toLowerCase()) ||
-                m.lastMessage.toLowerCase().contains(_searchQuery.toLowerCase()),
-          )
-          .toList();
+  List<FriendProfile> _filtered(List<FriendProfile> friends) {
+    if (_searchQuery.isEmpty) return friends;
+    final q = _searchQuery.toLowerCase();
+    return friends.where((f) => f.name.toLowerCase().contains(q)).toList();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -128,72 +74,103 @@ class _ChatPageState extends State<ChatPage> {
           onTap: () => showChatFilterSheet(context),
         ),
       ),
-      body: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // ── Search bar ──────────────────────────────────────────────────
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-            child: AppTextField(
-              controller: _searchController,
-              hint: t.searchMessages,
-              prefixIcon: Assets.icons.icSearch.svg(
-                width: 18,
-                height: 18,
-                colorFilter: ColorFilter.mode(c.text70, BlendMode.srcIn),
-              ),
-              onChanged: (v) => setState(() => _searchQuery = v),
+      body: Observer(builder: (context) {
+        if (_store.isLoading && _store.friends.isEmpty) {
+          return const Center(child: CircularProgressIndicator());
+        }
+
+        if (_store.error != null && _store.friends.isEmpty) {
+          return Center(
+            child: Text(
+              _store.error!,
+              style: AppTextStyles.bodyMedium.copyWith(color: Colors.red),
             ),
-          ),
+          );
+        }
 
-          // ── Activities ──────────────────────────────────────────────────
-          Padding(
-            padding: const EdgeInsets.only(left: 24, bottom: 12),
-            child: Text(t.activities, style: AppTextStyles.h3),
-          ),
+        final friends = _filtered(_store.friends.toList());
 
-          SizedBox(
-            height: 96,
-            child: ListView.separated(
-              scrollDirection: Axis.horizontal,
-              padding: const EdgeInsets.symmetric(horizontal: 24),
-              itemCount: _activities.length,
-              separatorBuilder: (_, __) => const SizedBox(width: 20),
-              itemBuilder: (_, i) => _ActivityAvatar(item: _activities[i]),
-            ),
-          ),
-
-          // ── Messages header ─────────────────────────────────────────────
-          Padding(
-            padding: const EdgeInsets.only(left: 24, bottom: 6),
-            child: Text(t.messages, style: AppTextStyles.h3),
-          ),
-
-          // ── Messages list ───────────────────────────────────────────────
-          Expanded(
-            child: ListView.separated(
-              padding: EdgeInsets.only(
-                left: 24, 
-                right: 24, 
-                bottom: 100 + MediaQuery.of(context).padding.bottom
-              ),
-              itemCount: _filtered.length,
-              separatorBuilder: (_, __) => Divider(
-                height: 1,
-                color: c.border,
-              ),
-              itemBuilder: (_, i) => _MessageTile(
-                item: _filtered[i],
-                onTap: () => showChatConversationSheet(
-                  context,
-                  name: _filtered[i].name,
-                  avatar: _filtered[i].avatar,
+        return RefreshIndicator(
+          onRefresh: () async {
+            await _store.fetchFriends();
+          },
+          child: CustomScrollView(
+            slivers: [
+              SliverToBoxAdapter(
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 24,
+                    vertical: 12,
+                  ),
+                  child: AppTextField(
+                    controller: _searchController,
+                    hint: t.searchMessages,
+                    prefixIcon: Assets.icons.icSearch.svg(
+                      width: 18,
+                      height: 18,
+                      colorFilter: ColorFilter.mode(c.text70, BlendMode.srcIn),
+                    ),
+                    onChanged: (v) => setState(() => _searchQuery = v),
+                  ),
                 ),
               ),
-            ),
+              SliverToBoxAdapter(
+                child: Padding(
+                  padding: const EdgeInsets.only(left: 24, bottom: 12),
+                  child: Text(t.activities, style: AppTextStyles.h3),
+                ),
+              ),
+              SliverToBoxAdapter(
+                child: SizedBox(
+                  height: 96,
+                  child: ListView.separated(
+                    scrollDirection: Axis.horizontal,
+                    padding: const EdgeInsets.symmetric(horizontal: 24),
+                    itemCount: friends.length,
+                    separatorBuilder: (_, __) => const SizedBox(width: 20),
+                    itemBuilder: (_, i) =>
+                        _ActivityAvatar(friend: friends[i]),
+                  ),
+                ),
+              ),
+              SliverToBoxAdapter(
+                child: Padding(
+                  padding: const EdgeInsets.only(left: 24, bottom: 6),
+                  child: Text(t.messages, style: AppTextStyles.h3),
+                ),
+              ),
+              SliverPadding(
+                padding: EdgeInsets.only(
+                  left: 24,
+                  right: 24,
+                  bottom: 100 + MediaQuery.of(context).padding.bottom,
+                ),
+                sliver: SliverList.separated(
+                  itemCount: friends.length,
+                  separatorBuilder: (_, __) => Divider(
+                    height: 1,
+                    color: c.border,
+                  ),
+                  itemBuilder: (_, i) => _MessageTile(
+                    friend: friends[i],
+                    currentUserId: _currentUserId,
+                    onTap: () => Navigator.of(context).push(
+                      MaterialPageRoute(
+                        builder: (_) => ConservationDetailPage(
+                          name: friends[i].name,
+                          avatarUrl: friends[i].avatarUrl,
+                          userId: friends[i].friendId,
+                          hasReels: friends[i].hasReels,
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ],
           ),
-        ],
-      ),
+        );
+      }),
     );
   }
 }
@@ -201,32 +178,52 @@ class _ChatPageState extends State<ChatPage> {
 // ─── Activity bubble ─────────────────────────────────────────────────────────
 
 class _ActivityAvatar extends StatelessWidget {
-  final _ActivityItem item;
-  const _ActivityAvatar({required this.item});
+  final FriendProfile friend;
+  const _ActivityAvatar({required this.friend});
 
   @override
   Widget build(BuildContext context) {
     final c = context.appColors;
-    final bool isMe = item.name == 'You';
-
     return Column(
       children: [
-        Container(
-          width: 60,
-          height: 60,
-          decoration: BoxDecoration(
-            shape: BoxShape.circle,
-            border: isMe
-                ? Border.all(color: AppColors.primary, width: 2.5)
-                : Border.all(color: c.border, width: 1),
-          ),
-          child: ClipOval(
-            child: item.image.image(fit: BoxFit.cover),
-          ),
+        Stack(
+          children: [
+            Container(
+              width: 60,
+              height: 60,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                border: Border.all(
+                  color: friend.hasReels ? Colors.red : c.border,
+                  width: 2.5,
+                ),
+              ),
+              child: ClipOval(
+                child: friend.avatarUrl != null
+                    ? Image.network(friend.avatarUrl!, fit: BoxFit.cover)
+                    : Icon(Icons.person, color: c.text70),
+              ),
+            ),
+            Positioned(
+              bottom: 2,
+              right: 2,
+              child: Container(
+                width: 12,
+                height: 12,
+                decoration: BoxDecoration(
+                  color: friend.isOnline
+                      ? const Color(0xFF2ECC71)
+                      : const Color(0xFFB0B3B8),
+                  shape: BoxShape.circle,
+                  border: Border.all(color: c.background, width: 2),
+                ),
+              ),
+            ),
+          ],
         ),
         const SizedBox(height: 6),
         Text(
-          item.name,
+          friend.name,
           style: AppTextStyles.bodySmall.copyWith(
             fontWeight: FontWeight.w700,
             color: c.textPrimary,
@@ -240,9 +237,37 @@ class _ActivityAvatar extends StatelessWidget {
 // ─── Message list tile ────────────────────────────────────────────────────────
 
 class _MessageTile extends StatelessWidget {
-  final _MessageItem item;
+  final FriendProfile friend;
+  final String? currentUserId;
   final VoidCallback? onTap;
-  const _MessageTile({required this.item, this.onTap});
+  const _MessageTile({
+    required this.friend,
+    this.currentUserId,
+    this.onTap,
+  });
+
+  String _buildLastMessagePreview(BuildContext context) {
+    final t = context.t;
+    final type = friend.lastMessageType;
+    final senderId = friend.lastMessageSenderId;
+    final senderName = senderId == null
+        ? friend.name
+        : (senderId == currentUserId ? t.you : friend.name);
+
+    switch (type) {
+      case LastMessageType.text:
+        return friend.lastMessageContent ?? '';
+      case LastMessageType.image:
+        return '$senderName ${t.sentImage}';
+      case LastMessageType.file:
+        return '$senderName ${t.sentFile}';
+      case LastMessageType.voice:
+        return '$senderName ${t.sentVoice}';
+      case LastMessageType.unknown:
+      default:
+        return '';
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -259,11 +284,19 @@ class _MessageTile extends StatelessWidget {
           Stack(
             children: [
               ClipOval(
-                child: item.avatar.image(
-                  width: 56,
-                  height: 56,
-                  fit: BoxFit.cover,
-                ),
+                child: friend.avatarUrl != null
+                    ? Image.network(
+                        friend.avatarUrl!,
+                        width: 56,
+                        height: 56,
+                        fit: BoxFit.cover,
+                      )
+                    : Container(
+                        width: 56,
+                        height: 56,
+                        color: c.backgroundSecondary,
+                        child: Icon(Icons.person, color: c.text70),
+                      ),
               ),
               // Online indicator
               Positioned(
@@ -273,7 +306,9 @@ class _MessageTile extends StatelessWidget {
                   width: 12,
                   height: 12,
                   decoration: BoxDecoration(
-                    color: const Color(0xFF2ECC71),
+                    color: friend.isOnline
+                        ? const Color(0xFF2ECC71)
+                        : const Color(0xFFB0B3B8),
                     shape: BoxShape.circle,
                     border: Border.all(color: c.background, width: 2),
                   ),
@@ -290,7 +325,7 @@ class _MessageTile extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  item.name,
+                  friend.name,
                   style: AppTextStyles.bodyMedium.copyWith(
                     fontWeight: FontWeight.w700,
                     color: c.textPrimary,
@@ -298,7 +333,7 @@ class _MessageTile extends StatelessWidget {
                 ),
                 const SizedBox(height: 3),
                 Text(
-                  item.lastMessage,
+                  _buildLastMessagePreview(context),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                   style: AppTextStyles.bodySmall.copyWith(color: c.text70),
@@ -314,32 +349,12 @@ class _MessageTile extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.end,
             children: [
               Text(
-                item.time,
+                timeago.format(friend.lastMessageAt ?? friend.createdAt),
                 style: AppTextStyles.bodySmall.copyWith(
                   color: const Color(0xFFADAFBB),
                   fontWeight: FontWeight.w700,
                 ),
               ),
-              if (item.unread > 0) ...[
-                const SizedBox(height: 6),
-                Container(
-                  width: 20,
-                  height: 20,
-                  alignment: Alignment.center,
-                  decoration: const BoxDecoration(
-                    color: AppColors.primary,
-                    shape: BoxShape.circle,
-                  ),
-                  child: Text(
-                    '${item.unread}',
-                    style: AppTextStyles.bodySmall.copyWith(
-                      color: Colors.white,
-                      fontWeight: FontWeight.w700,
-                      fontSize: 11,
-                    ),
-                  ),
-                ),
-              ],
             ],
           ),
         ],

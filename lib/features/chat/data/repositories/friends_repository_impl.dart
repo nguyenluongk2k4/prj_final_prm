@@ -26,4 +26,17 @@ class FriendsRepositoryImpl implements FriendsRepository {
   Future<List<FriendProfile>> getFriends() async {
     return await _datasource.getFriends();
   }
+
+  @override
+  Stream<void> watchFriendsRealtime({required String myId}) {
+    return _datasource.watchFriendsRealtime(myId: myId);
+  }
+
+  @override
+  Future<FriendStatus?> checkFriendship({
+    required String myId,
+    required String otherId,
+  }) async {
+    return await _datasource.checkFriendship(myId: myId, otherId: otherId);
+  }
 }

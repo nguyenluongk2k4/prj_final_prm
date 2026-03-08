@@ -56,11 +56,33 @@ class $AssetsIconsGen {
   /// File path: assets/icons/ic-back.svg
   SvgGenImage get icBack => const SvgGenImage('assets/icons/ic-back.svg');
 
+  /// File path: assets/icons/ic_attachment.svg
+  SvgGenImage get icAttachment =>
+      const SvgGenImage('assets/icons/ic_attachment.svg');
+
+  /// File path: assets/icons/ic_call.png
+  AssetGenImage get icCall => const AssetGenImage('assets/icons/ic_call.png');
+
+  /// File path: assets/icons/ic_camera.svg
+  SvgGenImage get icCamera => const SvgGenImage('assets/icons/ic_camera.svg');
+
+  /// File path: assets/icons/ic_microphone.svg
+  SvgGenImage get icMicrophone =>
+      const SvgGenImage('assets/icons/ic_microphone.svg');
+
   /// File path: assets/icons/ic_search.svg
   SvgGenImage get icSearch => const SvgGenImage('assets/icons/ic_search.svg');
 
+  /// File path: assets/icons/ic_send_message.png
+  AssetGenImage get icSendMessage =>
+      const AssetGenImage('assets/icons/ic_send_message.png');
+
   /// File path: assets/icons/ic_setting.svg
   SvgGenImage get icSetting => const SvgGenImage('assets/icons/ic_setting.svg');
+
+  /// File path: assets/icons/ic_video_call.svg
+  SvgGenImage get icVideoCall =>
+      const SvgGenImage('assets/icons/ic_video_call.svg');
 
   /// File path: assets/icons/music.svg
   SvgGenImage get music => const SvgGenImage('assets/icons/music.svg');
@@ -124,8 +146,14 @@ class $AssetsIconsGen {
     goblet,
     homeActionButtons,
     icBack,
+    icAttachment,
+    icCall,
+    icCamera,
+    icMicrophone,
     icSearch,
+    icSendMessage,
     icSetting,
+    icVideoCall,
     music,
     navAccountInactive,
     navChatInactive,
@@ -158,8 +186,12 @@ class $AssetsImagesGen {
   SvgGenImage get appleIcon =>
       const SvgGenImage('assets/images/apple_icon.svg');
 
+  /// File path: assets/images/btn_back.png
+  AssetGenImage get btnBackPng =>
+      const AssetGenImage('assets/images/btn_back.png');
+
   /// File path: assets/images/btn_back.svg
-  SvgGenImage get btnBack => const SvgGenImage('assets/images/btn_back.svg');
+  SvgGenImage get btnBackSvg => const SvgGenImage('assets/images/btn_back.svg');
 
   /// File path: assets/images/btn_filter.svg
   SvgGenImage get btnFilter =>
@@ -233,6 +265,26 @@ class $AssetsImagesGen {
   SvgGenImage get friendsIllustration =>
       const SvgGenImage('assets/images/friends_illustration.svg');
 
+  /// File path: assets/images/gallery_1.png
+  AssetGenImage get gallery1 =>
+      const AssetGenImage('assets/images/gallery_1.png');
+
+  /// File path: assets/images/gallery_2.png
+  AssetGenImage get gallery2 =>
+      const AssetGenImage('assets/images/gallery_2.png');
+
+  /// File path: assets/images/gallery_3.png
+  AssetGenImage get gallery3 =>
+      const AssetGenImage('assets/images/gallery_3.png');
+
+  /// File path: assets/images/gallery_4.png
+  AssetGenImage get gallery4 =>
+      const AssetGenImage('assets/images/gallery_4.png');
+
+  /// File path: assets/images/gallery_5.png
+  AssetGenImage get gallery5 =>
+      const AssetGenImage('assets/images/gallery_5.png');
+
   /// File path: assets/images/google_icon.svg
   SvgGenImage get googleIcon =>
       const SvgGenImage('assets/images/google_icon.svg');
@@ -291,9 +343,21 @@ class $AssetsImagesGen {
   AssetGenImage get onboarding3 =>
       const AssetGenImage('assets/images/onboarding_3.png');
 
+  /// File path: assets/images/profile_action_buttons.png
+  AssetGenImage get profileActionButtons =>
+      const AssetGenImage('assets/images/profile_action_buttons.png');
+
   /// File path: assets/images/profile_example.png
   AssetGenImage get profileExample =>
       const AssetGenImage('assets/images/profile_example.png');
+
+  /// File path: assets/images/profile_main_photo.png
+  AssetGenImage get profileMainPhoto =>
+      const AssetGenImage('assets/images/profile_main_photo.png');
+
+  /// File path: assets/images/profile_page.png
+  AssetGenImage get profilePage =>
+      const AssetGenImage('assets/images/profile_page.png');
 
   /// File path: assets/images/profile_photo.png
   AssetGenImage get profilePhoto =>
@@ -304,7 +368,8 @@ class $AssetsImagesGen {
     aGitkeep,
     actionButtons,
     appleIcon,
-    btnBack,
+    btnBackPng,
+    btnBackSvg,
     btnFilter,
     chatActivityAmelia,
     chatActivityAva,
@@ -323,6 +388,11 @@ class $AssetsImagesGen {
     dotInactive,
     facebookIcon,
     friendsIllustration,
+    gallery1,
+    gallery2,
+    gallery3,
+    gallery4,
+    gallery5,
     googleIcon,
     likeIndicator,
     logo,
@@ -338,7 +408,10 @@ class $AssetsImagesGen {
     onboarding1,
     onboarding2,
     onboarding3,
+    profileActionButtons,
     profileExample,
+    profileMainPhoto,
+    profilePage,
     profilePhoto,
   ];
 }

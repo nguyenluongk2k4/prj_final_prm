@@ -9,6 +9,7 @@ part of 'user_profile_model.dart';
 UserProfileModel _$UserProfileModelFromJson(Map<String, dynamic> json) =>
     UserProfileModel(
       id: json['id'] as String,
+      userId: json['user_id'] as String?,
       displayName: json['display_name'] as String,
       bio: json['bio'] as String?,
       gender: json['gender'] as String?,
@@ -19,11 +20,18 @@ UserProfileModel _$UserProfileModelFromJson(Map<String, dynamic> json) =>
       avatarUrl: json['avatar_url'] as String?,
       isOnline: json['is_online'] as bool? ?? false,
       lastActive: DateTime.parse(json['last_active'] as String),
+      interests: (json['interests'] as List<dynamic>?)
+          ?.map((e) => e as String)
+          .toList(),
+      provinceId: (json['province_id'] as num?)?.toInt(),
+      latitude: (json['latitude'] as num?)?.toDouble(),
+      longitude: (json['longitude'] as num?)?.toDouble(),
     );
 
 Map<String, dynamic> _$UserProfileModelToJson(UserProfileModel instance) =>
     <String, dynamic>{
       'id': instance.id,
+      'user_id': instance.userId,
       'display_name': instance.displayName,
       'bio': instance.bio,
       'gender': instance.gender,
@@ -32,4 +40,8 @@ Map<String, dynamic> _$UserProfileModelToJson(UserProfileModel instance) =>
       'avatar_url': instance.avatarUrl,
       'is_online': instance.isOnline,
       'last_active': instance.lastActive.toIso8601String(),
+      'interests': instance.interests,
+      'province_id': instance.provinceId,
+      'latitude': instance.latitude,
+      'longitude': instance.longitude,
     };

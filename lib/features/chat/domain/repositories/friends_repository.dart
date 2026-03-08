@@ -8,4 +8,11 @@ abstract class FriendsRepository {
   });
 
   Future<List<FriendProfile>> getFriends();
+
+  Stream<void> watchFriendsRealtime({required String myId});
+
+  Future<FriendStatus?> checkFriendship({
+    required String myId,
+    required String otherId,
+  });
 }

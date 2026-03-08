@@ -20,6 +20,7 @@ class AppRoutes {
   static const String emailRegister = '/email-register';
   static const String settings = '/settings';
   static const String editProfile = '/edit-profile';
+  static const String profile = '/profile';
   static const String main = '/home';
 
   // Route names
@@ -43,4 +44,5 @@ class AppRoutes {
   static const String chatName = 'chat';
   static const String accountName = 'account';
   static const String editProfileName = 'edit-profile';
+  static const String profileName = 'profile';
 }

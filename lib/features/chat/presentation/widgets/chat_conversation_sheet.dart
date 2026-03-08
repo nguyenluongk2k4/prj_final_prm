@@ -10,6 +10,7 @@ import '../../../../core/theme/app_color_scheme.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../../../../gen/assets.gen.dart';
+import '../pages/conservation_detail.dart';
 
 // ─── Data ─────────────────────────────────────────────────────────────────────
 
@@ -41,6 +42,7 @@ void showChatConversationSheet(
   BuildContext context, {
   required String name,
   required AssetGenImage avatar,
+  bool hasReels = false,
   String userId = '',
 }) {
   showModalBottomSheet(
@@ -49,7 +51,12 @@ void showChatConversationSheet(
     useRootNavigator: true,
     backgroundColor: Colors.transparent,
     builder: (_) =>
-        _ChatConversationSheet(name: name, avatar: avatar, userId: userId),
+        _ChatConversationSheet(
+          name: name,
+          avatar: avatar,
+          hasReels: hasReels,
+          userId: userId,
+        ),
   );
 }
 
@@ -59,10 +66,12 @@ class _ChatConversationSheet extends StatefulWidget {
   final String name;
   final AssetGenImage avatar;
   final String userId;
+  final bool hasReels;
 
   const _ChatConversationSheet({
     required this.name,
     required this.avatar,
+    required this.hasReels,
     required this.userId,
   });
 
@@ -328,6 +337,20 @@ class _ChatConversationSheetState extends State<_ChatConversationSheet> {
     _scrollToBottom();
   }
 
+  void _openConversationPage() {
+    Navigator.of(context).pop();
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (_) => ConservationDetailPage(
+          name: widget.name,
+          avatarUrl: null,
+          userId: widget.userId,
+          hasReels: widget.hasReels,
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final c = context.appColors;
@@ -412,14 +435,33 @@ class _ChatConversationSheetState extends State<_ChatConversationSheet> {
 
                   const SizedBox(width: 12),
 
+                  _HeaderIconButton(
+                    icon: Icons.open_in_new_rounded,
+                    color: c,
+                    iconColor: c.textPrimary,
+                    onTap: _openConversationPage,
+                    semanticLabel: 'Open full chat',
+                  ),
+
+                  const SizedBox(width: 12),
+
                   // Avatar + online dot
                   Stack(
                     children: [
-                      ClipOval(
-                        child: widget.avatar.image(
-                          width: 44,
-                          height: 44,
-                          fit: BoxFit.cover,
+                      Container(
+                        padding: const EdgeInsets.all(2),
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          border: widget.hasReels
+                              ? Border.all(color: Colors.red, width: 2)
+                              : null,
+                        ),
+                        child: ClipOval(
+                          child: widget.avatar.image(
+                            width: 40,
+                            height: 40,
+                            fit: BoxFit.cover,
+                          ),
                         ),
                       ),
                       Positioned(
@@ -558,11 +600,11 @@ class _ChatConversationSheetState extends State<_ChatConversationSheet> {
                                     color: AppColors.primary,
                                     borderRadius: BorderRadius.circular(10),
                                   ),
-                                  child: const Icon(
-                                    Icons.send_rounded,
-                                    color: Colors.white,
-                                    size: 18,
-                                  ),
+                                    child: Assets.icons.icSendMessage.image(
+                                      width: 18,
+                                      height: 18,
+                                      color: Colors.white,
+                                    ),
                                 ),
                               ),
                             )

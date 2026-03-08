@@ -9,7 +9,9 @@ import '../../../../gen/assets.gen.dart';
 import '../../../../i18n/strings.g.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
+import 'package:go_router/go_router.dart';
 import '../../../../core/di/injection.dart';
+import '../../../../core/router/app_routes.dart';
 import '../stores/discover_store.dart';
 import '../../../chat/presentation/widgets/chat_filter_sheet.dart';
 
@@ -261,14 +263,22 @@ class _HomePageState extends State<HomePage> {
     int age = 0;
     if (user.birthDate != null) {
       final today = DateTime.now();
-      age = (today.year - user.birthDate!.year).toInt();
+      age = today.year - user.birthDate!.year;
       if (today.month < user.birthDate!.month || 
          (today.month == user.birthDate!.month && today.day < user.birthDate!.day)) {
         age -= 1;
       }
     }
 
-    return Container(
+    return GestureDetector(
+      onTap: () {
+        context.pushNamed(
+          AppRoutes.profileName,
+          pathParameters: {'userId': user.id},
+        );
+      },
+      behavior: HitTestBehavior.opaque,
+      child: Container(
       width: double.infinity,
       height: cardHeight,
       decoration: BoxDecoration(
@@ -375,6 +385,7 @@ class _HomePageState extends State<HomePage> {
           ),
         ],
       ),
+    ),
     );
   }
 

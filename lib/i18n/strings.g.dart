@@ -4,9 +4,9 @@
 /// To regenerate, run: `dart run slang`
 ///
 /// Locales: 2
-/// Strings: 292 (146 per locale)
+/// Strings: 358 (179 per locale)
 ///
-/// Built on 2026-03-05 at 12:43 UTC
+/// Built on 2026-03-08 at 11:29 UTC
 
 // coverage:ignore-file
 // ignore_for_file: type=lint
@@ -294,6 +294,39 @@ class Translations implements BaseTranslations<AppLocale, Translations> {
 	String get male => 'Male';
 	String get female => 'Female';
 	String get uploadNewPicture => 'Upload new picture';
+	String get friendList => 'Friend List';
+	String get about => 'About';
+	String get interests => 'Interests';
+	String get gallery => 'Gallery';
+	String get readMore => 'Read more';
+	String get showLess => 'Show less';
+	String get myFriends => 'My Friends';
+	String get anonymousUser => 'Anonymous User';
+	String get noBio => 'No biography available.';
+	String get distanceUnit => 'km';
+	String get userTitle => 'User';
+	String get noInterests => 'No interests listed';
+	String get yourMessageHint => 'Your message';
+	String get photo => 'Photo';
+	String get imageLabel => 'Image';
+	String get fileLabel => 'File';
+	String downloadLabel({required Object label}) => 'Download ${label}';
+	String downloadedTo({required Object path}) => 'Downloaded to ${path}';
+	String get failedToDownloadFile => 'Failed to download file';
+	String get failedToUploadImage => 'Failed to upload image';
+	String get failedToUploadFile => 'Failed to upload file';
+	String get failedToSendMessage => 'Failed to send message';
+	String get userIdNotAvailableForCalling => 'User ID not available for calling';
+	String get longPressToDownload => 'Long press to download';
+	String get holdToRecordAudioMessage => 'Hold to record audio message (Tencent SDK)';
+	String get activeNow => 'Active now';
+	String get offline => 'Offline';
+	String activeTimeAgo({required Object time}) => 'Active ${time}';
+	String get chatNow => 'Chat now';
+	String get you => 'You';
+	String get sentImage => 'sent a photo';
+	String get sentFile => 'sent a file';
+	String get sentVoice => 'sent a voice message';
 }
 
 // Path: <root>
@@ -468,6 +501,39 @@ class _StringsVi extends Translations {
 	@override String get male => 'Nam';
 	@override String get female => 'Nữ';
 	@override String get uploadNewPicture => 'Tải ảnh mới lên';
+	@override String get friendList => 'Danh sách bạn bè';
+	@override String get about => 'Giới thiệu';
+	@override String get interests => 'Sở thích';
+	@override String get gallery => 'Bộ sưu tập';
+	@override String get readMore => 'Xem thêm';
+	@override String get showLess => 'Rút gọn';
+	@override String get myFriends => 'Bạn bè của tôi';
+	@override String get anonymousUser => 'Người dùng ẩn danh';
+	@override String get noBio => 'Chưa có tiểu sử.';
+	@override String get distanceUnit => 'km';
+	@override String get userTitle => 'Người dùng';
+	@override String get noInterests => 'Chưa có sở thích';
+	@override String get yourMessageHint => 'Nhập tin nhắn';
+	@override String get photo => 'Ảnh';
+	@override String get imageLabel => 'Ảnh';
+	@override String get fileLabel => 'Tệp';
+	@override String downloadLabel({required Object label}) => 'Tải xuống ${label}';
+	@override String downloadedTo({required Object path}) => 'Đã tải xuống: ${path}';
+	@override String get failedToDownloadFile => 'Tải xuống tệp thất bại';
+	@override String get failedToUploadImage => 'Tải ảnh lên thất bại';
+	@override String get failedToUploadFile => 'Tải tệp lên thất bại';
+	@override String get failedToSendMessage => 'Gửi tin nhắn thất bại';
+	@override String get userIdNotAvailableForCalling => 'Không có ID người dùng để gọi';
+	@override String get longPressToDownload => 'Nhấn giữ để tải xuống';
+	@override String get holdToRecordAudioMessage => 'Giữ để ghi âm (Tencent SDK)';
+	@override String get activeNow => 'Đang hoạt động';
+	@override String get offline => 'Ngoại tuyến';
+	@override String activeTimeAgo({required Object time}) => 'Hoạt động ${time}';
+	@override String get chatNow => 'Nhắn tin ngay';
+	@override String get you => 'Bạn';
+	@override String get sentImage => 'đã gửi 1 ảnh';
+	@override String get sentFile => 'đã gửi 1 tệp đính kèm';
+	@override String get sentVoice => 'đã gửi 1 tin nhắn thoại';
 }
 
 /// Flat map(s) containing all translations.
@@ -622,6 +688,39 @@ extension on Translations {
 			case 'male': return 'Male';
 			case 'female': return 'Female';
 			case 'uploadNewPicture': return 'Upload new picture';
+			case 'friendList': return 'Friend List';
+			case 'about': return 'About';
+			case 'interests': return 'Interests';
+			case 'gallery': return 'Gallery';
+			case 'readMore': return 'Read more';
+			case 'showLess': return 'Show less';
+			case 'myFriends': return 'My Friends';
+			case 'anonymousUser': return 'Anonymous User';
+			case 'noBio': return 'No biography available.';
+			case 'distanceUnit': return 'km';
+			case 'userTitle': return 'User';
+			case 'noInterests': return 'No interests listed';
+			case 'yourMessageHint': return 'Your message';
+			case 'photo': return 'Photo';
+			case 'imageLabel': return 'Image';
+			case 'fileLabel': return 'File';
+			case 'downloadLabel': return ({required Object label}) => 'Download ${label}';
+			case 'downloadedTo': return ({required Object path}) => 'Downloaded to ${path}';
+			case 'failedToDownloadFile': return 'Failed to download file';
+			case 'failedToUploadImage': return 'Failed to upload image';
+			case 'failedToUploadFile': return 'Failed to upload file';
+			case 'failedToSendMessage': return 'Failed to send message';
+			case 'userIdNotAvailableForCalling': return 'User ID not available for calling';
+			case 'longPressToDownload': return 'Long press to download';
+			case 'holdToRecordAudioMessage': return 'Hold to record audio message (Tencent SDK)';
+			case 'activeNow': return 'Active now';
+			case 'offline': return 'Offline';
+			case 'activeTimeAgo': return ({required Object time}) => 'Active ${time}';
+			case 'chatNow': return 'Chat now';
+			case 'you': return 'You';
+			case 'sentImage': return 'sent a photo';
+			case 'sentFile': return 'sent a file';
+			case 'sentVoice': return 'sent a voice message';
 			default: return null;
 		}
 	}
@@ -776,6 +875,39 @@ extension on _StringsVi {
 			case 'male': return 'Nam';
 			case 'female': return 'Nữ';
 			case 'uploadNewPicture': return 'Tải ảnh mới lên';
+			case 'friendList': return 'Danh sách bạn bè';
+			case 'about': return 'Giới thiệu';
+			case 'interests': return 'Sở thích';
+			case 'gallery': return 'Bộ sưu tập';
+			case 'readMore': return 'Xem thêm';
+			case 'showLess': return 'Rút gọn';
+			case 'myFriends': return 'Bạn bè của tôi';
+			case 'anonymousUser': return 'Người dùng ẩn danh';
+			case 'noBio': return 'Chưa có tiểu sử.';
+			case 'distanceUnit': return 'km';
+			case 'userTitle': return 'Người dùng';
+			case 'noInterests': return 'Chưa có sở thích';
+			case 'yourMessageHint': return 'Nhập tin nhắn';
+			case 'photo': return 'Ảnh';
+			case 'imageLabel': return 'Ảnh';
+			case 'fileLabel': return 'Tệp';
+			case 'downloadLabel': return ({required Object label}) => 'Tải xuống ${label}';
+			case 'downloadedTo': return ({required Object path}) => 'Đã tải xuống: ${path}';
+			case 'failedToDownloadFile': return 'Tải xuống tệp thất bại';
+			case 'failedToUploadImage': return 'Tải ảnh lên thất bại';
+			case 'failedToUploadFile': return 'Tải tệp lên thất bại';
+			case 'failedToSendMessage': return 'Gửi tin nhắn thất bại';
+			case 'userIdNotAvailableForCalling': return 'Không có ID người dùng để gọi';
+			case 'longPressToDownload': return 'Nhấn giữ để tải xuống';
+			case 'holdToRecordAudioMessage': return 'Giữ để ghi âm (Tencent SDK)';
+			case 'activeNow': return 'Đang hoạt động';
+			case 'offline': return 'Ngoại tuyến';
+			case 'activeTimeAgo': return ({required Object time}) => 'Hoạt động ${time}';
+			case 'chatNow': return 'Nhắn tin ngay';
+			case 'you': return 'Bạn';
+			case 'sentImage': return 'đã gửi 1 ảnh';
+			case 'sentFile': return 'đã gửi 1 tệp đính kèm';
+			case 'sentVoice': return 'đã gửi 1 tin nhắn thoại';
 			default: return null;
 		}
 	}

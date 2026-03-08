@@ -71,6 +71,11 @@ class _AccountPageState extends State<AccountPage> {
             onTap: () {},
           ),
           _SettingsTile(
+            icon: Icons.people_alt_outlined,
+            label: t.friendList,
+            onTap: () => context.pushNamed(AppRoutes.friendsName),
+          ),
+          _SettingsTile(
             icon: Icons.play_circle_outline_rounded,
             label: t.myReels,
             onTap: () {},
@@ -219,7 +224,7 @@ class _ProfileHeader extends StatelessWidget {
     return Observer(
       builder: (_) {
         final user = _authStore.currentUser;
-        final name = user?.name ?? 'Anonymous User';
+        final name = user?.name ?? t.anonymousUser;
         final email = user?.email ?? '';
         final avatarUrl = user?.avatarUrl;
 

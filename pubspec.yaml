@@ -74,6 +74,8 @@ dependencies:
   supabase_flutter: ^2.5.0
   firebase_core: ^2.32.0
   firebase_auth: ^4.19.4
+  firebase_messaging: ^14.9.4
+  flutter_local_notifications: ^17.2.1
 
   # Map & Location
   mapbox_maps_flutter: ^2.1.0
@@ -85,12 +87,14 @@ dependencies:
   # File / Image Picking
   file_picker: ^8.0.7
   image_picker: ^1.1.2
+  path_provider: ^2.1.4
   
   # Environment Variables
   flutter_dotenv: ^5.1.0
   geolocator: ^12.0.0
 
   vector_graphics: any
+  timeago: ^3.7.1
 dev_dependencies:
   flutter_test:
     sdk: flutter

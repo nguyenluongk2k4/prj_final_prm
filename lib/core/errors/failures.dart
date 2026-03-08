@@ -1,4 +1,3 @@
-/// Base class cho tất cả failures trong app
 abstract class Failure {
   final String message;
   final int? statusCode;
@@ -7,6 +6,9 @@ abstract class Failure {
     required this.message,
     this.statusCode,
   });
+
+  @override
+  String toString() => message;
 }
 
 /// Lỗi từ server

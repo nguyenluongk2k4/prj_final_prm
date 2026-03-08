@@ -14,6 +14,7 @@ class AppTextField extends StatefulWidget {
     super.key,
     required this.controller,
     required this.hint,
+    this.focusNode,
     this.keyboardType,
     this.obscureText = false,
     this.prefixIcon,
@@ -21,6 +22,7 @@ class AppTextField extends StatefulWidget {
     this.errorText,
     this.onChanged,
     this.onSubmitted,
+    this.onTap,
     this.maxLines = 1,
     this.minLines,
     this.embedded = false,
@@ -29,6 +31,7 @@ class AppTextField extends StatefulWidget {
 
   final TextEditingController controller;
   final String hint;
+  final FocusNode? focusNode;
   final TextInputType? keyboardType;
   final bool obscureText;
   final Widget? prefixIcon;
@@ -36,6 +39,7 @@ class AppTextField extends StatefulWidget {
   final String? errorText;
   final ValueChanged<String>? onChanged;
   final ValueChanged<String>? onSubmitted;
+  final VoidCallback? onTap;
   final int maxLines;
   final int? minLines;
   /// When true, renders only the inner [TextField] with no outer container or border.
@@ -49,6 +53,7 @@ class AppTextField extends StatefulWidget {
 
 class _AppTextFieldState extends State<AppTextField> {
   late final FocusNode _focusNode;
+  bool _ownsFocusNode = false;
   bool _isFocused = false;
   bool _isTouched = false;
 
@@ -81,21 +86,27 @@ class _AppTextFieldState extends State<AppTextField> {
   @override
   void initState() {
     super.initState();
-    _focusNode = FocusNode()
-      ..addListener(() {
-        setState(() {
-          _isFocused = _focusNode.hasFocus;
-          // Mark as touched when focused
-          if (_isFocused) {
-            _isTouched = true;
-          }
-        });
+    if (widget.focusNode != null) {
+      _focusNode = widget.focusNode!;
+    } else {
+      _focusNode = FocusNode();
+      _ownsFocusNode = true;
+    }
+    _focusNode.addListener(() {
+      setState(() {
+        _isFocused = _focusNode.hasFocus;
+        if (_isFocused) {
+          _isTouched = true;
+        }
       });
+    });
   }
 
   @override
   void dispose() {
-    _focusNode.dispose();
+    if (_ownsFocusNode) {
+      _focusNode.dispose();
+    }
     super.dispose();
   }
 
@@ -115,6 +126,7 @@ class _AppTextFieldState extends State<AppTextField> {
       focusNode: _focusNode,
       keyboardType: widget.keyboardType,
       obscureText: widget.obscureText,
+      onTap: widget.onTap,
       onChanged: (value) {
         widget.onChanged?.call(value);
         if (widget.validator != null) {

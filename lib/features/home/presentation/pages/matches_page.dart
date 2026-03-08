@@ -15,6 +15,8 @@ import '../../../../core/di/injection.dart';
 import '../../../chat/domain/usecases/update_friend_status_usecase.dart';
 import '../../../chat/domain/entities/friend_profile.dart';
 import '../../infrastructure/datasources/matches_datasource.dart';
+import 'package:go_router/go_router.dart';
+import '../../../../core/router/app_routes.dart';
 
 class MatchesPage extends StatefulWidget {
   const MatchesPage({super.key});
@@ -310,10 +312,18 @@ class _MatchCardState extends State<_MatchCard> {
   Widget build(BuildContext context) {
     return AspectRatio(
       aspectRatio: 140 / 200,
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(15),
-        child: Stack(
-          fit: StackFit.expand,
+      child: GestureDetector(
+        onTap: () {
+          context.pushNamed(
+            AppRoutes.profileName,
+            pathParameters: {'userId': widget.profile.id},
+          );
+        },
+        behavior: HitTestBehavior.opaque,
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(15),
+          child: Stack(
+            fit: StackFit.expand,
           children: [
             // ── Photo ───────────────────────────────────────────────────
             if (widget.profile.avatarUrl != null && widget.profile.avatarUrl!.isNotEmpty)
@@ -430,7 +440,8 @@ class _MatchCardState extends State<_MatchCard> {
                       ),
               ),
             ),
-          ],
+            ],
+          ),
         ),
       ),
     );

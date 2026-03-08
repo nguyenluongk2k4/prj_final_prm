@@ -24,4 +24,7 @@ abstract class AuthRepository {
 
   /// Đăng nhập bằng Email/Password
   Future<Either<Failure, UserProfile>> login(String email, String password);
+
+  /// Get profile by user ID
+  Future<Either<Failure, UserProfile>> getUserProfile(String userId);
 }

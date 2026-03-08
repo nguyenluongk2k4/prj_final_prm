@@ -19,9 +19,12 @@ class AppScaffold extends StatelessWidget {
   final List<Widget>? actions;
   final Widget? secondaryAction;
   final Color? backgroundColor;
+  final Color? appBarColor;
   final bool centerTitle;
   /// Show dark/light + language toggle buttons on the right of the AppBar.
   final bool showQuickActions;
+  final bool extendBodyBehindAppBar;
+  final bool removeSafeArea;
 
   const AppScaffold({
     super.key,
@@ -35,20 +38,25 @@ class AppScaffold extends StatelessWidget {
     this.actions,
     this.secondaryAction,
     this.backgroundColor,
+    this.appBarColor,
     this.centerTitle = false,
     this.showQuickActions = true,
+    this.extendBodyBehindAppBar = false,
+    this.removeSafeArea = false,
   });
 
   @override
   Widget build(BuildContext context) {
     final brightness = Theme.of(context).brightness;
     final bg = backgroundColor ?? AppColors.bg(brightness);
+    final ab = appBarColor ?? bg;
     final titleColor = AppColors.text(brightness);
 
     return Scaffold(
+      extendBodyBehindAppBar: extendBodyBehindAppBar,
       backgroundColor: bg,
       appBar: AppBar(
-        backgroundColor: bg,
+        backgroundColor: ab,
         elevation: 0,
         scrolledUnderElevation: 0,
         automaticallyImplyLeading: false,
@@ -89,7 +97,7 @@ class AppScaffold extends StatelessWidget {
                 if (showQuickActions) const AppBarActions(),
               ],
       ),
-      body: SafeArea(child: body),
+      body: removeSafeArea ? body : SafeArea(child: body),
     );
   }
 }
