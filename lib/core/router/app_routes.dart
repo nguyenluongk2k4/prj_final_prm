@@ -1,6 +1,7 @@
 class AppRoutes {
   // Route paths
-  static const String onboarding = '/';
+  static const String splash = '/';
+  static const String onboarding = '/onboarding';
   static const String signup = '/signup';
   static const String phoneSignup = '/phone-signup';
   static const String verification = '/verification';

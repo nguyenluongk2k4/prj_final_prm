@@ -1,6 +1,5 @@
 import 'package:get_it/get_it.dart';
 import 'package:go_router/go_router.dart';
-import '../../features/auth/presentation/stores/auth_store.dart';
 import '../../features/onboarding/presentation/pages/onboarding_page.dart';
 import '../../features/auth/presentation/pages/signup_page.dart';
 import '../../features/auth/presentation/pages/phone_signup_page.dart';
@@ -20,6 +19,7 @@ import '../../features/auth/presentation/pages/settings_page.dart';
 import '../../features/home/presentation/pages/edit_profile_page.dart';
 import '../../features/home/presentation/pages/profile_page.dart';
 import '../app_stores.dart';
+import '../../features/auth/presentation/stores/auth_store.dart'; // Added AuthStore import
 import 'app_routes.dart';
 
 class AppRouter {
