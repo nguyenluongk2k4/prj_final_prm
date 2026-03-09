@@ -8,6 +8,10 @@ import '../stores/profile_store.dart';
 import '../../../../i18n/strings.g.dart';
 import '../../../../core/di/injection.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
+import 'package:go_router/go_router.dart';
+import '../../../../core/router/app_routes.dart';
+import 'package:prj_final_prm/features/album/domain/entities/album_image.dart';
+import '../../../../gen/assets.gen.dart';
 
 class ProfilePage extends StatefulWidget {
   final String? userId;
@@ -55,7 +59,8 @@ class _ProfilePageState extends State<ProfilePage> {
     final c = context.appColors;
     
     return AppScaffold(
-      showBackButton: true,
+      showBackButton: false,
+      leading: _CircleLeadingButton(opacity: _appBarOpacity),
       showQuickActions: false,
       centerTitle: true,
       backgroundColor: c.background,
@@ -90,6 +95,10 @@ class _ProfilePageState extends State<ProfilePage> {
             c: c, 
             t: t,
             profile: profile, 
+            albumImages: _store.albumImages,
+            provinceName: _store.provinceName,
+            distanceKm: _store.distanceKm,
+            isMe: _store.isMe,
             showActions: _store.showActions,
             scrollController: _scrollController,
           );
@@ -106,12 +115,20 @@ class _ScrollBody extends StatelessWidget {
     required this.c, 
     required this.t,
     required this.profile, 
+    required this.albumImages,
+    required this.provinceName,
+    required this.distanceKm,
+    required this.isMe,
     required this.showActions,
     required this.scrollController,
   });
   final AppColorScheme c;
   final Translations t;
   final UserProfile profile;
+  final List<AlbumImage> albumImages;
+  final String provinceName;
+  final double? distanceKm;
+  final bool isMe;
   final bool showActions;
   final ScrollController scrollController;
 
@@ -155,7 +172,13 @@ class _ScrollBody extends StatelessWidget {
                         const SizedBox(height: 20),
 
                         // ── Location ─────────────────────────────────
-                        _LocationSection(c: c, t: t, profile: profile),
+                        _LocationSection(
+                          c: c, 
+                          t: t, 
+                          profile: profile,
+                          provinceName: provinceName,
+                          distanceKm: distanceKm,
+                        ),
 
                         const SizedBox(height: 20),
 
@@ -169,8 +192,12 @@ class _ScrollBody extends StatelessWidget {
 
                         const SizedBox(height: 20),
 
-                        // ── Gallery ──────────────────────────────────
-                        _GallerySection(c: c, t: t),
+                        _GallerySection(
+                          c: c, 
+                          t: t, 
+                          images: albumImages,
+                          isMe: isMe,
+                        ),
 
                         SizedBox(
                           height:
@@ -198,24 +225,26 @@ class _HeroPhoto extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
+    final defaultAsset = 'assets/images/profile_main_photo.png';
+
     return SizedBox(
       width: screenWidth,
       height: 480, // Slightly taller for better bleed effect
-      child: avatarUrl != null && avatarUrl!.startsWith('http')
+      child: avatarUrl != null && avatarUrl!.trim().isNotEmpty
           ? Image.network(
               avatarUrl!,
               width: screenWidth,
               height: 480,
               fit: BoxFit.cover,
               errorBuilder: (context, error, stackTrace) => Image.asset(
-                'assets/images/profile_main_photo.png',
+                defaultAsset,
                 width: screenWidth,
                 height: 480,
                 fit: BoxFit.cover,
               ),
             )
           : Image.asset(
-              'assets/images/profile_main_photo.png',
+              defaultAsset,
               width: screenWidth,
               height: 480,
               fit: BoxFit.cover,
@@ -373,14 +402,6 @@ class _NameSection extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: 4),
-              Text(
-                profile.bio != null && profile.bio!.isNotEmpty 
-                  ? profile.bio!.split('.').first 
-                  : t.userTitle,
-                style: AppTextStyles.bodyMedium.copyWith(
-                  color: c.text70,
-                ),
-              ),
             ],
           ),
         ),
@@ -390,13 +411,19 @@ class _NameSection extends StatelessWidget {
             width: 48,
             height: 48,
             decoration: BoxDecoration(
-              gradient: AppColors.mainGradient,
-              borderRadius: BorderRadius.circular(15),
-            ),
-            child: const Icon(
-              Icons.send_rounded,
               color: Colors.white,
-              size: 22,
+              borderRadius: BorderRadius.circular(15),
+              border: Border.all(
+                color: c.border.withOpacity(0.5),
+                width: 1,
+              ),
+            ),
+            child: Center(
+              child: Assets.icons.icSendMessage.image(
+                width: 22,
+                height: 22,
+                color: AppColors.primary,
+              ),
             ),
           ),
         ),
@@ -408,10 +435,18 @@ class _NameSection extends StatelessWidget {
 // ─── Location section ─────────────────────────────────────────────────────────
 
 class _LocationSection extends StatelessWidget {
-  const _LocationSection({required this.c, required this.t, required this.profile});
+  const _LocationSection({
+    required this.c, 
+    required this.t, 
+    required this.profile,
+    required this.provinceName,
+    this.distanceKm,
+  });
   final AppColorScheme c;
   final Translations t;
   final UserProfile profile;
+  final String provinceName;
+  final double? distanceKm;
 
   @override
   Widget build(BuildContext context) {
@@ -430,33 +465,34 @@ class _LocationSection extends StatelessWidget {
             const SizedBox(width: 4),
             Expanded(
               child: Text(
-                'Province ID: ${profile.provinceId ?? "Unknown"}', // Placeholder until we have province names
+                provinceName,
                 style: AppTextStyles.bodyMedium.copyWith(color: c.text70),
               ),
             ),
             const SizedBox(width: 8),
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-              decoration: BoxDecoration(
-                color: AppColors.primary.withValues(alpha: 0.1),
-                borderRadius: BorderRadius.circular(20),
-              ),
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Icon(Icons.location_on_rounded,
-                      color: AppColors.primary, size: 12),
-                  const SizedBox(width: 3),
-                  Text(
-                    '1 ${t.distanceUnit}',
-                    style: AppTextStyles.bodySmall.copyWith(
-                      color: AppColors.primary,
-                      fontWeight: FontWeight.w600,
+            if (distanceKm != null)
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                decoration: BoxDecoration(
+                  color: AppColors.primary.withValues(alpha: 0.1),
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(Icons.location_on_rounded,
+                        color: AppColors.primary, size: 12),
+                    const SizedBox(width: 3),
+                    Text(
+                      '${distanceKm!.toStringAsFixed(1)} ${t.distanceUnit}',
+                      style: AppTextStyles.bodySmall.copyWith(
+                        color: AppColors.primary,
+                        fontWeight: FontWeight.w600,
+                      ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
-            ),
           ],
         ),
       ],
@@ -481,6 +517,14 @@ class _AboutSectionState extends State<_AboutSection> {
 
   @override
   Widget build(BuildContext context) {
+    final bio = widget.profile.bio;
+    final hasBio = bio != null && bio.isNotEmpty;
+    final isLong = hasBio && bio.length > 100;
+    
+    final displayBio = hasBio 
+        ? (_expanded || !isLong ? bio : '${bio.substring(0, 100)}...')
+        : widget.t.noBio;
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -490,22 +534,22 @@ class _AboutSectionState extends State<_AboutSection> {
         ),
         const SizedBox(height: 8),
         Text(
-          widget.profile.bio ?? t.noBio,
-          maxLines: _expanded ? null : 3,
-          overflow: _expanded ? TextOverflow.visible : TextOverflow.ellipsis,
+          displayBio,
           style: AppTextStyles.bodyMedium.copyWith(color: widget.c.text70),
         ),
-        const SizedBox(height: 4),
-        GestureDetector(
-          onTap: () => setState(() => _expanded = !_expanded),
-          child: Text(
-            _expanded ? widget.t.showLess : widget.t.readMore,
-            style: AppTextStyles.bodyMedium.copyWith(
-              color: AppColors.primary,
-              fontWeight: FontWeight.w600,
+        if (isLong) ...[
+          const SizedBox(height: 4),
+          GestureDetector(
+            onTap: () => setState(() => _expanded = !_expanded),
+            child: Text(
+              _expanded ? widget.t.showLess : widget.t.readMore,
+              style: AppTextStyles.bodyMedium.copyWith(
+                color: AppColors.primary,
+                fontWeight: FontWeight.w600,
+              ),
             ),
           ),
-        ),
+        ],
       ],
     );
   }
@@ -590,20 +634,24 @@ class _InterestChip extends StatelessWidget {
 // ─── Gallery section ──────────────────────────────────────────────────────────
 
 class _GallerySection extends StatelessWidget {
-  const _GallerySection({required this.c, required this.t});
+  const _GallerySection({
+    required this.c, 
+    required this.t, 
+    required this.images,
+    required this.isMe,
+  });
   final AppColorScheme c;
   final Translations t;
-
-  static const _photos = [
-    'assets/images/gallery_1.png',
-    'assets/images/gallery_2.png',
-    'assets/images/gallery_3.png',
-    'assets/images/gallery_4.png',
-    'assets/images/gallery_5.png',
-  ];
+  final List<AlbumImage> images;
+  final bool isMe;
 
   @override
   Widget build(BuildContext context) {
+    if (images.isEmpty) return const SizedBox.shrink();
+
+    // Limit to 5 images for the featured grid
+    final displayImages = images.take(5).toList();
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -616,9 +664,13 @@ class _GallerySection extends StatelessWidget {
               style: AppTextStyles.h3.copyWith(color: c.textPrimary),
             ),
             GestureDetector(
-              onTap: () {},
+              onTap: () {
+                if (isMe) {
+                  context.pushNamed(AppRoutes.myAlbumName);
+                }
+              },
               child: Text(
-                'See all',
+                t.seeAll,
                 style: AppTextStyles.bodyMedium.copyWith(
                   color: AppColors.primary,
                   fontWeight: FontWeight.w600,
@@ -630,48 +682,58 @@ class _GallerySection extends StatelessWidget {
 
         const SizedBox(height: 12),
 
-        // Gallery grid: 2 tall on left/right, 3 medium in center column
+        // Gallery grid: Dynamic based on available images
         SizedBox(
           height: 200,
           child: Row(
             children: [
               // Left tall photo
-              Expanded(
-                flex: 5,
-                child: _GalleryPhoto(path: _photos[0], borderRadius: const BorderRadius.only(
-                  topLeft: Radius.circular(16),
-                  bottomLeft: Radius.circular(16),
-                )),
-              ),
-              const SizedBox(width: 6),
-              // Center column – 3 photos stacked
-              Expanded(
-                flex: 4,
-                child: Column(
-                  children: [
-                    Expanded(
-                      child: _GalleryPhoto(path: _photos[1]),
+              if (displayImages.isNotEmpty)
+                Expanded(
+                  flex: 5,
+                  child: _GalleryPhoto(
+                    url: displayImages[0].imageUrl, 
+                    borderRadius: BorderRadius.only(
+                      topLeft: const Radius.circular(16),
+                      bottomLeft: const Radius.circular(16),
+                      topRight: displayImages.length == 1 ? const Radius.circular(16) : Radius.zero,
+                      bottomRight: displayImages.length == 1 ? const Radius.circular(16) : Radius.zero,
                     ),
-                    const SizedBox(height: 6),
-                    Expanded(
-                      child: _GalleryPhoto(path: _photos[2]),
-                    ),
-                    const SizedBox(height: 6),
-                    Expanded(
-                      child: _GalleryPhoto(path: _photos[3]),
-                    ),
-                  ],
+                  ),
                 ),
-              ),
-              const SizedBox(width: 6),
-              // Right tall photo
-              Expanded(
-                flex: 5,
-                child: _GalleryPhoto(path: _photos[4], borderRadius: const BorderRadius.only(
-                  topRight: Radius.circular(16),
-                  bottomRight: Radius.circular(16),
-                )),
-              ),
+              
+              if (displayImages.length > 1) ...[
+                const SizedBox(width: 6),
+                // Center column – up to 3 photos stacked
+                Expanded(
+                  flex: 4,
+                  child: Column(
+                    children: [
+                      for (int i = 1; i < displayImages.length && i < 4; i++) ...[
+                        Expanded(
+                          child: _GalleryPhoto(url: displayImages[i].imageUrl),
+                        ),
+                        if (i < displayImages.length - 1 && i < 3) const SizedBox(height: 6),
+                      ],
+                    ],
+                  ),
+                ),
+              ],
+
+              if (displayImages.length > 4) ...[
+                const SizedBox(width: 6),
+                // Right tall photo
+                Expanded(
+                  flex: 5,
+                  child: _GalleryPhoto(
+                    url: displayImages[4].imageUrl, 
+                    borderRadius: const BorderRadius.only(
+                      topRight: Radius.circular(16),
+                      bottomRight: Radius.circular(16),
+                    ),
+                  ),
+                ),
+              ],
             ],
           ),
         ),
@@ -681,19 +743,68 @@ class _GallerySection extends StatelessWidget {
 }
 
 class _GalleryPhoto extends StatelessWidget {
-  const _GalleryPhoto({required this.path, this.borderRadius});
-  final String path;
+  const _GalleryPhoto({required this.url, this.borderRadius});
+  final String url;
   final BorderRadius? borderRadius;
 
   @override
   Widget build(BuildContext context) {
     return ClipRRect(
       borderRadius: borderRadius ?? BorderRadius.circular(12),
-      child: Image.asset(
-        path,
+      child: Image.network(
+        url,
         fit: BoxFit.cover,
         width: double.infinity,
         height: double.infinity,
+        errorBuilder: (_, __, ___) => Container(
+          color: Colors.grey[200],
+          child: const Icon(Icons.broken_image_outlined),
+        ),
+      ),
+    );
+  }
+}
+
+class _CircleLeadingButton extends StatelessWidget {
+  const _CircleLeadingButton({required this.opacity});
+  final double opacity;
+
+  @override
+  Widget build(BuildContext context) {
+    final c = context.appColors;
+    
+    // Background color fades from secondary background (grayish) to transparent
+    // as the app bar opacity increases.
+    final bgColor = Color.lerp(
+      const Color(0xFFF2F2F2), // Matches ConversationHeader
+      Colors.transparent, 
+      opacity,
+    );
+
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.only(left: 8.0),
+        child: InkWell(
+          onTap: () => Navigator.of(context).pop(),
+          borderRadius: BorderRadius.circular(20),
+          child: Container(
+            width: 40,
+            height: 40,
+            alignment: Alignment.center,
+            decoration: BoxDecoration(
+              color: bgColor,
+              shape: BoxShape.circle,
+            ),
+            child: Assets.icons.icBack.svg(
+              width: 20,
+              height: 20,
+              colorFilter: ColorFilter.mode(
+                c.textPrimary,
+                BlendMode.srcIn,
+              ),
+            ),
+          ),
+        ),
       ),
     );
   }

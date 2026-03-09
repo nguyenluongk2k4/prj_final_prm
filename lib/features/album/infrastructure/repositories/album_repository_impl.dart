@@ -15,7 +15,18 @@ class AlbumRepositoryImpl implements IAlbumRepository {
   @override
   Future<Either<Failure, List<AlbumImage>>> getMyAlbumImages() async {
     try {
-      final models = await remoteDataSource.getMyAlbumImages();
+      final userId = remoteDataSource.supabase.auth.currentUser?.id;
+      if (userId == null) return const Right([]);
+      return getUserAlbumImages(userId);
+    } catch (e) {
+      return Left(ServerFailure(message: e.toString()));
+    }
+  }
+
+  @override
+  Future<Either<Failure, List<AlbumImage>>> getUserAlbumImages(String userId) async {
+    try {
+      final models = await remoteDataSource.getUserAlbumImages(userId);
       return Right(models);
     } catch (e) {
       return Left(ServerFailure(message: e.toString()));

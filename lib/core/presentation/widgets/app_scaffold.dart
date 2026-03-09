@@ -17,6 +17,7 @@ class AppScaffold extends StatelessWidget {
   final VoidCallback? onSkip;
   final VoidCallback? onBack;
   final List<Widget>? actions;
+  final Widget? leading;
   final Widget? secondaryAction;
   final Color? backgroundColor;
   final Color? appBarColor;
@@ -36,6 +37,7 @@ class AppScaffold extends StatelessWidget {
     this.onSkip,
     this.onBack,
     this.actions,
+    this.leading,
     this.secondaryAction,
     this.backgroundColor,
     this.appBarColor,
@@ -69,7 +71,7 @@ class AppScaffold extends StatelessWidget {
                     style: AppTextStyles.h3.copyWith(color: titleColor),
                   )
                 : null),
-        leading: showBackButton
+        leading: leading ?? (showBackButton
             ? Padding(
                 padding: const EdgeInsets.only(left: 12),
                 child: AppBarIconButton(
@@ -77,7 +79,7 @@ class AppScaffold extends StatelessWidget {
                   onTap: onBack ?? () => context.pop(),
                 ),
               )
-            : null,
+            : null),
         actions: showSkipButton
             ? [
                 TextButton(

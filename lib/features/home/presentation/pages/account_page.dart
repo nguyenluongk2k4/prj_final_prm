@@ -278,6 +278,21 @@ class _ProfileHeader extends StatelessWidget {
                     },
                   ),
                 ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: AppOutlineButton(
+                    text: t.viewProfile,
+                    onPressed: () {
+                      final userId = _authStore.currentUser?.id;
+                      if (userId != null) {
+                        context.pushNamed(
+                          AppRoutes.profileName,
+                          pathParameters: {'userId': userId},
+                        );
+                      }
+                    },
+                  ),
+                ),
               ],
             ),
           ],

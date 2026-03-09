@@ -177,13 +177,25 @@ class AuthRepositoryImpl implements AuthRepository {
   @override
   Future<Either<Failure, UserProfile>> getUserProfile(String userId) async {
     try {
-      final profileResponse = await _supabaseClient.from('profiles').select().eq('user_id', userId).maybeSingle();
+      // 1. Fetch profile data
+      final profileResponse = await _supabaseClient
+          .from('profiles')
+          .select()
+          .eq('user_id', userId)
+          .maybeSingle();
       
       if (profileResponse == null) {
         return Left(ServerFailure(message: "Không tìm thấy thông tin profile cho user này."));
       }
+
+      // 2. Fetch user data (specifically avatar_url which might be more up-to-date in users table)
+      final userResponse = await _supabaseClient
+          .from('users')
+          .select('avatar_url')
+          .eq('id', userId)
+          .maybeSingle();
       
-      // Fetch interests from user_preferences table
+      // 3. Fetch interests
       final prefsResponse = await _supabaseClient
           .from('user_preferences')
           .select('preference_id')
@@ -194,6 +206,12 @@ class AuthRepositoryImpl implements AuthRepository {
           .toList();
 
       final Map<String, dynamic> data = Map<String, dynamic>.from(profileResponse);
+      
+      // Merge avatar_url from users table if available
+      if (userResponse != null && userResponse['avatar_url'] != null) {
+        data['avatar_url'] = userResponse['avatar_url'];
+      }
+      
       data['interests'] = interests;
       
       return Right(UserProfileModel.fromJson(data));

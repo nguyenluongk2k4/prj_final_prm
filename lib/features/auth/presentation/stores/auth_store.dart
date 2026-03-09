@@ -19,6 +19,7 @@ abstract class _AuthStore with Store {
 
   _AuthStore({required this.authDatasource, required this.imageUploadService}) {
     _initAuthListener();
+    fetchProvinces();
     // Startup session restore được xử lý trong main.dart trước runApp()
     // để đảm bảo isAuthenticated được set trước khi GoRouter khởi tạo
   }

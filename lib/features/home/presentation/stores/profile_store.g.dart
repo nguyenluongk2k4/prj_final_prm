@@ -30,6 +30,20 @@ mixin _$ProfileStore on _ProfileStore, Store {
     () => super.showActions,
     name: '_ProfileStore.showActions',
   )).value;
+  Computed<String>? _$provinceNameComputed;
+
+  @override
+  String get provinceName => (_$provinceNameComputed ??= Computed<String>(
+    () => super.provinceName,
+    name: '_ProfileStore.provinceName',
+  )).value;
+  Computed<double?>? _$distanceKmComputed;
+
+  @override
+  double? get distanceKm => (_$distanceKmComputed ??= Computed<double?>(
+    () => super.distanceKm,
+    name: '_ProfileStore.distanceKm',
+  )).value;
 
   late final _$isLoadingAtom = Atom(
     name: '_ProfileStore.isLoading',
@@ -46,6 +60,24 @@ mixin _$ProfileStore on _ProfileStore, Store {
   set isLoading(bool value) {
     _$isLoadingAtom.reportWrite(value, super.isLoading, () {
       super.isLoading = value;
+    });
+  }
+
+  late final _$albumImagesAtom = Atom(
+    name: '_ProfileStore.albumImages',
+    context: context,
+  );
+
+  @override
+  ObservableList<AlbumImage> get albumImages {
+    _$albumImagesAtom.reportRead();
+    return super.albumImages;
+  }
+
+  @override
+  set albumImages(ObservableList<AlbumImage> value) {
+    _$albumImagesAtom.reportWrite(value, super.albumImages, () {
+      super.albumImages = value;
     });
   }
 
@@ -114,12 +146,15 @@ mixin _$ProfileStore on _ProfileStore, Store {
   String toString() {
     return '''
 isLoading: ${isLoading},
+albumImages: ${albumImages},
 error: ${error},
 profile: ${profile},
 friendStatus: ${friendStatus},
 isMe: ${isMe},
 hasRelationship: ${hasRelationship},
-showActions: ${showActions}
+showActions: ${showActions},
+provinceName: ${provinceName},
+distanceKm: ${distanceKm}
     ''';
   }
 }

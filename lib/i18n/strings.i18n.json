@@ -182,5 +182,7 @@
   "albumEmpty": "Your album is empty",
   "uploadPhoto": "Upload Photo",
   "deletePhoto": "Delete Photo",
-  "deletePhotoConfirm": "Are you sure you want to delete this photo?"
+  "deletePhotoConfirm": "Are you sure you want to delete this photo?",
+  "viewProfile": "View Profile",
+  "seeAll": "See all"
 }

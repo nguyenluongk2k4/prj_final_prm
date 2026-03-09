@@ -261,11 +261,17 @@ class AuthDatasource {
 
       final now = DateTime.now().toIso8601String();
 
-      // Update users table that we have an avatar
+      // 1. Update users table
       await _supabaseClient
           .from('users')
           .update({'avatar_url': avatarUrl, 'updated_at': now})
           .eq('id', userId);
+
+      // 2. Update profiles table
+      await _supabaseClient
+          .from('profiles')
+          .update({'avatar_url': avatarUrl, 'updated_at': now})
+          .eq('user_id', userId);
 
       final user = await getCurrentUser(userId: userId);
       if (user == null) {

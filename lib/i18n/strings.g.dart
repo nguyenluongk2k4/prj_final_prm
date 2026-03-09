@@ -4,9 +4,9 @@
 /// To regenerate, run: `dart run slang`
 ///
 /// Locales: 2
-/// Strings: 368 (184 per locale)
+/// Strings: 372 (186 per locale)
 ///
-/// Built on 2026-03-09 at 02:53 UTC
+/// Built on 2026-03-09 at 15:20 UTC
 
 // coverage:ignore-file
 // ignore_for_file: type=lint
@@ -332,6 +332,8 @@ class Translations implements BaseTranslations<AppLocale, Translations> {
 	String get uploadPhoto => 'Upload Photo';
 	String get deletePhoto => 'Delete Photo';
 	String get deletePhotoConfirm => 'Are you sure you want to delete this photo?';
+	String get viewProfile => 'View Profile';
+	String get seeAll => 'See all';
 }
 
 // Path: <root>
@@ -544,6 +546,8 @@ class _StringsVi extends Translations {
 	@override String get uploadPhoto => 'Tải ảnh lên';
 	@override String get deletePhoto => 'Xóa ảnh';
 	@override String get deletePhotoConfirm => 'Bạn có chắc chắn muốn xóa ảnh này không?';
+	@override String get viewProfile => 'Xem hồ sơ';
+	@override String get seeAll => 'Tất cả';
 }
 
 /// Flat map(s) containing all translations.
@@ -736,6 +740,8 @@ extension on Translations {
 			case 'uploadPhoto': return 'Upload Photo';
 			case 'deletePhoto': return 'Delete Photo';
 			case 'deletePhotoConfirm': return 'Are you sure you want to delete this photo?';
+			case 'viewProfile': return 'View Profile';
+			case 'seeAll': return 'See all';
 			default: return null;
 		}
 	}
@@ -928,6 +934,8 @@ extension on _StringsVi {
 			case 'uploadPhoto': return 'Tải ảnh lên';
 			case 'deletePhoto': return 'Xóa ảnh';
 			case 'deletePhotoConfirm': return 'Bạn có chắc chắn muốn xóa ảnh này không?';
+			case 'viewProfile': return 'Xem hồ sơ';
+			case 'seeAll': return 'Tất cả';
 			default: return null;
 		}
 	}

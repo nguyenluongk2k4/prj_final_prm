@@ -305,6 +305,8 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i82.GetUserProfileUseCase>(),
         gh<_i354.CheckFriendshipUseCase>(),
         gh<_i454.SupabaseClient>(),
+        gh<_i544.IAlbumRepository>(),
+        gh<_i603.AuthStore>(),
       ),
     );
     gh.factory<_i855.ConversationDetailStore>(

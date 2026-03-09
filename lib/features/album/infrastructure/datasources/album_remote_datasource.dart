@@ -9,12 +9,17 @@ class AlbumRemoteDataSource {
   final SupabaseClient _supabaseClient;
   final ImageUploadService _imageUploadService;
 
+  SupabaseClient get supabase => _supabaseClient;
+
   AlbumRemoteDataSource(this._supabaseClient, this._imageUploadService);
 
   Future<List<AlbumImageModel>> getMyAlbumImages() async {
     final userId = _supabaseClient.auth.currentUser?.id;
-    if (userId == null) throw Exception('User not authenticated');
+    if (userId == null) return [];
+    return getUserAlbumImages(userId);
+  }
 
+  Future<List<AlbumImageModel>> getUserAlbumImages(String userId) async {
     final response = await _supabaseClient
         .from('album_images')
         .select()

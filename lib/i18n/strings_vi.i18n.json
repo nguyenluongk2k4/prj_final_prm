@@ -182,5 +182,7 @@
   "albumEmpty": "Album của bạn đang trống",
   "uploadPhoto": "Tải ảnh lên",
   "deletePhoto": "Xóa ảnh",
-  "deletePhotoConfirm": "Bạn có chắc chắn muốn xóa ảnh này không?"
+  "deletePhotoConfirm": "Bạn có chắc chắn muốn xóa ảnh này không?",
+  "viewProfile": "Xem hồ sơ",
+  "seeAll": "Tất cả"
 }

@@ -83,6 +83,9 @@ class $AssetsIconsGen {
   /// File path: assets/icons/ic_search.svg
   SvgGenImage get icSearch => const SvgGenImage('assets/icons/ic_search.svg');
 
+  /// File path: assets/icons/ic_send.svg
+  SvgGenImage get icSend => const SvgGenImage('assets/icons/ic_send.svg');
+
   /// File path: assets/icons/ic_send_message.png
   AssetGenImage get icSendMessage =>
       const AssetGenImage('assets/icons/ic_send_message.png');
@@ -161,6 +164,7 @@ class $AssetsIconsGen {
     icCamera,
     icMicrophone,
     icSearch,
+    icSend,
     icSendMessage,
     icSetting,
     icVideoCall,
