@@ -14,6 +14,19 @@ import 'package:get_it/get_it.dart' as _i174;
 import 'package:injectable/injectable.dart' as _i526;
 import 'package:supabase_flutter/supabase_flutter.dart' as _i454;
 
+import '../../features/album/domain/repositories/album_repository.dart'
+    as _i544;
+import '../../features/album/domain/usecases/delete_album_image_usecase.dart'
+    as _i593;
+import '../../features/album/domain/usecases/get_my_album_images_usecase.dart'
+    as _i908;
+import '../../features/album/domain/usecases/upload_album_image_usecase.dart'
+    as _i379;
+import '../../features/album/infrastructure/datasources/album_remote_datasource.dart'
+    as _i389;
+import '../../features/album/infrastructure/repositories/album_repository_impl.dart'
+    as _i13;
+import '../../features/album/presentation/stores/album_store.dart' as _i964;
 import '../../features/auth/data/repositories/presence_repository_impl.dart'
     as _i513;
 import '../../features/auth/domain/repositories/auth_repository.dart' as _i787;
@@ -181,6 +194,12 @@ extension GetItInjectableX on _i174.GetIt {
     gh.factory<_i122.ChatMediaRepository>(
       () => _i785.ChatMediaRepositoryImpl(gh<_i396.ChatMediaDatasource>()),
     );
+    gh.lazySingleton<_i389.AlbumRemoteDataSource>(
+      () => _i389.AlbumRemoteDataSource(
+        gh<_i454.SupabaseClient>(),
+        gh<_i606.ImageUploadService>(),
+      ),
+    );
     gh.factory<_i185.TypingRepository>(
       () => _i706.TypingRepositoryImpl(gh<_i677.TypingDatasource>()),
     );
@@ -208,6 +227,9 @@ extension GetItInjectableX on _i174.GetIt {
     );
     gh.factory<_i850.PresenceRepository>(
       () => _i513.PresenceRepositoryImpl(gh<_i307.PresenceDatasource>()),
+    );
+    gh.lazySingleton<_i544.IAlbumRepository>(
+      () => _i13.AlbumRepositoryImpl(gh<_i389.AlbumRemoteDataSource>()),
     );
     gh.factory<_i420.ChatRepository>(
       () => _i504.ChatRepositoryImpl(gh<_i759.ChatMessagesDatasource>()),
@@ -269,6 +291,15 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i603.AuthStore>(),
       ),
     );
+    gh.factory<_i593.DeleteAlbumImageUseCase>(
+      () => _i593.DeleteAlbumImageUseCase(gh<_i544.IAlbumRepository>()),
+    );
+    gh.factory<_i908.GetMyAlbumImagesUseCase>(
+      () => _i908.GetMyAlbumImagesUseCase(gh<_i544.IAlbumRepository>()),
+    );
+    gh.factory<_i379.UploadAlbumImageUseCase>(
+      () => _i379.UploadAlbumImageUseCase(gh<_i544.IAlbumRepository>()),
+    );
     gh.factory<_i937.ProfileStore>(
       () => _i937.ProfileStore(
         gh<_i82.GetUserProfileUseCase>(),
@@ -299,6 +330,13 @@ extension GetItInjectableX on _i174.GetIt {
       () => _i378.PresenceStore(
         gh<_i700.UpdatePresenceUseCase>(),
         gh<_i655.SetOfflineUseCase>(),
+      ),
+    );
+    gh.factory<_i964.AlbumStore>(
+      () => _i964.AlbumStore(
+        gh<_i908.GetMyAlbumImagesUseCase>(),
+        gh<_i379.UploadAlbumImageUseCase>(),
+        gh<_i593.DeleteAlbumImageUseCase>(),
       ),
     );
     return this;

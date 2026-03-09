@@ -177,5 +177,10 @@
   "you": "You",
   "sentImage": "sent a photo",
   "sentFile": "sent a file",
-  "sentVoice": "sent a voice message"
+  "sentVoice": "sent a voice message",
+  "retry": "Retry",
+  "albumEmpty": "Your album is empty",
+  "uploadPhoto": "Upload Photo",
+  "deletePhoto": "Delete Photo",
+  "deletePhotoConfirm": "Are you sure you want to delete this photo?"
 }

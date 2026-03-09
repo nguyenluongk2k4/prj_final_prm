@@ -4,9 +4,9 @@
 /// To regenerate, run: `dart run slang`
 ///
 /// Locales: 2
-/// Strings: 358 (179 per locale)
+/// Strings: 368 (184 per locale)
 ///
-/// Built on 2026-03-08 at 11:29 UTC
+/// Built on 2026-03-09 at 02:53 UTC
 
 // coverage:ignore-file
 // ignore_for_file: type=lint
@@ -327,6 +327,11 @@ class Translations implements BaseTranslations<AppLocale, Translations> {
 	String get sentImage => 'sent a photo';
 	String get sentFile => 'sent a file';
 	String get sentVoice => 'sent a voice message';
+	String get retry => 'Retry';
+	String get albumEmpty => 'Your album is empty';
+	String get uploadPhoto => 'Upload Photo';
+	String get deletePhoto => 'Delete Photo';
+	String get deletePhotoConfirm => 'Are you sure you want to delete this photo?';
 }
 
 // Path: <root>
@@ -534,6 +539,11 @@ class _StringsVi extends Translations {
 	@override String get sentImage => 'đã gửi 1 ảnh';
 	@override String get sentFile => 'đã gửi 1 tệp đính kèm';
 	@override String get sentVoice => 'đã gửi 1 tin nhắn thoại';
+	@override String get retry => 'Thử lại';
+	@override String get albumEmpty => 'Album của bạn đang trống';
+	@override String get uploadPhoto => 'Tải ảnh lên';
+	@override String get deletePhoto => 'Xóa ảnh';
+	@override String get deletePhotoConfirm => 'Bạn có chắc chắn muốn xóa ảnh này không?';
 }
 
 /// Flat map(s) containing all translations.
@@ -721,6 +731,11 @@ extension on Translations {
 			case 'sentImage': return 'sent a photo';
 			case 'sentFile': return 'sent a file';
 			case 'sentVoice': return 'sent a voice message';
+			case 'retry': return 'Retry';
+			case 'albumEmpty': return 'Your album is empty';
+			case 'uploadPhoto': return 'Upload Photo';
+			case 'deletePhoto': return 'Delete Photo';
+			case 'deletePhotoConfirm': return 'Are you sure you want to delete this photo?';
 			default: return null;
 		}
 	}
@@ -908,6 +923,11 @@ extension on _StringsVi {
 			case 'sentImage': return 'đã gửi 1 ảnh';
 			case 'sentFile': return 'đã gửi 1 tệp đính kèm';
 			case 'sentVoice': return 'đã gửi 1 tin nhắn thoại';
+			case 'retry': return 'Thử lại';
+			case 'albumEmpty': return 'Album của bạn đang trống';
+			case 'uploadPhoto': return 'Tải ảnh lên';
+			case 'deletePhoto': return 'Xóa ảnh';
+			case 'deletePhotoConfirm': return 'Bạn có chắc chắn muốn xóa ảnh này không?';
 			default: return null;
 		}
 	}

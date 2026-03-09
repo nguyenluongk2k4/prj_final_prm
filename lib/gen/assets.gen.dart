@@ -14,6 +14,16 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_svg/flutter_svg.dart' as _svg;
 import 'package:vector_graphics/vector_graphics.dart' as _vg;
 
+class $AssetsAnimationsGen {
+  const $AssetsAnimationsGen();
+
+  /// File path: assets/animations/splash.lottie
+  String get splash => 'assets/animations/splash.lottie';
+
+  /// List of all assets
+  List<String> get values => [splash];
+}
+
 class $AssetsIconsGen {
   const $AssetsIconsGen();
 
@@ -181,6 +191,10 @@ class $AssetsImagesGen {
   /// File path: assets/images/action_buttons.svg
   SvgGenImage get actionButtons =>
       const SvgGenImage('assets/images/action_buttons.svg');
+
+  /// File path: assets/images/app_icon.png
+  AssetGenImage get appIcon =>
+      const AssetGenImage('assets/images/app_icon.png');
 
   /// File path: assets/images/apple_icon.svg
   SvgGenImage get appleIcon =>
@@ -367,6 +381,7 @@ class $AssetsImagesGen {
   List<dynamic> get values => [
     aGitkeep,
     actionButtons,
+    appIcon,
     appleIcon,
     btnBackPng,
     btnBackSvg,
@@ -420,6 +435,7 @@ class Assets {
   const Assets._();
 
   static const String aEnv = '.env';
+  static const $AssetsAnimationsGen animations = $AssetsAnimationsGen();
   static const $AssetsIconsGen icons = $AssetsIconsGen();
   static const $AssetsImagesGen images = $AssetsImagesGen();
 

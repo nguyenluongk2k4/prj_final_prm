@@ -68,7 +68,7 @@ class _AccountPageState extends State<AccountPage> {
           _SettingsTile(
             icon: Icons.photo_library_outlined,
             label: t.photoAlbum,
-            onTap: () {},
+            onTap: () => context.pushNamed(AppRoutes.myAlbumName),
           ),
           _SettingsTile(
             icon: Icons.people_alt_outlined,

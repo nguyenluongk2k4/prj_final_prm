@@ -170,3 +170,9 @@ flutter_native_splash:
   android_12:
     image: assets/images/app_icon.png
     color: "#ffffff"
+
+flutter_gen:
+  output: lib/gen/
+  line_length: 80
+  integrations:
+    flutter_svg: true

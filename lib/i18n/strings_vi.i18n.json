@@ -177,5 +177,10 @@
   "you": "Bạn",
   "sentImage": "đã gửi 1 ảnh",
   "sentFile": "đã gửi 1 tệp đính kèm",
-  "sentVoice": "đã gửi 1 tin nhắn thoại"
+  "sentVoice": "đã gửi 1 tin nhắn thoại",
+  "retry": "Thử lại",
+  "albumEmpty": "Album của bạn đang trống",
+  "uploadPhoto": "Tải ảnh lên",
+  "deletePhoto": "Xóa ảnh",
+  "deletePhotoConfirm": "Bạn có chắc chắn muốn xóa ảnh này không?"
 }
