@@ -23,6 +23,8 @@ class AppRoutes {
   static const String editProfile = '/edit-profile';
   static const String profile = '/profile';
   static const String myAlbum = '/my-album';
+  static const String reels = '/reels';
+  static const String reelsUpload = '/reels/upload';
   static const String main = '/home';
 
   // Route names
@@ -48,4 +50,6 @@ class AppRoutes {
   static const String editProfileName = 'edit-profile';
   static const String profileName = 'profile';
   static const String myAlbumName = 'my-album';
+  static const String reelsName = 'reels';
+  static const String reelsUploadName = 'reels_upload';
 }

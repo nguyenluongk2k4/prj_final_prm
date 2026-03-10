@@ -78,7 +78,7 @@ class _AccountPageState extends State<AccountPage> {
           _SettingsTile(
             icon: Icons.play_circle_outline_rounded,
             label: t.myReels,
-            onTap: () {},
+            onTap: () => context.push('${AppRoutes.reels}?type=profile'),
           ),
 
           const SizedBox(height: 28),

@@ -18,6 +18,8 @@ import '../../features/auth/presentation/pages/email_register_page.dart';
 import '../../features/auth/presentation/pages/settings_page.dart';
 import '../../features/home/presentation/pages/edit_profile_page.dart';
 import '../../features/home/presentation/pages/profile_page.dart';
+import '../../features/home/presentation/pages/reels_page.dart';
+import '../../features/home/presentation/pages/reels_upload_page.dart';
 import '../../features/album/presentation/pages/my_album_page.dart';
 import '../app_stores.dart';
 import '../../features/auth/presentation/stores/auth_store.dart'; // Added AuthStore import
@@ -128,6 +130,19 @@ class AppRouter {
         builder: (context, state) => ProfilePage(
           userId: state.pathParameters['userId'],
         ),
+      ),
+      GoRoute(
+        path: AppRoutes.reels,
+        name: AppRoutes.reelsName,
+        builder: (context, state) {
+          final isProfile = state.uri.queryParameters['type'] == 'profile';
+          return MainPage(initialTab: 2, reelsType: isProfile ? 'profile' : 'discover');
+        },
+      ),
+      GoRoute(
+        path: AppRoutes.reelsUpload,
+        name: AppRoutes.reelsUploadName,
+        builder: (context, state) => const ReelsUploadPage(),
       ),
       GoRoute(
         path: AppRoutes.myAlbum,

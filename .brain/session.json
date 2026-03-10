@@ -1,0 +1,10 @@
+{
+  "working_on": {
+    "feature": "Reels Perfection",
+    "current_plan_path": "plans/260310-1422-reels-completion/",
+    "current_phase": "phase-01",
+    "task": "Implement uploadVideo in ImageUploadService",
+    "status": "coding"
+  },
+  "technical_level": "technical"
+}

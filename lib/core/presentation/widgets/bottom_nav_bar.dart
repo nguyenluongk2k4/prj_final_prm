@@ -42,21 +42,26 @@ class BottomNavBar extends StatelessWidget {
                     onTap: () => onTap(1),
                   ),
                   _NavBarItem(
-                    iconPath: Assets.icons.navChatInactive.path,
+                    iconPath: Assets.icons.gameHandle.path, // Temporary placeholder
                     isSelected: selectedIndex == 2,
                     onTap: () => onTap(2),
                   ),
                   _NavBarItem(
-                    iconPath: Assets.icons.navAccountInactive.path,
+                    iconPath: Assets.icons.navChatInactive.path,
                     isSelected: selectedIndex == 3,
                     onTap: () => onTap(3),
+                  ),
+                  _NavBarItem(
+                    iconPath: Assets.icons.navAccountInactive.path,
+                    isSelected: selectedIndex == 4,
+                    onTap: () => onTap(4),
                   ),
                 ],
               ),
             ),
             AnimatedPositioned(
               top: 0,
-              left: (MediaQuery.of(context).size.width / 4) * selectedIndex + (MediaQuery.of(context).size.width / 8) - 30,
+              left: (MediaQuery.of(context).size.width / 5) * selectedIndex + (MediaQuery.of(context).size.width / 10) - 30,
               duration: const Duration(milliseconds: 300),
               curve: Curves.easeInOutCubic,
               child: Container(

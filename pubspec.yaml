@@ -95,6 +95,8 @@ dependencies:
 
   vector_graphics: any
   timeago: ^3.7.1
+  video_player: ^2.11.0
+  visibility_detector: ^0.4.0+2
 dev_dependencies:
   flutter_test:
     sdk: flutter

@@ -7,11 +7,17 @@ import 'matches_page.dart';
 
 /// Single scaffold that owns the persistent [BottomNavBar].
 /// Tab content is swapped with [IndexedStack] so each page keeps its state.
-class MainPage extends StatefulWidget {
-  /// Pass a starting tab index (0 = Home, 1 = Matches, …).
-  const MainPage({super.key, this.initialTab = 0});
+import 'reels_page.dart';
 
+class MainPage extends StatefulWidget {
   final int initialTab;
+  final String? reelsType;
+
+  const MainPage({
+    super.key,
+    this.initialTab = 0,
+    this.reelsType,
+  });
 
   @override
   State<MainPage> createState() => _MainPageState();
@@ -19,13 +25,6 @@ class MainPage extends StatefulWidget {
 
 class _MainPageState extends State<MainPage> {
   late int _selectedIndex;
-
-  static const _pages = <Widget>[
-    HomePage(),
-    MatchesPage(),
-    ChatPage(),
-    AccountPage(),
-  ];
 
   @override
   void initState() {
@@ -38,7 +37,13 @@ class _MainPageState extends State<MainPage> {
     return Scaffold(
       body: IndexedStack(
         index: _selectedIndex,
-        children: _pages,
+        children: [
+          const HomePage(),
+          const MatchesPage(),
+          ReelsPage(initialType: widget.reelsType),
+          const ChatPage(),
+          const AccountPage(),
+        ],
       ),
       bottomNavigationBar: BottomNavBar(
         selectedIndex: _selectedIndex,

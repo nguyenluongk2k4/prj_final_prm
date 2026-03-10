@@ -109,11 +109,19 @@ import '../../features/home/data/repositories/discover_repository_impl.dart'
     as _i90;
 import '../../features/home/domain/repositories/discover_repository.dart'
     as _i952;
+import '../../features/home/domain/repositories/reels_repository.dart'
+    as _i1000;
 import '../../features/home/domain/usecases/get_discover_batch_usecase.dart'
     as _i236;
+import '../../features/home/domain/usecases/reels_usecases.dart' as _i514;
 import '../../features/home/domain/usecases/submit_swipe_usecase.dart' as _i219;
+import '../../features/home/infrastructure/datasources/reels_datasource.dart'
+    as _i947;
+import '../../features/home/infrastructure/repositories/reels_repository_impl.dart'
+    as _i533;
 import '../../features/home/presentation/stores/discover_store.dart' as _i436;
 import '../../features/home/presentation/stores/profile_store.dart' as _i937;
+import '../../features/home/presentation/stores/reels_store.dart' as _i679;
 import '../network/dio_client.dart' as _i667;
 import '../network/network_info.dart' as _i932;
 import '../services/firebase_messaging_service.dart' as _i910;
@@ -193,6 +201,12 @@ extension GetItInjectableX on _i174.GetIt {
     );
     gh.factory<_i122.ChatMediaRepository>(
       () => _i785.ChatMediaRepositoryImpl(gh<_i396.ChatMediaDatasource>()),
+    );
+    gh.factory<_i947.ReelsDatasource>(
+      () => _i947.ReelsDatasource(
+        gh<_i454.SupabaseClient>(),
+        gh<_i606.ImageUploadService>(),
+      ),
     );
     gh.lazySingleton<_i389.AlbumRemoteDataSource>(
       () => _i389.AlbumRemoteDataSource(
@@ -285,6 +299,9 @@ extension GetItInjectableX on _i174.GetIt {
     gh.factory<_i700.UpdatePresenceUseCase>(
       () => _i700.UpdatePresenceUseCase(gh<_i850.PresenceRepository>()),
     );
+    gh.lazySingleton<_i1000.ReelsRepository>(
+      () => _i533.ReelsRepositoryImpl(gh<_i947.ReelsDatasource>()),
+    );
     gh.lazySingleton<_i499.InterestsStore>(
       () => authModule.interestsStore(
         gh<_i696.AuthDatasource>(),
@@ -328,6 +345,27 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i157.DisposeTypingChannelUseCase>(),
       ),
     );
+    gh.factory<_i514.GetReelsUseCase>(
+      () => _i514.GetReelsUseCase(gh<_i1000.ReelsRepository>()),
+    );
+    gh.factory<_i514.LikeReelUseCase>(
+      () => _i514.LikeReelUseCase(gh<_i1000.ReelsRepository>()),
+    );
+    gh.factory<_i514.UnlikeReelUseCase>(
+      () => _i514.UnlikeReelUseCase(gh<_i1000.ReelsRepository>()),
+    );
+    gh.factory<_i514.UploadReelUseCase>(
+      () => _i514.UploadReelUseCase(gh<_i1000.ReelsRepository>()),
+    );
+    gh.factory<_i514.GetCommentsUseCase>(
+      () => _i514.GetCommentsUseCase(gh<_i1000.ReelsRepository>()),
+    );
+    gh.factory<_i514.PostCommentUseCase>(
+      () => _i514.PostCommentUseCase(gh<_i1000.ReelsRepository>()),
+    );
+    gh.factory<_i514.DeleteCommentUseCase>(
+      () => _i514.DeleteCommentUseCase(gh<_i1000.ReelsRepository>()),
+    );
     gh.factory<_i378.PresenceStore>(
       () => _i378.PresenceStore(
         gh<_i700.UpdatePresenceUseCase>(),
@@ -339,6 +377,19 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i908.GetMyAlbumImagesUseCase>(),
         gh<_i379.UploadAlbumImageUseCase>(),
         gh<_i593.DeleteAlbumImageUseCase>(),
+      ),
+    );
+    gh.factory<_i679.ReelsStore>(
+      () => _i679.ReelsStore(
+        gh<_i514.GetReelsUseCase>(),
+        gh<_i514.UploadReelUseCase>(),
+        gh<_i50.GetFriendsUseCase>(),
+        gh<_i514.LikeReelUseCase>(),
+        gh<_i514.UnlikeReelUseCase>(),
+        gh<_i514.GetCommentsUseCase>(),
+        gh<_i514.PostCommentUseCase>(),
+        gh<_i514.DeleteCommentUseCase>(),
+        gh<_i603.AuthStore>(),
       ),
     );
     return this;
