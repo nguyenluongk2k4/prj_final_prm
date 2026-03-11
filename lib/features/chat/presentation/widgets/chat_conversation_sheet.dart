@@ -4,13 +4,16 @@ import 'dart:io';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:tencent_calls_uikit/tencent_calls_uikit.dart';
+import 'package:go_router/go_router.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../../../core/presentation/widgets/app_text_field.dart';
 import '../../../../core/theme/app_color_scheme.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../../../../gen/assets.gen.dart';
 import '../pages/conservation_detail.dart';
+import '../../../../core/router/app_routes.dart';
+import '../../../call/presentation/models/call_args.dart';
 
 // ─── Data ─────────────────────────────────────────────────────────────────────
 
@@ -85,6 +88,7 @@ class _ChatConversationSheetState extends State<_ChatConversationSheet> {
   // We keep a reference so _scrollToBottom() can use it everywhere.
   ScrollController? _listScrollCtrl;
   final ImagePicker _imagePicker = ImagePicker();
+  final SupabaseClient _supabase = Supabase.instance.client;
   bool _hasText = false;
   int _unreadBelow = 0;   // messages from other while user is scrolled up
   bool _isAtBottom = true;
@@ -178,7 +182,7 @@ class _ChatConversationSheetState extends State<_ChatConversationSheet> {
     });
   }
 
-  // ── Voice message (tencent_cloud_chat_sdk supports V2TIMAudioElem) ─────────
+  // ── Voice message placeholder ────────────────────────────────────────────
 
   void _onVoiceTap() {
     ScaffoldMessenger.of(context).showSnackBar(
@@ -189,28 +193,92 @@ class _ChatConversationSheetState extends State<_ChatConversationSheet> {
     );
   }
 
-  // ── Calls (tencent_calls_uikit) ───────────────────────────────────────────
+  // ── Calls (Agora) ─────────────────────────────────────────────────────────
 
   Future<void> _startAudioCall() async {
-    if (widget.userId.isEmpty) {
+    final myId = _supabase.auth.currentUser?.id;
+    if (myId == null || widget.userId.isEmpty) {
       _showNoUserIdSnack();
       return;
     }
-    await TUICallKit.instance.call(widget.userId, TUICallMediaType.audio);
+    final channelId = buildCallChannel(myId, widget.userId);
+
+    final created = await _createCallSession(
+      callerId: myId,
+      receiverId: widget.userId,
+      channelId: channelId,
+      isVideo: false,
+    );
+    if (!created) return;
+
+    final args = CallArgs(
+      channelId: channelId,
+      localUserId: myId,
+      remoteUserId: widget.userId,
+      remoteName: widget.name,
+      remoteAvatarUrl: null,
+      isVideo: false,
+      isIncoming: false,
+    );
+    context.push(AppRoutes.callActive, extra: args);
   }
 
   Future<void> _startVideoCall() async {
-    if (widget.userId.isEmpty) {
+    final myId = _supabase.auth.currentUser?.id;
+    if (myId == null || widget.userId.isEmpty) {
       _showNoUserIdSnack();
       return;
     }
-    await TUICallKit.instance.call(widget.userId, TUICallMediaType.video);
+    final channelId = buildCallChannel(myId, widget.userId);
+
+    final created = await _createCallSession(
+      callerId: myId,
+      receiverId: widget.userId,
+      channelId: channelId,
+      isVideo: true,
+    );
+    if (!created) return;
+
+    final args = CallArgs(
+      channelId: channelId,
+      localUserId: myId,
+      remoteUserId: widget.userId,
+      remoteName: widget.name,
+      remoteAvatarUrl: null,
+      isVideo: true,
+      isIncoming: false,
+    );
+    context.push(AppRoutes.callActive, extra: args);
   }
 
   void _showNoUserIdSnack() {
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(content: Text('User ID not available for calling')),
     );
+  }
+
+  Future<bool> _createCallSession({
+    required String callerId,
+    required String receiverId,
+    required String channelId,
+    required bool isVideo,
+  }) async {
+    try {
+      await _supabase.from('call_sessions').insert({
+        'channel_name': channelId,
+        'caller_id': callerId,
+        'receiver_id': receiverId,
+        'call_type': isVideo ? 'video' : 'voice',
+        'status': 'init',
+      });
+      return true;
+    } catch (err) {
+      if (!mounted) return false;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Failed to start call. Please try again.')),
+      );
+      return false;
+    }
   }
 
   // ── Attachment picker ──────────────────────────────────────────────────────
@@ -582,7 +650,7 @@ class _ChatConversationSheetState extends State<_ChatConversationSheet> {
                       ),
                     ),
 
-                    // Voice  ← kept: tencent_cloud_chat_sdk supports V2TIMAudioElem
+                    // Voice
                     // Send   ← shown when text is non-empty
                     AnimatedSwitcher(
                       duration: const Duration(milliseconds: 200),

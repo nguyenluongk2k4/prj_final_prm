@@ -21,6 +21,9 @@ import '../../features/home/presentation/pages/profile_page.dart';
 import '../../features/home/presentation/pages/reels_page.dart';
 import '../../features/home/presentation/pages/reels_upload_page.dart';
 import '../../features/album/presentation/pages/my_album_page.dart';
+import '../../features/call/presentation/pages/incoming_call_page.dart';
+import '../../features/call/presentation/pages/in_call_page.dart';
+import '../../features/call/presentation/models/call_args.dart';
 import '../app_stores.dart';
 import '../../features/auth/presentation/stores/auth_store.dart'; // Added AuthStore import
 import 'app_routes.dart';
@@ -148,6 +151,22 @@ class AppRouter {
         path: AppRoutes.myAlbum,
         name: AppRoutes.myAlbumName,
         builder: (context, state) => const MyAlbumPage(),
+      ),
+      GoRoute(
+        path: AppRoutes.callIncoming,
+        name: AppRoutes.callIncomingName,
+        builder: (context, state) {
+          final args = state.extra as CallArgs;
+          return IncomingCallPage(args: args);
+        },
+      ),
+      GoRoute(
+        path: AppRoutes.callActive,
+        name: AppRoutes.callActiveName,
+        builder: (context, state) {
+          final args = state.extra as CallArgs;
+          return InCallPage(args: args);
+        },
       ),
     ],
     // Handle deep links

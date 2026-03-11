@@ -82,7 +82,7 @@ dependencies:
 
   # Chat & Video Call
   tencent_cloud_chat_sdk: ^8.9.7511
-  tencent_calls_uikit: ^2.4.9
+  agora_rtc_engine: ^6.3.2
 
   # File / Image Picking
   file_picker: ^8.0.7

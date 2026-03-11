@@ -8,9 +8,9 @@ import 'package:image_picker/image_picker.dart';
 import 'package:prj_final_prm/core/theme/app_color_scheme.dart';
 import 'package:prj_final_prm/core/theme/app_text_styles.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-import 'package:tencent_calls_uikit/tencent_calls_uikit.dart';
 import 'package:get_it/get_it.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
+import 'package:go_router/go_router.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../i18n/strings.g.dart';
 import '../../../../gen/assets.gen.dart';
@@ -21,6 +21,8 @@ import '../widgets/conversation_input_bar.dart';
 import '../widgets/conversation_message_tiles.dart';
 import '../stores/conversation_detail_store.dart';
 import '../stores/typing_store.dart';
+import '../../../../core/router/app_routes.dart';
+import '../../../call/presentation/models/call_args.dart';
 
 // ─── Page ─────────────────────────────────────────────────────────────────────
 
@@ -146,19 +148,59 @@ class _ConservationDetailPageState extends State<ConservationDetailPage>
 
 
   Future<void> _startAudioCall() async {
-    if (widget.userId.isEmpty) {
+    final myId = _currentUserId;
+    if (myId == null || widget.userId.isEmpty) {
       _showNoUserIdSnack();
       return;
     }
-    await TUICallKit.instance.call(widget.userId, TUICallMediaType.audio);
+    final channelId = buildCallChannel(myId, widget.userId);
+
+    final created = await _createCallSession(
+      callerId: myId,
+      receiverId: widget.userId,
+      channelId: channelId,
+      isVideo: false,
+    );
+    if (!created) return;
+
+    final args = CallArgs(
+      channelId: channelId,
+      localUserId: myId,
+      remoteUserId: widget.userId,
+      remoteName: widget.name,
+      remoteAvatarUrl: widget.avatarUrl,
+      isVideo: false,
+      isIncoming: false,
+    );
+    context.push(AppRoutes.callActive, extra: args);
   }
 
   Future<void> _startVideoCall() async {
-    if (widget.userId.isEmpty) {
+    final myId = _currentUserId;
+    if (myId == null || widget.userId.isEmpty) {
       _showNoUserIdSnack();
       return;
     }
-    await TUICallKit.instance.call(widget.userId, TUICallMediaType.video);
+    final channelId = buildCallChannel(myId, widget.userId);
+
+    final created = await _createCallSession(
+      callerId: myId,
+      receiverId: widget.userId,
+      channelId: channelId,
+      isVideo: true,
+    );
+    if (!created) return;
+
+    final args = CallArgs(
+      channelId: channelId,
+      localUserId: myId,
+      remoteUserId: widget.userId,
+      remoteName: widget.name,
+      remoteAvatarUrl: widget.avatarUrl,
+      isVideo: true,
+      isIncoming: false,
+    );
+    context.push(AppRoutes.callActive, extra: args);
   }
 
   void _showNoUserIdSnack() {
@@ -166,6 +208,30 @@ class _ConservationDetailPageState extends State<ConservationDetailPage>
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(content: Text(t.userIdNotAvailableForCalling)),
     );
+  }
+
+  Future<bool> _createCallSession({
+    required String callerId,
+    required String receiverId,
+    required String channelId,
+    required bool isVideo,
+  }) async {
+    try {
+      await _supabase.from('call_sessions').insert({
+        'channel_name': channelId,
+        'caller_id': callerId,
+        'receiver_id': receiverId,
+        'call_type': isVideo ? 'video' : 'voice',
+        'status': 'init',
+      });
+      return true;
+    } catch (err) {
+      if (!mounted) return false;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Failed to start call. Please try again.')),
+      );
+      return false;
+    }
   }
 
   void _showAttachmentOptions() {

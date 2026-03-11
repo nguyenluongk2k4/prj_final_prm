@@ -6,6 +6,9 @@ import 'package:flutter/foundation.dart';
 import 'package:injectable/injectable.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:prj_final_prm/core/utils/notification_service.dart';
+import 'package:prj_final_prm/core/router/app_routes.dart';
+import 'package:prj_final_prm/core/router/app_router.dart';
+import 'package:prj_final_prm/features/call/presentation/models/call_args.dart';
 
 @pragma('vm:entry-point')
 Future<void> firebaseMessagingBackgroundHandler(RemoteMessage message) async {
@@ -54,6 +57,10 @@ class FirebaseMessagingService {
       if (kDebugMode) {
         debugPrint('[FCM] foreground message: ${message.messageId}');
       }
+      if (_isCallMessage(message)) {
+        unawaited(_handleCallMessage(message));
+        return;
+      }
       NotificationService.showForegroundNotification(message);
     });
 
@@ -61,7 +68,15 @@ class FirebaseMessagingService {
       if (kDebugMode) {
         debugPrint('[FCM] opened message: ${message.messageId}');
       }
+      if (_isCallMessage(message)) {
+        unawaited(_handleCallMessage(message));
+      }
     });
+
+    final initialMessage = await _messaging.getInitialMessage();
+    if (initialMessage != null && _isCallMessage(initialMessage)) {
+      await _handleCallMessage(initialMessage);
+    }
 
     _authSub ??= _supabase.auth.onAuthStateChange.listen((data) async {
       if (data.session?.user == null) return;
@@ -105,5 +120,56 @@ class FirebaseMessagingService {
         debugPrint('[FCM] failed to save token: $e');
       }
     }
+  }
+
+  bool _isCallMessage(RemoteMessage message) {
+    final type = message.data['type']?.toString().toLowerCase();
+    return type == 'call';
+  }
+
+  Future<void> _handleCallMessage(RemoteMessage message) async {
+    final data = message.data;
+    final channelId = data['channel']?.toString().trim() ?? '';
+    final callerId = data['caller_id']?.toString().trim() ?? '';
+    final receiverId = data['receiver_id']?.toString().trim() ?? '';
+    final callType = data['call_type']?.toString().trim().toLowerCase() ?? 'voice';
+
+    if (channelId.isEmpty || callerId.isEmpty || receiverId.isEmpty) {
+      if (kDebugMode) {
+        debugPrint('[FCM] missing call payload fields');
+      }
+      return;
+    }
+
+    String remoteName = 'Người dùng';
+    String? remoteAvatarUrl;
+    try {
+      final profile = await _supabase
+          .from('profiles')
+          .select('display_name,avatar_url')
+          .eq('user_id', callerId)
+          .maybeSingle();
+      if (profile != null) {
+        final name = profile['display_name']?.toString().trim() ?? '';
+        if (name.isNotEmpty) remoteName = name;
+        remoteAvatarUrl = profile['avatar_url']?.toString();
+      }
+    } catch (e) {
+      if (kDebugMode) {
+        debugPrint('[FCM] failed to load caller profile: $e');
+      }
+    }
+
+    final args = CallArgs(
+      channelId: channelId,
+      localUserId: receiverId,
+      remoteUserId: callerId,
+      remoteName: remoteName,
+      remoteAvatarUrl: remoteAvatarUrl,
+      isVideo: callType == 'video',
+      isIncoming: true,
+    );
+
+    AppRouter.router.push(AppRoutes.callIncoming, extra: args);
   }
 }
