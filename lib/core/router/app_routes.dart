@@ -30,6 +30,8 @@ class AppRoutes {
   static const String callActive = '/call/active';
   static const String map = '/map';
   static const String loginCallback = '/login-callback';
+  static const String forgotPassword = '/forgot-password';
+  static const String changePassword = '/change-password';
   static const String main = '/home';
 
   // Route names
@@ -62,4 +64,6 @@ class AppRoutes {
   static const String callActiveName = 'call_active';
   static const String mapName = 'map';
   static const String loginCallbackName = 'login-callback';
+  static const String forgotPasswordName = 'forgot-password';
+  static const String changePasswordName = 'change-password';
 }

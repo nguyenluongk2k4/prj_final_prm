@@ -1,9 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
+import 'package:go_router/go_router.dart';
+import '../../../../core/di/injection.dart';
+import '../../../../core/router/app_routes.dart';
 import '../../../../core/theme/theme_store.dart';
 import '../../../../core/theme/locale_store.dart';
 import '../../../../core/presentation/widgets/widgets.dart';
+import '../../../../core/theme/app_color_scheme.dart';
 import '../../../../i18n/strings.g.dart';
+import '../stores/auth_store.dart';
 
 class SettingsPage extends StatelessWidget {
   final ThemeStore themeStore;
@@ -27,6 +32,7 @@ class SettingsPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final t = Translations.of(context);
+    final c = context.appColors;
 
     return AppScaffold(
       title: t.settings,
@@ -98,7 +104,49 @@ class SettingsPage extends StatelessWidget {
           ),
           const Divider(),
 
-          // Account Section (removed - no auth state in settings)
+          // Account Section
+          ListTile(
+            leading: const Icon(Icons.lock_outline),
+            title: Text(t.changePassword),
+            trailing: const Icon(Icons.chevron_right),
+            onTap: () => context.pushNamed(AppRoutes.changePasswordName),
+          ),
+          const Divider(),
+
+          // Logout Button
+          ListTile(
+            leading: const Icon(Icons.logout),
+            title: Text(t.logout),
+            textColor: Colors.red,
+            iconColor: Colors.red,
+            onTap: () {
+              showDialog(
+                context: context,
+                builder: (BuildContext context) {
+                  return AlertDialog(
+                    title: Text(t.logout),
+                    content: const Text('Are you sure you want to logout?'),
+                    actions: [
+                      TextButton(
+                        onPressed: () => Navigator.pop(context),
+                        child: Text(t.cancel),
+                      ),
+                      TextButton(
+                        onPressed: () async {
+                          final authStore = getIt<AuthStore>();
+                          await authStore.logout();
+                          if (context.mounted) {
+                            context.goNamed(AppRoutes.loginName);
+                          }
+                        },
+                        child: Text(t.logout),
+                      ),
+                    ],
+                  );
+                },
+              );
+            },
+          ),
         ],
       ),
     );

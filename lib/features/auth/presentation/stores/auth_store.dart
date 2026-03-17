@@ -303,4 +303,38 @@ abstract class _AuthStore with Store {
   void dispose() {
     _authSubscription.cancel();
   }
+
+  @action
+  Future<void> resetPassword({required String email}) async {
+    isLoading = true;
+    errorMessage = null;
+    successMessage = null;
+
+    final response = await authDatasource.resetPassword(email: email);
+
+    if (response.success) {
+      successMessage = 'Password reset link sent to your email';
+    } else {
+      errorMessage = response.errorMessage;
+    }
+
+    isLoading = false;
+  }
+
+  @action
+  Future<void> changePassword({required String newPassword}) async {
+    isLoading = true;
+    errorMessage = null;
+    successMessage = null;
+
+    final response = await authDatasource.changePassword(newPassword: newPassword);
+
+    if (response.success) {
+      successMessage = 'Password changed successfully';
+    } else {
+      errorMessage = response.errorMessage;
+    }
+
+    isLoading = false;
+  }
 }

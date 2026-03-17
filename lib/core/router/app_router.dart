@@ -27,6 +27,8 @@ import '../../features/map/presentation/pages/map_page.dart';
 import '../../features/call/presentation/pages/incoming_call_page.dart';
 import '../../features/call/presentation/pages/in_call_page.dart';
 import '../../features/call/presentation/models/call_args.dart';
+import '../../features/auth/presentation/pages/forgot_password_page.dart';
+import '../../features/auth/presentation/pages/change_password_page.dart';
 import '../app_stores.dart';
 import '../../features/auth/presentation/stores/auth_store.dart'; // Added AuthStore import
 import 'app_routes.dart';
@@ -164,6 +166,16 @@ class AppRouter {
         path: AppRoutes.myAlbum,
         name: AppRoutes.myAlbumName,
         builder: (context, state) => const MyAlbumPage(),
+      ),
+      GoRoute(
+        path: AppRoutes.forgotPassword,
+        name: AppRoutes.forgotPasswordName,
+        builder: (context, state) => const ForgotPasswordPage(),
+      ),
+      GoRoute(
+        path: AppRoutes.changePassword,
+        name: AppRoutes.changePasswordName,
+        builder: (context, state) => const ChangePasswordPage(),
       ),
       GoRoute(
         path: AppRoutes.callIncoming,

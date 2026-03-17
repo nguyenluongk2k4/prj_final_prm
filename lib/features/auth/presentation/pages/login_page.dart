@@ -120,7 +120,22 @@ class _LoginPageState extends State<LoginPage> {
                     return null;
                   },
                 ),
-                const SizedBox(height: 24),
+                const SizedBox(height: 8),
+
+                // Forgot password link
+                Align(
+                  alignment: Alignment.centerRight,
+                  child: TextButton(
+                    onPressed: () => context.pushNamed(AppRoutes.forgotPasswordName),
+                    child: Text(
+                      t.forgotPassword,
+                      style: AppTextStyles.bodySmall.copyWith(
+                        color: c.primary,
+                      ),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 16),
 
                 // Error message
                 Observer(

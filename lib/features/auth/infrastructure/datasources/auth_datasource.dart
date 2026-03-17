@@ -469,4 +469,33 @@ class AuthDatasource {
       rethrow;
     }
   }
+
+  /// Gửi email reset password
+  Future<AuthResponse<void>> resetPassword({required String email}) async {
+    try {
+      await _supabaseClient.auth.resetPasswordForEmail(
+        email,
+        redirectTo: 'heartlink://login-callback',
+      );
+      return AuthResponse.success(null);
+    } on AuthException catch (e) {
+      return AuthResponse.failure(e.message);
+    } catch (e) {
+      return AuthResponse.failure('Error: ${e.toString()}');
+    }
+  }
+
+  /// Đổi mật khẩu (user đã đăng nhập)
+  Future<AuthResponse<void>> changePassword({required String newPassword}) async {
+    try {
+      await _supabaseClient.auth.updateUser(
+        UserAttributes(password: newPassword),
+      );
+      return AuthResponse.success(null);
+    } on AuthException catch (e) {
+      return AuthResponse.failure(e.message);
+    } catch (e) {
+      return AuthResponse.failure('Error: ${e.toString()}');
+    }
+  }
 }

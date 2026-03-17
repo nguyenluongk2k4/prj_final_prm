@@ -4,9 +4,9 @@
 /// To regenerate, run: `dart run slang`
 ///
 /// Locales: 2
-/// Strings: 376 (188 per locale)
+/// Strings: 400 (200 per locale)
 ///
-/// Built on 2026-03-17 at 12:25 UTC
+/// Built on 2026-03-17 at 15:50 UTC
 
 // coverage:ignore-file
 // ignore_for_file: type=lint
@@ -336,6 +336,18 @@ class Translations implements BaseTranslations<AppLocale, Translations> {
 	String get deletePhotoConfirm => 'Are you sure you want to delete this photo?';
 	String get viewProfile => 'View Profile';
 	String get seeAll => 'See all';
+	String get resetPassword => 'Reset password';
+	String get resetPasswordDesc => 'Enter your email and we\'ll send you a link to reset your password.';
+	String get sendResetLink => 'Send reset link';
+	String get resetLinkSent => 'Password reset link sent! Check your email.';
+	String get backToLogin => 'Back to login';
+	String get changePassword => 'Change password';
+	String get currentPassword => 'Current password';
+	String get newPassword => 'New password';
+	String get confirmNewPassword => 'Confirm new password';
+	String get passwordChanged => 'Password changed successfully!';
+	String get newPasswordHint => 'Enter new password';
+	String get confirmNewPasswordHint => 'Re-enter new password';
 }
 
 // Path: <root>
@@ -552,6 +564,18 @@ class _StringsVi extends Translations {
 	@override String get deletePhotoConfirm => 'Bạn có chắc chắn muốn xóa ảnh này không?';
 	@override String get viewProfile => 'Xem hồ sơ';
 	@override String get seeAll => 'Tất cả';
+	@override String get resetPassword => 'Đặt lại mật khẩu';
+	@override String get resetPasswordDesc => 'Nhập email và chúng tôi sẽ gửi cho bạn liên kết để đặt lại mật khẩu.';
+	@override String get sendResetLink => 'Gửi liên kết đặt lại';
+	@override String get resetLinkSent => 'Đã gửi liên kết đặt lại mật khẩu! Kiểm tra email của bạn.';
+	@override String get backToLogin => 'Quay lại đăng nhập';
+	@override String get changePassword => 'Đổi mật khẩu';
+	@override String get currentPassword => 'Mật khẩu hiện tại';
+	@override String get newPassword => 'Mật khẩu mới';
+	@override String get confirmNewPassword => 'Xác nhận mật khẩu mới';
+	@override String get passwordChanged => 'Đổi mật khẩu thành công!';
+	@override String get newPasswordHint => 'Nhập mật khẩu mới';
+	@override String get confirmNewPasswordHint => 'Nhập lại mật khẩu mới';
 }
 
 /// Flat map(s) containing all translations.
@@ -748,6 +772,18 @@ extension on Translations {
 			case 'deletePhotoConfirm': return 'Are you sure you want to delete this photo?';
 			case 'viewProfile': return 'View Profile';
 			case 'seeAll': return 'See all';
+			case 'resetPassword': return 'Reset password';
+			case 'resetPasswordDesc': return 'Enter your email and we\'ll send you a link to reset your password.';
+			case 'sendResetLink': return 'Send reset link';
+			case 'resetLinkSent': return 'Password reset link sent! Check your email.';
+			case 'backToLogin': return 'Back to login';
+			case 'changePassword': return 'Change password';
+			case 'currentPassword': return 'Current password';
+			case 'newPassword': return 'New password';
+			case 'confirmNewPassword': return 'Confirm new password';
+			case 'passwordChanged': return 'Password changed successfully!';
+			case 'newPasswordHint': return 'Enter new password';
+			case 'confirmNewPasswordHint': return 'Re-enter new password';
 			default: return null;
 		}
 	}
@@ -944,6 +980,18 @@ extension on _StringsVi {
 			case 'deletePhotoConfirm': return 'Bạn có chắc chắn muốn xóa ảnh này không?';
 			case 'viewProfile': return 'Xem hồ sơ';
 			case 'seeAll': return 'Tất cả';
+			case 'resetPassword': return 'Đặt lại mật khẩu';
+			case 'resetPasswordDesc': return 'Nhập email và chúng tôi sẽ gửi cho bạn liên kết để đặt lại mật khẩu.';
+			case 'sendResetLink': return 'Gửi liên kết đặt lại';
+			case 'resetLinkSent': return 'Đã gửi liên kết đặt lại mật khẩu! Kiểm tra email của bạn.';
+			case 'backToLogin': return 'Quay lại đăng nhập';
+			case 'changePassword': return 'Đổi mật khẩu';
+			case 'currentPassword': return 'Mật khẩu hiện tại';
+			case 'newPassword': return 'Mật khẩu mới';
+			case 'confirmNewPassword': return 'Xác nhận mật khẩu mới';
+			case 'passwordChanged': return 'Đổi mật khẩu thành công!';
+			case 'newPasswordHint': return 'Nhập mật khẩu mới';
+			case 'confirmNewPasswordHint': return 'Nhập lại mật khẩu mới';
 			default: return null;
 		}
 	}
