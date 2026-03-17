@@ -21,6 +21,7 @@ class UserModel {
   final DateTime? lastActive;
   final DateTime? createdAt;
   final DateTime? updatedAt;
+  final bool? hasSuperlikedMe; // Add this field
 
   UserModel({
     required this.id,
@@ -40,6 +41,7 @@ class UserModel {
     this.lastActive,
     this.createdAt,
     this.updatedAt,
+    this.hasSuperlikedMe,
   });
 
   factory UserModel.fromJson(Map<String, dynamic> json) =>
@@ -65,6 +67,7 @@ class UserModel {
     DateTime? lastActive,
     DateTime? createdAt,
     DateTime? updatedAt,
+    bool? hasSuperlikedMe,
   }) {
     return UserModel(
     id: id ?? this.id,
@@ -84,6 +87,7 @@ class UserModel {
       lastActive: lastActive ?? this.lastActive,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
+      hasSuperlikedMe: hasSuperlikedMe ?? this.hasSuperlikedMe,
     );
   }
 }

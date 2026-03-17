@@ -204,11 +204,11 @@ extension GetItInjectableX on _i174.GetIt {
     gh.lazySingleton<_i910.FirebaseMessagingService>(
       () => _i910.FirebaseMessagingService(gh<_i454.SupabaseClient>()),
     );
-    gh.factory<_i1031.GetMatchesUseCase>(
-      () => _i1031.GetMatchesUseCase(gh<_i640.MatchRepository>()),
-    );
     gh.factory<_i8.CheckMatchUseCase>(
       () => _i8.CheckMatchUseCase(gh<_i640.MatchRepository>()),
+    );
+    gh.factory<_i1031.GetMatchesUseCase>(
+      () => _i1031.GetMatchesUseCase(gh<_i640.MatchRepository>()),
     );
     gh.lazySingleton<_i831.CheckAuthUseCase>(
       () => _i831.CheckAuthUseCase(gh<_i787.AuthRepository>()),
