@@ -16,6 +16,27 @@ Future<void> firebaseMessagingBackgroundHandler(RemoteMessage message) async {
   if (kDebugMode) {
     debugPrint('[FCM] background message: ${message.messageId}');
   }
+
+  // Show full-screen call notification when app is killed/background
+  if (message.data['type']?.toString().toLowerCase() == 'call') {
+    final data = message.data;
+    final channelId = data['channel']?.toString().trim() ?? '';
+    final callerId = data['caller_id']?.toString().trim() ?? '';
+    final receiverId = data['receiver_id']?.toString().trim() ?? '';
+    final callType = data['call_type']?.toString().trim().toLowerCase() ?? 'voice';
+    final callerName = data['caller_name']?.toString().trim() ?? 'Người dùng';
+
+    if (channelId.isNotEmpty && callerId.isNotEmpty) {
+      await NotificationService.init();
+      await NotificationService.showIncomingCallNotification(
+        callerName: callerName,
+        channelId: channelId,
+        callerId: callerId,
+        receiverId: receiverId,
+        isVideo: callType == 'video',
+      );
+    }
+  }
 }
 
 @lazySingleton
@@ -53,6 +74,9 @@ class FirebaseMessagingService {
       await _saveToken(newToken);
     });
 
+    // Handle notification tap when app is in background (not killed)
+    NotificationService.setOnNotificationTap(_handleLocalNotificationTap);
+
     FirebaseMessaging.onMessage.listen((message) {
       if (kDebugMode) {
         debugPrint('[FCM] foreground message: ${message.messageId}');
@@ -73,9 +97,19 @@ class FirebaseMessagingService {
       }
     });
 
+    // App launched from killed state via notification tap
     final initialMessage = await _messaging.getInitialMessage();
     if (initialMessage != null && _isCallMessage(initialMessage)) {
       await _handleCallMessage(initialMessage);
+    }
+
+    // Check if app was opened by tapping local call notification
+    final launchDetails = await NotificationService.getLaunchDetails();
+    if (launchDetails?.didNotificationLaunchApp == true) {
+      final payload = launchDetails?.notificationResponse?.payload;
+      if (payload != null) {
+        _handleLocalNotificationTap(payload);
+      }
     }
 
     _authSub ??= _supabase.auth.onAuthStateChange.listen((data) async {
@@ -120,6 +154,31 @@ class FirebaseMessagingService {
         debugPrint('[FCM] failed to save token: $e');
       }
     }
+  }
+
+  void _handleLocalNotificationTap(String payload) {
+    // payload format: "call|channelId|callerId|receiverId|voice/video"
+    final parts = payload.split('|');
+    if (parts.length < 5 || parts[0] != 'call') return;
+
+    final channelId = parts[1];
+    final callerId = parts[2];
+    final receiverId = parts[3];
+    final isVideo = parts[4] == 'video';
+
+    NotificationService.cancelCallNotification();
+
+    final args = CallArgs(
+      channelId: channelId,
+      localUserId: receiverId,
+      remoteUserId: callerId,
+      remoteName: 'Người dùng',
+      remoteAvatarUrl: null,
+      isVideo: isVideo,
+      isIncoming: true,
+    );
+
+    AppRouter.router.push(AppRoutes.callIncoming, extra: args);
   }
 
   bool _isCallMessage(RemoteMessage message) {

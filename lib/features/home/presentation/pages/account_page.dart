@@ -76,6 +76,11 @@ class _AccountPageState extends State<AccountPage> {
             onTap: () => context.pushNamed(AppRoutes.friendsName),
           ),
           _SettingsTile(
+            icon: Icons.map_outlined,
+            label: t.location,
+            onTap: () => context.pushNamed(AppRoutes.mapName),
+          ),
+          _SettingsTile(
             icon: Icons.play_circle_outline_rounded,
             label: t.myReels,
             onTap: () => context.push('${AppRoutes.reels}?type=profile'),
