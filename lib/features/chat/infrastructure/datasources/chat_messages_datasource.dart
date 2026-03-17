@@ -31,11 +31,15 @@ class ChatMessagesDatasource {
     required String content,
     required String messageType,
   }) async {
+    // user1_id < user2_id required by CHECK constraint
+    final ids = [myId, otherId]..sort();
     final inserted = await _supabase
         .from('messages')
         .insert({
           'sender_id': myId,
           'receiver_id': otherId,
+          'user1_id': ids[0],
+          'user2_id': ids[1],
           'content': content,
           'message_type': messageType,
         })

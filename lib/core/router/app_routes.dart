@@ -27,6 +27,7 @@ class AppRoutes {
   static const String reelsUpload = '/reels/upload';
   static const String callIncoming = '/call/incoming';
   static const String callActive = '/call/active';
+  static const String map = '/map';
   static const String main = '/home';
 
   // Route names
@@ -56,4 +57,5 @@ class AppRoutes {
   static const String reelsUploadName = 'reels_upload';
   static const String callIncomingName = 'call_incoming';
   static const String callActiveName = 'call_active';
+  static const String mapName = 'map';
 }

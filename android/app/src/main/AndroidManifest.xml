@@ -9,11 +9,24 @@
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.READ_MEDIA_IMAGES" />
+    <uses-permission android:name="android.permission.USE_FULL_SCREEN_INTENT" />
+    <uses-permission android:name="android.permission.VIBRATE" />
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
     
     <application
         android:label="Heart Link"
         android:name="${applicationName}"
         android:icon="@mipmap/launcher_icon">
+        
+        <!-- Mapbox Access Token -->
+        <meta-data
+            android:name="com.mapbox.common.accessToken"
+            android:value="pk.eyJ1IjoibHVvbmduZ3V5ZW5rMms0IiwiYSI6ImNtbWxxcWljZTI3aTYyb3M2d3hqb2hlNjQifQ.UGmRthbPz--K4cGtBzDG4w" />
+        
+        <!-- Mapbox Telemetry (opt-out) -->
+        <meta-data
+            android:name="com.mapbox.common.telemetry.enabled"
+            android:value="false" />
         <meta-data
             android:name="com.google.firebase.messaging.default_notification_channel_id"
             android:value="high_importance_channel" />

@@ -4,9 +4,9 @@
 /// To regenerate, run: `dart run slang`
 ///
 /// Locales: 2
-/// Strings: 376 (188 per locale)
+/// Strings: 372 (186 per locale)
 ///
-/// Built on 2026-03-17 at 10:32 UTC
+/// Built on 2026-03-11 at 06:01 UTC
 
 // coverage:ignore-file
 // ignore_for_file: type=lint
@@ -284,8 +284,6 @@ class Translations implements BaseTranslations<AppLocale, Translations> {
 	String get continueWithEmail => 'Continue with email';
 	String get usePhoneNumber => 'Use phone number';
 	String get orSignUpWith => 'or sign up with';
-	String get orLoginWith => 'or login with';
-	String get continueWithGoogle => 'Continue with Google';
 	String get termsOfUse => 'Terms of use';
 	String get privacyPolicy => 'Privacy Policy';
 	String get bio => 'Bio';
@@ -500,8 +498,6 @@ class _StringsVi extends Translations {
 	@override String get continueWithEmail => 'Tiếp tục với email';
 	@override String get usePhoneNumber => 'Dùng số điện thoại';
 	@override String get orSignUpWith => 'hoặc đăng ký với';
-	@override String get orLoginWith => 'hoặc đăng nhập với';
-	@override String get continueWithGoogle => 'Tiếp tục với Google';
 	@override String get termsOfUse => 'Điều khoản sử dụng';
 	@override String get privacyPolicy => 'Chính sách bảo mật';
 	@override String get bio => 'Tiểu sử';
@@ -696,8 +692,6 @@ extension on Translations {
 			case 'continueWithEmail': return 'Continue with email';
 			case 'usePhoneNumber': return 'Use phone number';
 			case 'orSignUpWith': return 'or sign up with';
-			case 'orLoginWith': return 'or login with';
-			case 'continueWithGoogle': return 'Continue with Google';
 			case 'termsOfUse': return 'Terms of use';
 			case 'privacyPolicy': return 'Privacy Policy';
 			case 'bio': return 'Bio';
@@ -892,8 +886,6 @@ extension on _StringsVi {
 			case 'continueWithEmail': return 'Tiếp tục với email';
 			case 'usePhoneNumber': return 'Dùng số điện thoại';
 			case 'orSignUpWith': return 'hoặc đăng ký với';
-			case 'orLoginWith': return 'hoặc đăng nhập với';
-			case 'continueWithGoogle': return 'Tiếp tục với Google';
 			case 'termsOfUse': return 'Điều khoản sử dụng';
 			case 'privacyPolicy': return 'Chính sách bảo mật';
 			case 'bio': return 'Tiểu sử';

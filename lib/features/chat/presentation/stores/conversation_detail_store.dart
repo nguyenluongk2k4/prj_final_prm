@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:io';
 
+import 'package:flutter/material.dart';
 import 'package:injectable/injectable.dart';
 import 'package:mobx/mobx.dart';
 import '../../domain/entities/chat_message.dart';
@@ -139,7 +140,8 @@ abstract class _ConversationDetailStore with Store {
       );
       _replaceTempMessage(tempId, message);
       return true;
-    } catch (_) {
+    } catch (e, st) {
+      debugPrint('[Chat] ❌ sendTextMessage error: $e\n$st');
       _removeTempMessage(tempId);
       return false;
     }
