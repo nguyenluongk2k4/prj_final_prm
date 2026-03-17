@@ -66,6 +66,9 @@ abstract class _DiscoverStore with Store {
   @observable
   UserModel? newMatchUser;
 
+  @observable
+  bool isNewMatchSuperLike = false; // Track if the match was from SuperLike
+
   @action
   void _loadFilter() {
     final filterJson = _prefs.getString(_filterKey);
@@ -100,10 +103,12 @@ abstract class _DiscoverStore with Store {
     profiles.clear();
     hasReachedEnd = false;
 
+    print('🔍 Current filter: ${currentFilter?.toJsonString()}');
+    
     final result = await _getDiscoverBatch.execute(
       limit: _limit,
       offset: _offset,
-      filter: null, // Temporarily disable filter to test
+      filter: currentFilter, // Re-enable filter
     );
 
     result.fold(
@@ -130,7 +135,7 @@ abstract class _DiscoverStore with Store {
     final result = await _getDiscoverBatch.execute(
       limit: _limit,
       offset: _offset,
-      filter: null, // Temporarily disable filter to test
+      filter: currentFilter, // Re-enable filter
     );
 
     result.fold(
@@ -176,7 +181,8 @@ abstract class _DiscoverStore with Store {
           if (hasMatch) {
             print('🎉 MATCH FOUND! Setting newMatchUser to ${profile.name}');
             newMatchUser = profile;
-            print('🎯 newMatchUser set to: ${newMatchUser?.name}');
+            isNewMatchSuperLike = (swipeType == domain.SwipeType.superlike);
+            print('🎯 newMatchUser set to: ${newMatchUser?.name}, isSuperLike: $isNewMatchSuperLike');
           } else {
             print('💔 No match found');
           }
@@ -197,6 +203,7 @@ abstract class _DiscoverStore with Store {
   @action
   void clearNewMatch() {
     newMatchUser = null;
+    isNewMatchSuperLike = false;
   }
 
   @action

@@ -8,12 +8,14 @@ class MatchNotificationDialog extends StatefulWidget {
   final UserModel matchedUser;
   final VoidCallback? onKeepSwiping;
   final Function(String message)? onSendMessage;
+  final bool isSuperLike; // Add this field
 
   const MatchNotificationDialog({
     super.key,
     required this.matchedUser,
     this.onKeepSwiping,
     this.onSendMessage,
+    this.isSuperLike = false, // Default to false
   });
 
   @override
@@ -39,26 +41,33 @@ class _MatchNotificationDialogState extends State<MatchNotificationDialog> {
       backgroundColor: Colors.transparent,
       child: Container(
         width: screenSize.width * 0.9,
-        height: _showMessageInput ? screenSize.height * 0.8 : screenSize.height * 0.7,
+        height: _showMessageInput ? screenSize.height * 0.85 : screenSize.height * 0.75, // Increase height
         decoration: BoxDecoration(
           gradient: LinearGradient(
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
-            colors: [
-              AppColors.primary.withOpacity(0.9),
-              AppColors.primaryDark.withOpacity(0.9),
-            ],
+            colors: widget.isSuperLike 
+                ? [
+                    // Purple gradient for SuperLike
+                    Color(0xFF8A2387).withOpacity(0.9),
+                    Color(0xFF6B73FF).withOpacity(0.9),
+                  ]
+                : [
+                    // Regular gradient for normal like
+                    AppColors.primary.withOpacity(0.9),
+                    AppColors.primaryDark.withOpacity(0.9),
+                  ],
           ),
           borderRadius: BorderRadius.circular(20),
         ),
         child: SingleChildScrollView(
-          padding: const EdgeInsets.all(20),
+          padding: const EdgeInsets.fromLTRB(20, 20, 20, 30), // Add bottom padding
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               // "It's a Match!" text
               Text(
-                "It's a Match!",
+                widget.isSuperLike ? "It's a Super Match! ⭐" : "It's a Match!",
                 style: AppTextStyles.h1.copyWith(
                   color: Colors.white,
                   fontSize: 32,
@@ -69,7 +78,9 @@ class _MatchNotificationDialogState extends State<MatchNotificationDialog> {
               
               // Subtitle
               Text(
-                "You and ${widget.matchedUser.name ?? 'Someone'} liked each other",
+                widget.isSuperLike 
+                    ? "You and ${widget.matchedUser.name ?? 'Someone'} super liked each other! 💜"
+                    : "You and ${widget.matchedUser.name ?? 'Someone'} liked each other",
                 style: AppTextStyles.bodyLarge.copyWith(
                   color: Colors.white.withOpacity(0.9),
                 ),
@@ -84,7 +95,7 @@ class _MatchNotificationDialogState extends State<MatchNotificationDialog> {
                   // Current user avatar (placeholder)
                   _buildAvatar(null, "You"),
                   
-                  // Heart icon
+                  // Heart or Star icon based on match type
                   Container(
                     padding: const EdgeInsets.all(12),
                     decoration: BoxDecoration(
@@ -92,8 +103,8 @@ class _MatchNotificationDialogState extends State<MatchNotificationDialog> {
                       shape: BoxShape.circle,
                     ),
                     child: Icon(
-                      Icons.favorite,
-                      color: AppColors.primary,
+                      widget.isSuperLike ? Icons.star : Icons.favorite,
+                      color: widget.isSuperLike ? Color(0xFF8A2387) : AppColors.primary,
                       size: 30,
                     ),
                   ),
@@ -166,7 +177,7 @@ class _MatchNotificationDialogState extends State<MatchNotificationDialog> {
                     // Send Message button (shows input)
                     SizedBox(
                       width: double.infinity,
-                      height: 50,
+                      height: 56, // Increase height
                       child: ElevatedButton(
                         onPressed: () {
                           setState(() {
@@ -179,6 +190,7 @@ class _MatchNotificationDialogState extends State<MatchNotificationDialog> {
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(25),
                           ),
+                          padding: const EdgeInsets.symmetric(vertical: 16), // Add padding
                         ),
                         child: Text(
                           "Send Message",
@@ -186,6 +198,7 @@ class _MatchNotificationDialogState extends State<MatchNotificationDialog> {
                             fontSize: 16,
                             fontWeight: FontWeight.w600,
                             color: AppColors.primary,
+                            height: 1.2, // Fix line height
                           ),
                         ),
                       ),
@@ -195,7 +208,7 @@ class _MatchNotificationDialogState extends State<MatchNotificationDialog> {
                     // Send button (actually sends message)
                     SizedBox(
                       width: double.infinity,
-                      height: 50,
+                      height: 56, // Increase height
                       child: ElevatedButton(
                         onPressed: _isSending ? null : _sendMessage,
                         style: ElevatedButton.styleFrom(
@@ -204,6 +217,7 @@ class _MatchNotificationDialogState extends State<MatchNotificationDialog> {
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(25),
                           ),
+                          padding: const EdgeInsets.symmetric(vertical: 16), // Add padding
                         ),
                         child: _isSending
                             ? SizedBox(
@@ -220,6 +234,7 @@ class _MatchNotificationDialogState extends State<MatchNotificationDialog> {
                                   fontSize: 16,
                                   fontWeight: FontWeight.w600,
                                   color: AppColors.primary,
+                                  height: 1.2, // Fix line height
                                 ),
                               ),
                       ),
@@ -229,7 +244,7 @@ class _MatchNotificationDialogState extends State<MatchNotificationDialog> {
                     // Back to options button
                     SizedBox(
                       width: double.infinity,
-                      height: 50,
+                      height: 56, // Increase height
                       child: OutlinedButton(
                         onPressed: () {
                           setState(() {
@@ -242,6 +257,7 @@ class _MatchNotificationDialogState extends State<MatchNotificationDialog> {
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(25),
                           ),
+                          padding: const EdgeInsets.symmetric(vertical: 16), // Add padding
                         ),
                         child: Text(
                           "Back",
@@ -249,6 +265,7 @@ class _MatchNotificationDialogState extends State<MatchNotificationDialog> {
                             fontSize: 16,
                             fontWeight: FontWeight.w600,
                             color: Colors.white,
+                            height: 1.2, // Fix line height
                           ),
                         ),
                       ),
@@ -259,7 +276,7 @@ class _MatchNotificationDialogState extends State<MatchNotificationDialog> {
                   // Keep Swiping button
                   SizedBox(
                     width: double.infinity,
-                    height: 50,
+                    height: 56, // Increase height
                     child: OutlinedButton(
                       onPressed: () {
                         context.pop(); // Close dialog
@@ -270,6 +287,7 @@ class _MatchNotificationDialogState extends State<MatchNotificationDialog> {
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(25),
                         ),
+                        padding: const EdgeInsets.symmetric(vertical: 16), // Add padding
                       ),
                       child: Text(
                         "Keep Swiping",
@@ -277,6 +295,7 @@ class _MatchNotificationDialogState extends State<MatchNotificationDialog> {
                           fontSize: 16,
                           fontWeight: FontWeight.w600,
                           color: Colors.white,
+                          height: 1.2, // Fix line height
                         ),
                       ),
                     ),
@@ -383,6 +402,7 @@ Future<void> showMatchNotificationDialog(
   UserModel matchedUser, {
   VoidCallback? onKeepSwiping,
   Function(String message)? onSendMessage,
+  bool isSuperLike = false, // Add this parameter
 }) {
   return showDialog(
     context: context,
@@ -391,6 +411,7 @@ Future<void> showMatchNotificationDialog(
       matchedUser: matchedUser,
       onKeepSwiping: onKeepSwiping,
       onSendMessage: onSendMessage,
+      isSuperLike: isSuperLike, // Pass the parameter
     ),
   );
 }

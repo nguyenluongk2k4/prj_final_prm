@@ -31,6 +31,7 @@ class DiscoverRepositoryImpl implements DiscoverRepository {
 
     // Add filter parameters if provided
     if (filter != null) {
+      print('🔍 Filter provided: ${filter.toJsonString()}');
       if (filter.distanceKm != null) {
         params['p_distance_km'] = filter.distanceKm!;
       }
@@ -43,6 +44,8 @@ class DiscoverRepositoryImpl implements DiscoverRepository {
       if (filter.targetGender != null) {
         params['p_target_gender'] = filter.targetGender!;
       }
+    } else {
+      print('🔍 No filter provided - fetching all profiles');
     }
 
     print('🔍 Calling get_discover_profiles_v2 with params: $params');

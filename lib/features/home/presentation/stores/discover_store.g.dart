@@ -186,6 +186,24 @@ mixin _$DiscoverStore on _DiscoverStore, Store {
     });
   }
 
+  late final _$isNewMatchSuperLikeAtom = Atom(
+    name: '_DiscoverStore.isNewMatchSuperLike',
+    context: context,
+  );
+
+  @override
+  bool get isNewMatchSuperLike {
+    _$isNewMatchSuperLikeAtom.reportRead();
+    return super.isNewMatchSuperLike;
+  }
+
+  @override
+  set isNewMatchSuperLike(bool value) {
+    _$isNewMatchSuperLikeAtom.reportWrite(value, super.isNewMatchSuperLike, () {
+      super.isNewMatchSuperLike = value;
+    });
+  }
+
   late final _$setFilterAsyncAction = AsyncAction(
     '_DiscoverStore.setFilter',
     context: context,
@@ -286,7 +304,8 @@ hasReachedEnd: ${hasReachedEnd},
 currentFilter: ${currentFilter},
 lastSwipedId: ${lastSwipedId},
 lastSwipeType: ${lastSwipeType},
-newMatchUser: ${newMatchUser}
+newMatchUser: ${newMatchUser},
+isNewMatchSuperLike: ${isNewMatchSuperLike}
     ''';
   }
 }

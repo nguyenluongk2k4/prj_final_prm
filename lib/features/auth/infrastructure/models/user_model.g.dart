@@ -34,6 +34,7 @@ UserModel _$UserModelFromJson(Map<String, dynamic> json) => UserModel(
   updatedAt: json['updated_at'] == null
       ? null
       : DateTime.parse(json['updated_at'] as String),
+  hasSuperlikedMe: json['has_superliked_me'] as bool?,
 );
 
 Map<String, dynamic> _$UserModelToJson(UserModel instance) => <String, dynamic>{
@@ -54,4 +55,5 @@ Map<String, dynamic> _$UserModelToJson(UserModel instance) => <String, dynamic>{
   'last_active': instance.lastActive?.toIso8601String(),
   'created_at': instance.createdAt?.toIso8601String(),
   'updated_at': instance.updatedAt?.toIso8601String(),
+  'has_superliked_me': instance.hasSuperlikedMe,
 };
