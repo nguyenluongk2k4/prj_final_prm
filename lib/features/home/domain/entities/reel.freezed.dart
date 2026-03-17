@@ -23,8 +23,15 @@ Reel _$ReelFromJson(Map<String, dynamic> json) {
 mixin _$Reel {
   String get id => throw _privateConstructorUsedError;
   String get authorId => throw _privateConstructorUsedError;
+
+  /// For videos this holds the video URL; for photo posts it is empty string.
   String get videoUrl => throw _privateConstructorUsedError;
   String? get thumbnailUrl => throw _privateConstructorUsedError;
+  String? get imageUrl => throw _privateConstructorUsedError;
+
+  /// 'video' or 'image'
+  String get mediaType => throw _privateConstructorUsedError;
+  String? get audioUrl => throw _privateConstructorUsedError;
   String? get description => throw _privateConstructorUsedError;
   int get likesCount => throw _privateConstructorUsedError;
   int get commentsCount => throw _privateConstructorUsedError;
@@ -51,6 +58,9 @@ abstract class $ReelCopyWith<$Res> {
     String authorId,
     String videoUrl,
     String? thumbnailUrl,
+    String? imageUrl,
+    String mediaType,
+    String? audioUrl,
     String? description,
     int likesCount,
     int commentsCount,
@@ -81,6 +91,9 @@ class _$ReelCopyWithImpl<$Res, $Val extends Reel>
     Object? authorId = null,
     Object? videoUrl = null,
     Object? thumbnailUrl = freezed,
+    Object? imageUrl = freezed,
+    Object? mediaType = null,
+    Object? audioUrl = freezed,
     Object? description = freezed,
     Object? likesCount = null,
     Object? commentsCount = null,
@@ -105,6 +118,18 @@ class _$ReelCopyWithImpl<$Res, $Val extends Reel>
             thumbnailUrl: freezed == thumbnailUrl
                 ? _value.thumbnailUrl
                 : thumbnailUrl // ignore: cast_nullable_to_non_nullable
+                      as String?,
+            imageUrl: freezed == imageUrl
+                ? _value.imageUrl
+                : imageUrl // ignore: cast_nullable_to_non_nullable
+                      as String?,
+            mediaType: null == mediaType
+                ? _value.mediaType
+                : mediaType // ignore: cast_nullable_to_non_nullable
+                      as String,
+            audioUrl: freezed == audioUrl
+                ? _value.audioUrl
+                : audioUrl // ignore: cast_nullable_to_non_nullable
                       as String?,
             description: freezed == description
                 ? _value.description
@@ -163,6 +188,9 @@ abstract class _$$ReelImplCopyWith<$Res> implements $ReelCopyWith<$Res> {
     String authorId,
     String videoUrl,
     String? thumbnailUrl,
+    String? imageUrl,
+    String mediaType,
+    String? audioUrl,
     String? description,
     int likesCount,
     int commentsCount,
@@ -191,6 +219,9 @@ class __$$ReelImplCopyWithImpl<$Res>
     Object? authorId = null,
     Object? videoUrl = null,
     Object? thumbnailUrl = freezed,
+    Object? imageUrl = freezed,
+    Object? mediaType = null,
+    Object? audioUrl = freezed,
     Object? description = freezed,
     Object? likesCount = null,
     Object? commentsCount = null,
@@ -215,6 +246,18 @@ class __$$ReelImplCopyWithImpl<$Res>
         thumbnailUrl: freezed == thumbnailUrl
             ? _value.thumbnailUrl
             : thumbnailUrl // ignore: cast_nullable_to_non_nullable
+                  as String?,
+        imageUrl: freezed == imageUrl
+            ? _value.imageUrl
+            : imageUrl // ignore: cast_nullable_to_non_nullable
+                  as String?,
+        mediaType: null == mediaType
+            ? _value.mediaType
+            : mediaType // ignore: cast_nullable_to_non_nullable
+                  as String,
+        audioUrl: freezed == audioUrl
+            ? _value.audioUrl
+            : audioUrl // ignore: cast_nullable_to_non_nullable
                   as String?,
         description: freezed == description
             ? _value.description
@@ -247,19 +290,22 @@ class __$$ReelImplCopyWithImpl<$Res>
 
 /// @nodoc
 @JsonSerializable()
-class _$ReelImpl implements _Reel {
+class _$ReelImpl extends _Reel {
   const _$ReelImpl({
     required this.id,
     required this.authorId,
-    required this.videoUrl,
+    this.videoUrl = '',
     this.thumbnailUrl,
+    this.imageUrl,
+    this.mediaType = 'video',
+    this.audioUrl,
     this.description,
     this.likesCount = 0,
     this.commentsCount = 0,
     this.isLikedByMe = false,
     required this.createdAt,
     this.author,
-  });
+  }) : super._();
 
   factory _$ReelImpl.fromJson(Map<String, dynamic> json) =>
       _$$ReelImplFromJson(json);
@@ -268,10 +314,22 @@ class _$ReelImpl implements _Reel {
   final String id;
   @override
   final String authorId;
+
+  /// For videos this holds the video URL; for photo posts it is empty string.
   @override
+  @JsonKey()
   final String videoUrl;
   @override
   final String? thumbnailUrl;
+  @override
+  final String? imageUrl;
+
+  /// 'video' or 'image'
+  @override
+  @JsonKey()
+  final String mediaType;
+  @override
+  final String? audioUrl;
   @override
   final String? description;
   @override
@@ -290,7 +348,7 @@ class _$ReelImpl implements _Reel {
 
   @override
   String toString() {
-    return 'Reel(id: $id, authorId: $authorId, videoUrl: $videoUrl, thumbnailUrl: $thumbnailUrl, description: $description, likesCount: $likesCount, commentsCount: $commentsCount, isLikedByMe: $isLikedByMe, createdAt: $createdAt, author: $author)';
+    return 'Reel(id: $id, authorId: $authorId, videoUrl: $videoUrl, thumbnailUrl: $thumbnailUrl, imageUrl: $imageUrl, mediaType: $mediaType, audioUrl: $audioUrl, description: $description, likesCount: $likesCount, commentsCount: $commentsCount, isLikedByMe: $isLikedByMe, createdAt: $createdAt, author: $author)';
   }
 
   @override
@@ -305,6 +363,12 @@ class _$ReelImpl implements _Reel {
                 other.videoUrl == videoUrl) &&
             (identical(other.thumbnailUrl, thumbnailUrl) ||
                 other.thumbnailUrl == thumbnailUrl) &&
+            (identical(other.imageUrl, imageUrl) ||
+                other.imageUrl == imageUrl) &&
+            (identical(other.mediaType, mediaType) ||
+                other.mediaType == mediaType) &&
+            (identical(other.audioUrl, audioUrl) ||
+                other.audioUrl == audioUrl) &&
             (identical(other.description, description) ||
                 other.description == description) &&
             (identical(other.likesCount, likesCount) ||
@@ -326,6 +390,9 @@ class _$ReelImpl implements _Reel {
     authorId,
     videoUrl,
     thumbnailUrl,
+    imageUrl,
+    mediaType,
+    audioUrl,
     description,
     likesCount,
     commentsCount,
@@ -348,12 +415,15 @@ class _$ReelImpl implements _Reel {
   }
 }
 
-abstract class _Reel implements Reel {
+abstract class _Reel extends Reel {
   const factory _Reel({
     required final String id,
     required final String authorId,
-    required final String videoUrl,
+    final String videoUrl,
     final String? thumbnailUrl,
+    final String? imageUrl,
+    final String mediaType,
+    final String? audioUrl,
     final String? description,
     final int likesCount,
     final int commentsCount,
@@ -361,6 +431,7 @@ abstract class _Reel implements Reel {
     required final DateTime createdAt,
     final ReelAuthor? author,
   }) = _$ReelImpl;
+  const _Reel._() : super._();
 
   factory _Reel.fromJson(Map<String, dynamic> json) = _$ReelImpl.fromJson;
 
@@ -368,10 +439,20 @@ abstract class _Reel implements Reel {
   String get id;
   @override
   String get authorId;
+
+  /// For videos this holds the video URL; for photo posts it is empty string.
   @override
   String get videoUrl;
   @override
   String? get thumbnailUrl;
+  @override
+  String? get imageUrl;
+
+  /// 'video' or 'image'
+  @override
+  String get mediaType;
+  @override
+  String? get audioUrl;
   @override
   String? get description;
   @override

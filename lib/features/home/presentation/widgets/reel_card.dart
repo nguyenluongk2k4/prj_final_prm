@@ -26,29 +26,38 @@ class ReelCard extends StatefulWidget {
   State<ReelCard> createState() => _ReelCardState();
 }
 
-class _ReelCardState extends State<ReelCard> {
-  late VideoPlayerController _controller;
+class _ReelCardState extends State<ReelCard> with AutomaticKeepAliveClientMixin {
+  VideoPlayerController? _controller;
   bool _initialized = false;
+
+  @override
+  bool get wantKeepAlive => true;
 
   @override
   void initState() {
     super.initState();
-    _initializeController();
+    if (!widget.reel.isPhoto) {
+      _initializeController();
+    } else {
+      // Photo post
+      setState(() => _initialized = true);
+    }
   }
 
   Future<void> _initializeController() async {
+    if (widget.reel.videoUrl.isEmpty) return;
     _controller = VideoPlayerController.networkUrl(Uri.parse(widget.reel.videoUrl));
     try {
-      await _controller.initialize();
-      await _controller.setLooping(true);
+      await _controller!.initialize();
+      await _controller!.setLooping(true);
       if (mounted) {
         setState(() => _initialized = true);
         if (widget.shouldPlay) {
-          _controller.play();
+          _controller!.play();
         }
       }
     } catch (e) {
-      debugPrint('Error initializing video player: $e');
+      debugPrint('ReelCard: Error initializing video player: $e');
     }
   }
 
@@ -56,46 +65,86 @@ class _ReelCardState extends State<ReelCard> {
   void didUpdateWidget(ReelCard oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (_initialized) {
-      if (widget.shouldPlay) {
-        _controller.play();
-      } else {
-        _controller.pause();
+      if (widget.shouldPlay && !oldWidget.shouldPlay) {
+        debugPrint('ReelCard: ACTIVE [${widget.reel.id}]');
+        if (!widget.reel.isPhoto) {
+          _controller?.play();
+        }
+      } else if (!widget.shouldPlay && oldWidget.shouldPlay) {
+        debugPrint('ReelCard: INACTIVE [${widget.reel.id}]');
+        if (!widget.reel.isPhoto) {
+          _controller?.pause();
+        }
       }
     }
   }
 
   @override
   void dispose() {
-    _controller.dispose();
+    debugPrint('ReelCard: DISPOSE [${widget.reel.id}]');
+    _controller?.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
+    super.build(context);
     final c = context.appColors;
 
     return VisibilityDetector(
-      key: Key(widget.reel.id),
+      key: Key('reel_vis_${widget.reel.id}'),
       onVisibilityChanged: (info) {
-        if (info.visibleFraction <= 0.5 && _initialized) {
-          _controller.pause();
+        if (!mounted || !_initialized) return;
+        
+        if (info.visibleFraction < 0.05) {
+          if (!widget.reel.isPhoto) {
+            _controller?.pause();
+          }
+        } else if (info.visibleFraction > 0.1) {
+          if (widget.shouldPlay && !widget.reel.isPhoto) {
+            _controller?.play();
+          }
         }
       },
       child: Stack(
         fit: StackFit.expand,
         children: [
-          // Video background
-          if (_initialized)
+          // Background media: image or video
+          if (widget.reel.isPhoto)
+            // ── Photo Post ────────────────────────────────────────────────────
+            Container(
+              color: Colors.black,
+              child: Center(
+                child: widget.reel.imageUrl != null
+                    ? Image.network(
+                        widget.reel.imageUrl!,
+                        fit: BoxFit.contain,
+                        loadingBuilder: (context, child, progress) {
+                          if (progress == null) return child;
+                          return const Center(
+                              child: CircularProgressIndicator(color: Colors.white));
+                        },
+                        errorBuilder: (_, __, ___) => const Icon(
+                            Icons.broken_image_outlined,
+                            color: Colors.white54,
+                            size: 64),
+                      )
+                    : const Icon(Icons.image_not_supported_outlined,
+                        color: Colors.white54, size: 64),
+              ),
+            )
+          else if (_initialized)
+            // ── Video Reel ────────────────────────────────────────────────────
             Center(
               child: AspectRatio(
-                aspectRatio: _controller.value.aspectRatio,
-                child: VideoPlayer(_controller),
+                aspectRatio: _controller!.value.aspectRatio,
+                child: VideoPlayer(_controller!),
               ),
             )
           else
             const Center(child: CircularProgressIndicator()),
 
-          // Overlay content — dùng widget.store được truyền từ ngoài
+          // Overlay content
           _buildOverlay(context, c),
         ],
       ),
@@ -154,11 +203,24 @@ class _ReelCardState extends State<ReelCard> {
               maxLines: 2,
               overflow: TextOverflow.ellipsis,
             ),
+          const SizedBox(height: 8),
+          // Audio info
+          if (widget.reel.audioUrl != null && widget.reel.audioUrl!.isNotEmpty)
+            Row(
+              children: [
+                const Icon(Icons.music_note, color: Colors.white70, size: 14),
+                const SizedBox(width: 4),
+                Text(
+                  'Âm nhạc thịnh hành',
+                  style: AppTextStyles.bodySmall.copyWith(color: Colors.white70),
+                ),
+              ],
+            ),
           const SizedBox(height: 10),
           // Actions row — Observer watch store.reels để reactive
           Observer(
             builder: (_) {
-              // Lấy reel mới nhất từ store (lúc toggle like/add comment sẽ bị replace)
+              // Get the most up-to-date reel from the store
               final currentReel = widget.store.reels.firstWhere(
                 (r) => r.id == widget.reel.id,
                 orElse: () => widget.reel,
@@ -168,7 +230,7 @@ class _ReelCardState extends State<ReelCard> {
                   // Like button
                   GestureDetector(
                     behavior: HitTestBehavior.opaque,
-                    onTap: () => widget.store.toggleLike(widget.reel.id),
+                    onTap: () => widget.store.toggleLike(currentReel.id),
                     child: Padding(
                       padding: const EdgeInsets.all(8.0),
                       child: Column(
@@ -203,7 +265,7 @@ class _ReelCardState extends State<ReelCard> {
                         isScrollControlled: true,
                         backgroundColor: Colors.transparent,
                         builder: (context) => CommentsBottomSheet(
-                          reelId: widget.reel.id,
+                          reelId: currentReel.id,
                           store: widget.store,
                         ),
                       );

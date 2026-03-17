@@ -1,6 +1,7 @@
 import 'package:dartz/dartz.dart';
 import 'package:injectable/injectable.dart';
 import '../../domain/entities/reel.dart';
+import '../../domain/entities/music.dart';
 import '../../domain/repositories/reels_repository.dart';
 import '../../../../core/errors/failures.dart';
 import '../datasources/reels_datasource.dart';
@@ -71,6 +72,24 @@ class ReelsRepositoryImpl implements ReelsRepository {
   }
 
   @override
+  Future<Either<Failure, Reel>> uploadPhotoPost({
+    required String imagePath,
+    required String description,
+    String? audioUrl,
+  }) async {
+    try {
+      final reel = await _datasource.uploadPhotoPost(
+        imagePath: imagePath,
+        description: description,
+        audioUrl: audioUrl,
+      );
+      return Right(reel);
+    } catch (e) {
+      return Left(ServerFailure(message: e.toString()));
+    }
+  }
+
+  @override
   Future<Either<Failure, List<ReelComment>>> getComments(String reelId) async {
     try {
       final list = await _datasource.getComments(reelId);
@@ -84,11 +103,13 @@ class ReelsRepositoryImpl implements ReelsRepository {
   Future<Either<Failure, ReelComment>> postComment({
     required String reelId,
     required String content,
+    String? parentId,
   }) async {
     try {
       final comment = await _datasource.postComment(
         reelId: reelId,
         content: content,
+        parentId: parentId,
       );
       return Right(comment);
     } catch (e) {
@@ -104,6 +125,16 @@ class ReelsRepositoryImpl implements ReelsRepository {
     try {
       await _datasource.deleteComment(commentId: commentId, reelId: reelId);
       return const Right(null);
+    } catch (e) {
+      return Left(ServerFailure(message: e.toString()));
+    }
+  }
+
+  @override
+  Future<Either<Failure, List<SystemMusic>>> getSystemMusic() async {
+    try {
+      final list = await _datasource.getSystemMusic();
+      return Right(list);
     } catch (e) {
       return Left(ServerFailure(message: e.toString()));
     }

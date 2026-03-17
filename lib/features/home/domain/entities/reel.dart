@@ -5,11 +5,18 @@ part 'reel.g.dart';
 
 @freezed
 class Reel with _$Reel {
+  const Reel._();
+
   const factory Reel({
     required String id,
     required String authorId,
-    required String videoUrl,
+    /// For videos this holds the video URL; for photo posts it is empty string.
+    @Default('') String videoUrl,
     String? thumbnailUrl,
+    String? imageUrl,
+    /// 'video' or 'image'
+    @Default('video') String mediaType,
+    String? audioUrl,
     String? description,
     @Default(0) int likesCount,
     @Default(0) int commentsCount,
@@ -17,6 +24,8 @@ class Reel with _$Reel {
     required DateTime createdAt,
     ReelAuthor? author,
   }) = _Reel;
+
+  bool get isPhoto => mediaType == 'image';
 
   factory Reel.fromJson(Map<String, dynamic> json) => _$ReelFromJson(json);
 }

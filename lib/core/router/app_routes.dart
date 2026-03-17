@@ -25,6 +25,7 @@ class AppRoutes {
   static const String myAlbum = '/my-album';
   static const String reels = '/reels';
   static const String reelsUpload = '/reels/upload';
+  static const String photoUpload = '/photo/upload';
   static const String callIncoming = '/call/incoming';
   static const String callActive = '/call/active';
   static const String main = '/home';
@@ -54,6 +55,7 @@ class AppRoutes {
   static const String myAlbumName = 'my-album';
   static const String reelsName = 'reels';
   static const String reelsUploadName = 'reels_upload';
+  static const String photoUploadName = 'photo_upload';
   static const String callIncomingName = 'call_incoming';
   static const String callActiveName = 'call_active';
 }

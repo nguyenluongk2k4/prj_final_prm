@@ -3,6 +3,7 @@ import 'package:injectable/injectable.dart';
 import '../../../../core/errors/failures.dart';
 import '../entities/reel.dart';
 import '../entities/reel_comment.dart';
+import '../entities/music.dart';
 import '../repositories/reels_repository.dart';
 
 @injectable
@@ -85,8 +86,9 @@ class PostCommentUseCase {
   Future<Either<Failure, ReelComment>> execute({
     required String reelId,
     required String content,
+    String? parentId,
   }) {
-    return _repository.postComment(reelId: reelId, content: content);
+    return _repository.postComment(reelId: reelId, content: content, parentId: parentId);
   }
 }
 
@@ -100,5 +102,33 @@ class DeleteCommentUseCase {
     required String reelId,
   }) {
     return _repository.deleteComment(commentId: commentId, reelId: reelId);
+  }
+}
+
+@injectable
+class UploadPhotoPostUseCase {
+  final ReelsRepository _repository;
+  UploadPhotoPostUseCase(this._repository);
+
+  Future<Either<Failure, Reel>> execute({
+    required String imagePath,
+    required String description,
+    String? audioUrl,
+  }) {
+    return _repository.uploadPhotoPost(
+      imagePath: imagePath,
+      description: description,
+      audioUrl: audioUrl,
+    );
+  }
+}
+
+@injectable
+class GetSystemMusicUseCase {
+  final ReelsRepository _repository;
+  GetSystemMusicUseCase(this._repository);
+
+  Future<Either<Failure, List<SystemMusic>>> execute() {
+    return _repository.getSystemMusic();
   }
 }

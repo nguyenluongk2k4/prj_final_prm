@@ -366,6 +366,12 @@ extension GetItInjectableX on _i174.GetIt {
     gh.factory<_i514.DeleteCommentUseCase>(
       () => _i514.DeleteCommentUseCase(gh<_i1000.ReelsRepository>()),
     );
+    gh.factory<_i514.UploadPhotoPostUseCase>(
+      () => _i514.UploadPhotoPostUseCase(gh<_i1000.ReelsRepository>()),
+    );
+    gh.factory<_i514.GetSystemMusicUseCase>(
+      () => _i514.GetSystemMusicUseCase(gh<_i1000.ReelsRepository>()),
+    );
     gh.factory<_i378.PresenceStore>(
       () => _i378.PresenceStore(
         gh<_i700.UpdatePresenceUseCase>(),
@@ -379,16 +385,18 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i593.DeleteAlbumImageUseCase>(),
       ),
     );
-    gh.factory<_i679.ReelsStore>(
+    gh.lazySingleton<_i679.ReelsStore>(
       () => _i679.ReelsStore(
         gh<_i514.GetReelsUseCase>(),
         gh<_i514.UploadReelUseCase>(),
+        gh<_i514.UploadPhotoPostUseCase>(),
         gh<_i50.GetFriendsUseCase>(),
         gh<_i514.LikeReelUseCase>(),
         gh<_i514.UnlikeReelUseCase>(),
         gh<_i514.GetCommentsUseCase>(),
         gh<_i514.PostCommentUseCase>(),
         gh<_i514.DeleteCommentUseCase>(),
+        gh<_i514.GetSystemMusicUseCase>(),
         gh<_i603.AuthStore>(),
       ),
     );

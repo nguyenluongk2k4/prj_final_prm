@@ -186,6 +186,154 @@ mixin _$ReelsStore on _ReelsStore, Store {
     });
   }
 
+  late final _$systemMusicListAtom = Atom(
+    name: '_ReelsStore.systemMusicList',
+    context: context,
+  );
+
+  @override
+  ObservableList<SystemMusic> get systemMusicList {
+    _$systemMusicListAtom.reportRead();
+    return super.systemMusicList;
+  }
+
+  @override
+  set systemMusicList(ObservableList<SystemMusic> value) {
+    _$systemMusicListAtom.reportWrite(value, super.systemMusicList, () {
+      super.systemMusicList = value;
+    });
+  }
+
+  late final _$selectedMusicAtom = Atom(
+    name: '_ReelsStore.selectedMusic',
+    context: context,
+  );
+
+  @override
+  SystemMusic? get selectedMusic {
+    _$selectedMusicAtom.reportRead();
+    return super.selectedMusic;
+  }
+
+  @override
+  set selectedMusic(SystemMusic? value) {
+    _$selectedMusicAtom.reportWrite(value, super.selectedMusic, () {
+      super.selectedMusic = value;
+    });
+  }
+
+  late final _$isMusicLoadingAtom = Atom(
+    name: '_ReelsStore.isMusicLoading',
+    context: context,
+  );
+
+  @override
+  bool get isMusicLoading {
+    _$isMusicLoadingAtom.reportRead();
+    return super.isMusicLoading;
+  }
+
+  @override
+  set isMusicLoading(bool value) {
+    _$isMusicLoadingAtom.reportWrite(value, super.isMusicLoading, () {
+      super.isMusicLoading = value;
+    });
+  }
+
+  late final _$currentActiveReelIdAtom = Atom(
+    name: '_ReelsStore.currentActiveReelId',
+    context: context,
+  );
+
+  @override
+  String? get currentActiveReelId {
+    _$currentActiveReelIdAtom.reportRead();
+    return super.currentActiveReelId;
+  }
+
+  @override
+  set currentActiveReelId(String? value) {
+    _$currentActiveReelIdAtom.reportWrite(value, super.currentActiveReelId, () {
+      super.currentActiveReelId = value;
+    });
+  }
+
+  late final _$reelMusicMapAtom = Atom(
+    name: '_ReelsStore.reelMusicMap',
+    context: context,
+  );
+
+  @override
+  ObservableMap<String, String> get reelMusicMap {
+    _$reelMusicMapAtom.reportRead();
+    return super.reelMusicMap;
+  }
+
+  @override
+  set reelMusicMap(ObservableMap<String, String> value) {
+    _$reelMusicMapAtom.reportWrite(value, super.reelMusicMap, () {
+      super.reelMusicMap = value;
+    });
+  }
+
+  late final _$isReelsPageVisibleAtom = Atom(
+    name: '_ReelsStore.isReelsPageVisible',
+    context: context,
+  );
+
+  @override
+  bool get isReelsPageVisible {
+    _$isReelsPageVisibleAtom.reportRead();
+    return super.isReelsPageVisible;
+  }
+
+  @override
+  set isReelsPageVisible(bool value) {
+    _$isReelsPageVisibleAtom.reportWrite(value, super.isReelsPageVisible, () {
+      super.isReelsPageVisible = value;
+    });
+  }
+
+  late final _$pickedImagePathAtom = Atom(
+    name: '_ReelsStore.pickedImagePath',
+    context: context,
+  );
+
+  @override
+  String? get pickedImagePath {
+    _$pickedImagePathAtom.reportRead();
+    return super.pickedImagePath;
+  }
+
+  @override
+  set pickedImagePath(String? value) {
+    _$pickedImagePathAtom.reportWrite(value, super.pickedImagePath, () {
+      super.pickedImagePath = value;
+    });
+  }
+
+  late final _$playReelAudioAsyncAction = AsyncAction(
+    '_ReelsStore.playReelAudio',
+    context: context,
+  );
+
+  @override
+  Future<void> playReelAudio(String url, String reelId) {
+    return _$playReelAudioAsyncAction.run(
+      () => super.playReelAudio(url, reelId),
+    );
+  }
+
+  late final _$stopAudioAsyncAction = AsyncAction(
+    '_ReelsStore.stopAudio',
+    context: context,
+  );
+
+  @override
+  Future<void> stopAudio() {
+    return _$stopAudioAsyncAction.run(() => super.stopAudio());
+  }
+
   late final _$setFeedTypeAsyncAction = AsyncAction(
     '_ReelsStore.setFeedType',
     context: context,
@@ -234,8 +382,10 @@ mixin _$ReelsStore on _ReelsStore, Store {
   );
 
   @override
-  Future<void> addComment(String reelId, String content) {
-    return _$addCommentAsyncAction.run(() => super.addComment(reelId, content));
+  Future<void> addComment(String reelId, String content, {String? parentId}) {
+    return _$addCommentAsyncAction.run(
+      () => super.addComment(reelId, content, parentId: parentId),
+    );
   }
 
   late final _$deleteCommentAsyncAction = AsyncAction(
@@ -260,6 +410,16 @@ mixin _$ReelsStore on _ReelsStore, Store {
     return _$pickVideoAsyncAction.run(() => super.pickVideo());
   }
 
+  late final _$pickImageAsyncAction = AsyncAction(
+    '_ReelsStore.pickImage',
+    context: context,
+  );
+
+  @override
+  Future<void> pickImage() {
+    return _$pickImageAsyncAction.run(() => super.pickImage());
+  }
+
   late final _$uploadReelAsyncAction = AsyncAction(
     '_ReelsStore.uploadReel',
     context: context,
@@ -270,10 +430,80 @@ mixin _$ReelsStore on _ReelsStore, Store {
     return _$uploadReelAsyncAction.run(() => super.uploadReel(description));
   }
 
+  late final _$uploadPhotoPostAsyncAction = AsyncAction(
+    '_ReelsStore.uploadPhotoPost',
+    context: context,
+  );
+
+  @override
+  Future<void> uploadPhotoPost(String description) {
+    return _$uploadPhotoPostAsyncAction.run(
+      () => super.uploadPhotoPost(description),
+    );
+  }
+
+  late final _$fetchSystemMusicAsyncAction = AsyncAction(
+    '_ReelsStore.fetchSystemMusic',
+    context: context,
+  );
+
+  @override
+  Future<void> fetchSystemMusic() {
+    return _$fetchSystemMusicAsyncAction.run(() => super.fetchSystemMusic());
+  }
+
   late final _$_ReelsStoreActionController = ActionController(
     name: '_ReelsStore',
     context: context,
   );
+
+  @override
+  void globalPause() {
+    final _$actionInfo = _$_ReelsStoreActionController.startAction(
+      name: '_ReelsStore.globalPause',
+    );
+    try {
+      return super.globalPause();
+    } finally {
+      _$_ReelsStoreActionController.endAction(_$actionInfo);
+    }
+  }
+
+  @override
+  void globalResume() {
+    final _$actionInfo = _$_ReelsStoreActionController.startAction(
+      name: '_ReelsStore.globalResume',
+    );
+    try {
+      return super.globalResume();
+    } finally {
+      _$_ReelsStoreActionController.endAction(_$actionInfo);
+    }
+  }
+
+  @override
+  void _handleAudioFocus() {
+    final _$actionInfo = _$_ReelsStoreActionController.startAction(
+      name: '_ReelsStore._handleAudioFocus',
+    );
+    try {
+      return super._handleAudioFocus();
+    } finally {
+      _$_ReelsStoreActionController.endAction(_$actionInfo);
+    }
+  }
+
+  @override
+  void setPageVisibility(bool visible) {
+    final _$actionInfo = _$_ReelsStoreActionController.startAction(
+      name: '_ReelsStore.setPageVisibility',
+    );
+    try {
+      return super.setPageVisibility(visible);
+    } finally {
+      _$_ReelsStoreActionController.endAction(_$actionInfo);
+    }
+  }
 
   @override
   void setCurrentIndex(int index) {
@@ -300,6 +530,30 @@ mixin _$ReelsStore on _ReelsStore, Store {
   }
 
   @override
+  void clearPickedImage() {
+    final _$actionInfo = _$_ReelsStoreActionController.startAction(
+      name: '_ReelsStore.clearPickedImage',
+    );
+    try {
+      return super.clearPickedImage();
+    } finally {
+      _$_ReelsStoreActionController.endAction(_$actionInfo);
+    }
+  }
+
+  @override
+  void selectMusic(SystemMusic? music) {
+    final _$actionInfo = _$_ReelsStoreActionController.startAction(
+      name: '_ReelsStore.selectMusic',
+    );
+    try {
+      return super.selectMusic(music);
+    } finally {
+      _$_ReelsStoreActionController.endAction(_$actionInfo);
+    }
+  }
+
+  @override
   String toString() {
     return '''
 feedType: ${feedType},
@@ -311,7 +565,14 @@ pickedVideoPath: ${pickedVideoPath},
 isUploading: ${isUploading},
 uploadProgress: ${uploadProgress},
 comments: ${comments},
-isCommentsLoading: ${isCommentsLoading}
+isCommentsLoading: ${isCommentsLoading},
+systemMusicList: ${systemMusicList},
+selectedMusic: ${selectedMusic},
+isMusicLoading: ${isMusicLoading},
+currentActiveReelId: ${currentActiveReelId},
+reelMusicMap: ${reelMusicMap},
+isReelsPageVisible: ${isReelsPageVisible},
+pickedImagePath: ${pickedImagePath}
     ''';
   }
 }

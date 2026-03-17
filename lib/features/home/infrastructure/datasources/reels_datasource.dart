@@ -1,7 +1,7 @@
 import 'dart:io';
 import 'package:prj_final_prm/core/services/image_upload_service.dart';
 import 'package:prj_final_prm/features/home/domain/entities/reel_comment.dart';
-
+import 'package:prj_final_prm/features/home/domain/entities/music.dart';
 import '../../domain/entities/reel.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:injectable/injectable.dart';
@@ -21,7 +21,10 @@ class ReelsDatasource {
     return {
       'id': json['id'],
       'authorId': json['author_id'],
-      'videoUrl': json['video_url'],
+      'videoUrl': json['video_url'] ?? '',
+      'imageUrl': json['image_url'],
+      'mediaType': json['media_type'] ?? (json['image_url'] != null ? 'image' : 'video'),
+      'audioUrl': json['audio_url'],
       'thumbnailUrl': json['thumbnail_url'],
       'description': json['description'],
       'likesCount': (json['likes_count'] as num?)?.toInt() ?? 0,
@@ -46,6 +49,7 @@ class ReelsDatasource {
       'userId': json['user_id'],
       'content': json['content'],
       'createdAt': json['created_at'],
+      'parentId': json['parent_id'],
       if (user != null)
         'user': {
           'id': user['id'],
@@ -137,6 +141,7 @@ class ReelsDatasource {
   Future<ReelComment> postComment({
     required String reelId,
     required String content,
+    String? parentId,
   }) async {
     try {
       final userId = _supabaseClient.auth.currentUser?.id;
@@ -146,6 +151,7 @@ class ReelsDatasource {
         'reel_id': reelId,
         'user_id': userId,
         'content': content,
+        'parent_id': parentId,
       }).select('*, user:user_id(id, displayName:name, avatar_url)').single();
 
       return ReelComment.fromJson(_mapCommentJson(response));
@@ -196,6 +202,41 @@ class ReelsDatasource {
       }).select('*, author:author_id(id, displayName:name, avatar_url)').single();
 
       return Reel.fromJson(_mapReelJson(response));
+    } catch (e) {
+      rethrow;
+    }
+  }
+  Future<Reel> uploadPhotoPost({
+    required String imagePath,
+    required String description,
+    String? audioUrl,
+  }) async {
+    try {
+      final userId = _supabaseClient.auth.currentUser?.id;
+      if (userId == null) throw Exception('User not authenticated');
+
+      final imageUrl = await _imageUploadService.uploadImage(File(imagePath));
+      if (imageUrl == null) throw Exception('Failed to upload image to Cloudinary');
+
+      final response = await _supabaseClient.from('reels').insert({
+        'author_id': userId,
+        'video_url': '',
+        'image_url': imageUrl,
+        'audio_url': audioUrl,
+        'media_type': 'image',
+        'description': description,
+      }).select('*, author:author_id(id, displayName:name, avatar_url)').single();
+
+      return Reel.fromJson(_mapReelJson(response));
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  Future<List<SystemMusic>> getSystemMusic() async {
+    try {
+      final response = await _supabaseClient.from('system_music').select().order('created_at');
+      return (response as List).map((json) => SystemMusic.fromJson(json)).toList();
     } catch (e) {
       rethrow;
     }

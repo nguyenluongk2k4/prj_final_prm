@@ -12,6 +12,7 @@ class ReelComment with _$ReelComment {
     required String userId,
     required String content,
     required DateTime createdAt,
+    String? parentId,
     ReelAuthor? user,
   }) = _ReelComment;
 
