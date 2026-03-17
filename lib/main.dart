@@ -17,6 +17,7 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 import 'features/auth/infrastructure/datasources/auth_datasource.dart';
 import 'features/auth/presentation/stores/auth_store.dart';
 import 'features/auth/presentation/stores/presence_store.dart';
+import 'features/home/presentation/stores/reels_store.dart';
 import 'features/call/presentation/models/call_args.dart';
 import 'core/router/app_routes.dart';
 import 'core/services/firebase_messaging_service.dart';
@@ -87,42 +88,48 @@ void main() async {
   runApp(TranslationProvider(
     child: const AppRoot(),
   ));
-
-  // Check if app was launched by tapping callkit "Accept" while app was killed
-  WidgetsBinding.instance.addPostFrameCallback((_) async {
-    await _handleCallkitLaunch();
-  });
 }
 
 /// Called once after first frame — navigates to InCallPage if callkit has an active accepted call
 Future<void> _handleCallkitLaunch() async {
   try {
     final calls = await FlutterCallkitIncoming.activeCalls();
-    if (calls is List && calls.isNotEmpty) {
-      final call = calls.first as Map?;
-      if (call == null) return;
-      final extra = call['extra'] as Map? ?? {};
-      final channelId = extra['channel_id']?.toString() ?? '';
-      final callerId = extra['caller_id']?.toString() ?? '';
-      final receiverId = extra['receiver_id']?.toString() ?? '';
-      final isVideo = extra['is_video']?.toString() == 'true';
-      final callerName = call['nameCaller']?.toString() ?? 'Người dùng';
+    if (calls is! List || calls.isEmpty) return;
 
-      if (channelId.isEmpty || callerId.isEmpty) return;
+    final call = calls.first as Map?;
+    if (call == null) return;
 
-      final args = CallArgs(
-        channelId: channelId,
-        localUserId: receiverId,
-        remoteUserId: callerId,
-        remoteName: callerName,
-        remoteAvatarUrl: null,
-        isVideo: isVideo,
-        isIncoming: true,
-      );
-
-      await Future.delayed(const Duration(milliseconds: 500));
-      AppRouter.router.push(AppRoutes.callActive, extra: args);
+    // Only navigate if call was explicitly accepted (not just ringing/incoming)
+    final callStatus = call['callStatus']?.toString() ?? '';
+    if (callStatus != 'accepted') {
+      // Stale ringing call — clean it up
+      await FlutterCallkitIncoming.endAllCalls();
+      return;
     }
+
+    final extra = call['extra'] as Map? ?? {};
+    final channelId = extra['channel_id']?.toString() ?? '';
+    final callerId = extra['caller_id']?.toString() ?? '';
+    final receiverId = extra['receiver_id']?.toString() ?? '';
+    final isVideo = extra['is_video']?.toString() == 'true';
+    final callerName = call['nameCaller']?.toString() ?? 'Người dùng';
+    final callSessionId = extra['call_session_id']?.toString();
+
+    if (channelId.isEmpty || callerId.isEmpty) return;
+
+    final args = CallArgs(
+      channelId: channelId,
+      localUserId: receiverId,
+      remoteUserId: callerId,
+      remoteName: callerName,
+      remoteAvatarUrl: null,
+      isVideo: isVideo,
+      isIncoming: true,
+      callSessionId: callSessionId,
+    );
+
+    await Future.delayed(const Duration(milliseconds: 500));
+    AppRouter.router.push(AppRoutes.callActive, extra: args);
   } catch (_) {}
 }
 
@@ -142,6 +149,8 @@ class _AppRootState extends State<AppRoot> with WidgetsBindingObserver {
     WidgetsBinding.instance.addObserver(this);
     _presenceStore.forcePing();
     _requestOverlayPermission();
+    // Delay to ensure router is mounted before navigating
+    Future.delayed(const Duration(milliseconds: 800), _handleCallkitLaunch);
   }
 
   /// Request SYSTEM_ALERT_WINDOW — needed for full-screen call when app is killed
@@ -167,6 +176,11 @@ class _AppRootState extends State<AppRoot> with WidgetsBindingObserver {
     if (state == AppLifecycleState.paused ||
         state == AppLifecycleState.inactive) {
       _presenceStore.setOffline();
+      // Stop reels audio when app goes to background
+      try {
+        GetIt.I<ReelsStore>().setPageVisibility(false);
+        GetIt.I<ReelsStore>().stopAudio();
+      } catch (_) {}
     }
   }
 

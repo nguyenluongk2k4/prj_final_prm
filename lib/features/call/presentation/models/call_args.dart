@@ -6,6 +6,7 @@ class CallArgs {
   final String? remoteAvatarUrl;
   final bool isVideo;
   final bool isIncoming;
+  final String? callSessionId;
 
   const CallArgs({
     required this.channelId,
@@ -15,6 +16,7 @@ class CallArgs {
     required this.remoteAvatarUrl,
     required this.isVideo,
     required this.isIncoming,
+    this.callSessionId,
   });
 
   CallArgs copyWith({
@@ -25,6 +27,7 @@ class CallArgs {
     String? remoteAvatarUrl,
     bool? isVideo,
     bool? isIncoming,
+    String? callSessionId,
   }) {
     return CallArgs(
       channelId: channelId ?? this.channelId,
@@ -34,6 +37,7 @@ class CallArgs {
       remoteAvatarUrl: remoteAvatarUrl ?? this.remoteAvatarUrl,
       isVideo: isVideo ?? this.isVideo,
       isIncoming: isIncoming ?? this.isIncoming,
+      callSessionId: callSessionId ?? this.callSessionId,
     );
   }
 }

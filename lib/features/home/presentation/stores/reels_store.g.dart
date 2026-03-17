@@ -334,6 +334,16 @@ mixin _$ReelsStore on _ReelsStore, Store {
     return _$stopAudioAsyncAction.run(() => super.stopAudio());
   }
 
+  late final _$globalPauseAsyncAction = AsyncAction(
+    '_ReelsStore.globalPause',
+    context: context,
+  );
+
+  @override
+  Future<void> globalPause() {
+    return _$globalPauseAsyncAction.run(() => super.globalPause());
+  }
+
   late final _$setFeedTypeAsyncAction = AsyncAction(
     '_ReelsStore.setFeedType',
     context: context,
@@ -456,18 +466,6 @@ mixin _$ReelsStore on _ReelsStore, Store {
     name: '_ReelsStore',
     context: context,
   );
-
-  @override
-  void globalPause() {
-    final _$actionInfo = _$_ReelsStoreActionController.startAction(
-      name: '_ReelsStore.globalPause',
-    );
-    try {
-      return super.globalPause();
-    } finally {
-      _$_ReelsStoreActionController.endAction(_$actionInfo);
-    }
-  }
 
   @override
   void globalResume() {

@@ -5,6 +5,7 @@ import 'package:flutter_callkit_incoming/flutter_callkit_incoming.dart';
 import 'package:go_router/go_router.dart';
 import '../../../../core/router/app_routes.dart';
 import '../../../../core/theme/app_text_styles.dart';
+import '../../../../features/call/data/call_session_service.dart';
 import '../models/call_args.dart';
 
 class IncomingCallPage extends StatefulWidget {
@@ -21,12 +22,14 @@ class _IncomingCallPageState extends State<IncomingCallPage> {
 
   void _acceptCall() {
     FlutterCallkitIncoming.endAllCalls();
+    CallSessionService.updateStatus(widget.args.callSessionId, 'ongoing');
     final nextArgs = widget.args.copyWith(isIncoming: true);
     context.pushReplacement(AppRoutes.callActive, extra: nextArgs);
   }
 
   void _declineCall() {
     FlutterCallkitIncoming.endAllCalls();
+    CallSessionService.updateStatus(widget.args.callSessionId, 'rejected');
     context.pop();
   }
 

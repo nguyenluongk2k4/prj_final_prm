@@ -47,7 +47,7 @@
 
 // Deno.serve(async (req) => {
 // 	try {
-// 		if (req.method != "POST") {
+// 		if (req.method !== "POST") {
 // 			return new Response("Method Not Allowed", { status: 405 });
 // 		}
 
@@ -60,16 +60,29 @@
 // 		const accessToken = await getAccessToken();
 // 		const projectId = getEnv("FCM_PROJECT_ID");
 
-// 		const message = {
+// 		const message: Record<string, unknown> = {
 // 			message: {
 // 				token,
-// 				notification: {
-// 					title: payload.title ?? "Notification",
-// 					body: payload.body ?? "",
-// 				},
 // 				data: payload.data ?? {},
+// 				android: {
+// 					priority: "high",
+// 				},
+// 				apns: {
+// 					headers: {
+// 						"apns-priority": "10",
+// 					},
+// 				},
 // 			},
 // 		};
+
+// 		// Only add notification block for non-call messages (call uses callkit UI)
+// 		const msgType = (payload.data?.type ?? "").toString().toLowerCase();
+// 		if (msgType !== "call") {
+// 			(message["message"] as Record<string, unknown>)["notification"] = {
+// 				title: payload.title ?? "Notification",
+// 				body: payload.body ?? "",
+// 			};
+// 		}
 
 // 		const response = await fetch(
 // 			`https://fcm.googleapis.com/v1/projects/${projectId}/messages:send`,

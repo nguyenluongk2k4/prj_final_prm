@@ -7,6 +7,7 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../../../core/theme/app_text_styles.dart';
+import '../../data/call_session_service.dart';
 import '../../data/call_token_service.dart';
 import '../models/call_args.dart';
 
@@ -226,6 +227,8 @@ class _InCallPageState extends State<InCallPage> {
 
   void _endCall() {
     _noAnswerTimer?.cancel();
+    final sessionId = widget.args.callSessionId;
+    CallSessionService.updateStatus(sessionId, 'ended');
     _leaveChannel();
     if (mounted) Navigator.of(context).pop();
   }

@@ -10,6 +10,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:uuid/uuid.dart';
 import 'package:prj_final_prm/core/router/app_routes.dart';
 import 'package:prj_final_prm/core/router/app_router.dart';
+import 'package:prj_final_prm/features/call/data/call_session_service.dart';
 import 'package:prj_final_prm/features/call/presentation/models/call_args.dart';
 
 @pragma('vm:entry-point')
@@ -34,7 +35,7 @@ Future<void> firebaseMessagingBackgroundHandler(RemoteMessage message) async {
     receiverId: receiverId,
     callerName: callerName,
     isVideo: callType == 'video',
-    avatarUrl: data['caller_avatar']?.toString(),
+    callSessionId: data['call_id']?.toString().trim(),
   );
 }
 
@@ -46,6 +47,7 @@ Future<void> _showCallkit({
   required String callerName,
   required bool isVideo,
   String? avatarUrl,
+  String? callSessionId,
 }) async {
   final params = CallKitParams(
     id: uuid,
@@ -62,6 +64,7 @@ Future<void> _showCallkit({
       'caller_id': callerId,
       'receiver_id': receiverId,
       'is_video': isVideo.toString(),
+      'call_session_id': callSessionId ?? '',
     },
     android: const AndroidParams(
       isCustomNotification: true,
@@ -98,6 +101,7 @@ class FirebaseMessagingService {
   final FirebaseMessaging _messaging = FirebaseMessaging.instance;
   final SupabaseClient _supabase;
   StreamSubscription<AuthState>? _authSub;
+  String? _activeCallChannelId; // deduplicate concurrent call notifications
 
   FirebaseMessagingService([SupabaseClient? supabase])
       : _supabase = supabase ?? Supabase.instance.client;
@@ -155,9 +159,12 @@ class FirebaseMessagingService {
     final receiverId = extra['receiver_id']?.toString() ?? '';
     final isVideo = extra['is_video']?.toString() == 'true';
     final callerName = event.body['nameCaller']?.toString() ?? 'Người dùng';
+    final callSessionId = extra['call_session_id']?.toString();
 
     switch (event.event) {
       case Event.actionCallAccept:
+        _activeCallChannelId = null;
+        unawaited(CallSessionService.updateStatus(callSessionId, 'ongoing'));
         final args = CallArgs(
           channelId: channelId,
           localUserId: receiverId,
@@ -166,13 +173,24 @@ class FirebaseMessagingService {
           remoteAvatarUrl: null,
           isVideo: isVideo,
           isIncoming: true,
+          callSessionId: callSessionId,
         );
         Future.delayed(const Duration(milliseconds: 300), () {
           AppRouter.router.push(AppRoutes.callActive, extra: args);
         });
         break;
       case Event.actionCallDecline:
+        _activeCallChannelId = null;
+        unawaited(CallSessionService.updateStatus(callSessionId, 'rejected'));
+        FlutterCallkitIncoming.endAllCalls();
+        break;
+      case Event.actionCallTimeout:
+        _activeCallChannelId = null;
+        unawaited(CallSessionService.updateStatus(callSessionId, 'missed'));
+        FlutterCallkitIncoming.endAllCalls();
+        break;
       case Event.actionCallEnded:
+        _activeCallChannelId = null;
         FlutterCallkitIncoming.endAllCalls();
         break;
       default:
@@ -191,6 +209,23 @@ class FirebaseMessagingService {
     final callType = data['call_type']?.toString().toLowerCase() ?? 'voice';
 
     if (channelId.isEmpty || callerId.isEmpty) return;
+
+    // Deduplicate — same channel already showing
+    if (_activeCallChannelId == channelId) return;
+
+    // Also check callkit active calls to avoid duplicate
+    try {
+      final active = await FlutterCallkitIncoming.activeCalls();
+      if (active is List && active.isNotEmpty) {
+        final alreadyExists = active.any((c) {
+          final extra = (c as Map?)?['extra'] as Map?;
+          return extra?['channel_id']?.toString() == channelId;
+        });
+        if (alreadyExists) return;
+      }
+    } catch (_) {}
+
+    _activeCallChannelId = channelId;
 
     String callerName = 'Người dùng';
     String? avatarUrl;
@@ -215,6 +250,7 @@ class FirebaseMessagingService {
       callerName: callerName,
       isVideo: callType == 'video',
       avatarUrl: avatarUrl,
+      callSessionId: data['call_id']?.toString().trim(),
     );
   }
 

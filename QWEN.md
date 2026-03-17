@@ -2,7 +2,7 @@
 
 ## Project Overview
 
-A **Flutter dating application** ("Heart Link") implementing **Clean Architecture (DDD)** with **MobX** state management. The app features user authentication, profile matching, real-time chat, video calls, location tracking with Mapbox, and social features.
+A **Flutter dating application** ("Heart Link") implementing **Clean Architecture (DDD)** with **MobX** state management. The app features user authentication, profile matching, real-time chat, video calls, location tracking, and social features.
 
 ### Tech Stack
 
@@ -15,7 +15,7 @@ A **Flutter dating application** ("Heart Link") implementing **Clean Architectur
 | **Backend** | Supabase (PostgreSQL + Realtime) |
 | **Authentication** | Firebase Auth |
 | **Networking** | Dio |
-| **Maps** | Mapbox Maps Flutter |
+| **Maps** | flutter_map (Mapbox alternative) |
 | **Chat/Call** | Tencent Cloud Chat SDK, Agora RTC Engine |
 | **Functional Programming** | Dartz (Either, Option) |
 | **Code Generation** | build_runner, freezed, json_serializable, mobx_codegen |
@@ -42,7 +42,7 @@ lib/
 │   ├── profile/              # User profile management
 │   ├── chat/                 # Real-time chat (Tencent)
 │   ├── call/                 # Video/Audio calls (Agora)
-│   ├── map/                  # Location & Mapbox integration
+│   ├── map/                  # Location & Map integration
 │   ├── album/                # User photo albums
 │   └── onboarding/           # First-time user flow
 │
@@ -128,7 +128,6 @@ SUPABASE_ANON_KEY=
 
 # Mapbox
 MAPBOX_ACCESS_TOKEN=pk....
-MAPBOX_SECRET_TOKEN=
 
 # Tencent (Chat/Call)
 TENCENT_SDK_APP_ID=
@@ -227,34 +226,6 @@ final store = GetIt.I<AuthStore>();
 - Descriptive but concise
 - No placeholder messages
 
-## Important Notes
-
-### Mapbox Setup (Android)
-Mapbox requires additional native configuration:
-1. Add to `android/app/src/main/res/values/strings.xml`:
-   ```xml
-   <string name="mapbox_access_token">pk.eyJ1Ijoi...</string>
-   ```
-2. Add to `gradle.properties`:
-   ```properties
-   MAPBOX_DOWNLOADS_TOKEN=sk....
-   ```
-
-### Mapbox Setup (iOS)
-Create `~/.netrc` file:
-```
-machine api.mapbox.com
-login mapbox
-password sk....
-```
-
-### Code Generation Triggers
-Run `build_runner` after:
-- Adding/modifying MobX stores (`@observable`, `@action`)
-- Changing Freezed entities/models
-- Updating JSON serialization classes
-- Adding new injectable services
-
 ## Feature Status
 
 | Feature | Status | Notes |
@@ -264,27 +235,34 @@ Run `build_runner` after:
 | Swipe/Matching | ✅ Complete | Card swiping UI |
 | Real-time Chat | ✅ Complete | Tencent SDK |
 | Video/Audio Calls | ✅ Complete | Agora SDK |
-| Location/Map | ⚠️ Needs Config | Mapbox requires native setup |
+| Location/Map | ✅ Implemented | flutter_map |
 | Photo Albums | ✅ Complete | Cloudinary storage |
 | Push Notifications | ✅ Complete | Firebase Messaging |
 | i18n (EN/VI) | ✅ Complete | Slang |
 
-## Troubleshooting
+## Important Notes
 
-### Map Not Loading
+### Code Generation Triggers
+Run `build_runner` after:
+- Adding/modifying MobX stores (`@observable`, `@action`)
+- Changing Freezed entities/models
+- Updating JSON serialization classes
+- Adding new injectable services
+
+### Common Issues
+
+**Map Not Loading**
 1. Check `.env` has valid `MAPBOX_ACCESS_TOKEN`
-2. Verify Android `strings.xml` has Mapbox token
-3. Check iOS `.netrc` configuration
-4. Run on physical device (emulator may have location issues)
+2. Verify Android/iOS permissions for location
 
-### Code Generation Errors
+**Code Generation Errors**
 ```bash
 # Clean and regenerate
 rm -rf build/ .dart_tool/
 dart run build_runner build --delete-conflicting-outputs
 ```
 
-### Dependency Issues
+**Dependency Issues**
 ```bash
 # Clean install
 fvm flutter clean
@@ -295,6 +273,6 @@ fvm flutter pub get
 
 - [Architecture Guide](ARCHITECTURE.md)
 - [Setup Instructions](README_SETUP.md)
-- [DDD Guide](ARCHITECTURE.md)
+- [Quick Reference](QUICK_REFERENCE.md)
 - [Flutter Documentation](https://docs.flutter.dev/)
 - [MobX Guide](https://mobx.netlify.app/)

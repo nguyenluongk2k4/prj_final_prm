@@ -1,7 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:mobx/mobx.dart';
 import 'package:injectable/injectable.dart';
-import 'package:audioplayers/audioplayers.dart';
+import 'package:just_audio/just_audio.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:prj_final_prm/features/auth/presentation/stores/auth_store.dart';
 import '../../domain/entities/reel.dart';
@@ -96,38 +96,59 @@ abstract class _ReelsStore with Store {
 
   @action
   Future<void> playReelAudio(String url, String reelId) async {
-    // Only play if it's the focused reel AND the page is visible
-    if (reelId != currentActiveReelId || !isReelsPageVisible) {
-      debugPrint('STORE: Rejecting play request for [$reelId] - Focus mismatch or Hidden');
+    // Only play if it's the focused reel
+    if (reelId != currentActiveReelId) {
+      debugPrint('STORE: Rejecting play request for [$reelId] - Focus mismatch');
       return;
     }
 
-    if (_currentlyPlayingReelId == reelId && _globalAudioPlayer.state == PlayerState.playing) return;
-    
+    // Don't play if page is not visible
+    if (!isReelsPageVisible) {
+      debugPrint('STORE: Rejecting play request for [$reelId] - Page is hidden');
+      return;
+    }
+
+    // Skip if already playing this reel
+    if (_currentlyPlayingReelId == reelId && _globalAudioPlayer.playing) {
+      return;
+    }
+
     debugPrint('STORE: Playing Audio for Reel [$reelId]');
     _currentlyPlayingReelId = reelId;
 
     try {
-      await _globalAudioPlayer.setReleaseMode(ReleaseMode.loop);
-      await _globalAudioPlayer.stop();
-      await _globalAudioPlayer.setSource(UrlSource(url));
-      await _globalAudioPlayer.resume();
+      await _globalAudioPlayer.setLoopMode(LoopMode.one);
+      await _globalAudioPlayer.setUrl(url);
+      await _globalAudioPlayer.play();
     } catch (e) {
       debugPrint('STORE: Error playing audio: $e');
+      _currentlyPlayingReelId = null;
     }
   }
 
   @action
   Future<void> stopAudio() async {
     debugPrint('STORE: Stopping Audio');
-    await _globalAudioPlayer.stop();
-    _currentlyPlayingReelId = null;
+    try {
+      // Only stop if player has been initialized
+      if (_currentlyPlayingReelId != null) {
+        await _globalAudioPlayer.stop();
+      }
+    } catch (e) {
+      debugPrint('STORE: Error stopping audio: $e');
+    } finally {
+      _currentlyPlayingReelId = null;
+    }
   }
 
   @action
-  void globalPause() {
+  Future<void> globalPause() async {
     debugPrint('STORE: Global Pause triggered');
-    _globalAudioPlayer.pause();
+    try {
+      await _globalAudioPlayer.pause();
+    } catch (e) {
+      debugPrint('STORE: Error pausing audio: $e');
+    }
   }
 
   @action
@@ -140,7 +161,6 @@ abstract class _ReelsStore with Store {
         playReelAudio(musicUrl, currentActiveReelId!);
       } else {
         debugPrint('STORE: Global Resume - Focused reel [$currentActiveReelId] has no music');
-        _globalAudioPlayer.pause();
       }
     }
   }
@@ -157,13 +177,13 @@ abstract class _ReelsStore with Store {
       playReelAudio(musicUrl, currentActiveReelId!);
     } else {
       debugPrint('STORE: Focus changed to silent reel [$currentActiveReelId], pausing audio');
-      _globalAudioPlayer.pause();
+      globalPause();
       _currentlyPlayingReelId = null;
     }
   }
 
   @observable
-  bool isReelsPageVisible = true;
+  bool isReelsPageVisible = false;
 
   @action
   void setPageVisibility(bool visible) {
@@ -171,8 +191,10 @@ abstract class _ReelsStore with Store {
     isReelsPageVisible = visible;
     debugPrint('STORE: Reels Page Visibility changed to: $visible');
     if (!visible) {
-      globalPause();
+      // Page is hidden - stop audio completely
+      stopAudio();
     } else {
+      // Page is visible - resume if there's a focused reel
       globalResume();
     }
   }
@@ -188,7 +210,7 @@ abstract class _ReelsStore with Store {
   @action
   Future<void> fetchReels({bool refresh = false, String? profileUserId}) async {
     if (isLoading) return;
-    
+
     isLoading = true;
     errorMessage = null;
 
@@ -211,7 +233,7 @@ abstract class _ReelsStore with Store {
         (l) => errorMessage = l,
         (r) => friendIds = r.map((f) => f.friendId).toList(),
       );
-      
+
       if (friendIds == null || friendIds!.isEmpty) {
         // No friends, show empty or error
         reels.clear();
@@ -225,19 +247,23 @@ abstract class _ReelsStore with Store {
       authorId: authorId,
       friendIds: friendIds,
     );
-    
+
     result.fold(
       (l) => errorMessage = l.message,
       (r) {
         for (var reel in r) {
           reels.add(reel);
-          if (reel.isPhoto && reel.audioUrl != null && reel.audioUrl!.isNotEmpty) {
+          // Populate music map for ALL reels with audioUrl (both video and photo)
+          if (reel.audioUrl != null && reel.audioUrl!.isNotEmpty) {
             reelMusicMap[reel.id] = reel.audioUrl!;
+            debugPrint('STORE: Added music for reel [${reel.id}]: ${reel.audioUrl}');
           }
         }
-        
-        if (currentActiveReelId == null && reels.isNotEmpty) {
+
+        // Only auto-focus and play if page is visible
+        if (isReelsPageVisible && currentActiveReelId == null && reels.isNotEmpty) {
           currentActiveReelId = reels[0].id;
+          debugPrint('STORE: Setting initial focus to reel [$currentActiveReelId]');
           _handleAudioFocus();
         }
       },
@@ -251,9 +277,10 @@ abstract class _ReelsStore with Store {
     currentIndex = index;
     if (index >= 0 && index < reels.length) {
       currentActiveReelId = reels[index].id;
+      debugPrint('STORE: Index changed to [$index], focus reel [$currentActiveReelId]');
       _handleAudioFocus();
     }
-    
+
     if (index >= reels.length - 3) {
       fetchReels();
     }

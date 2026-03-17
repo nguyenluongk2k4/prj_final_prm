@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:video_player/video_player.dart';
-import 'package:visibility_detector/visibility_detector.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import '../../domain/entities/reel.dart';
 import '../../../../core/theme/app_text_styles.dart';
@@ -39,8 +38,14 @@ class _ReelCardState extends State<ReelCard> with AutomaticKeepAliveClientMixin 
     if (!widget.reel.isPhoto) {
       _initializeController();
     } else {
-      // Photo post
+      // Photo post - initialize immediately
       setState(() => _initialized = true);
+      // Trigger audio for photo post if it should play
+      if (widget.shouldPlay && widget.reel.audioUrl != null) {
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          widget.store.playReelAudio(widget.reel.audioUrl!, widget.reel.id);
+        });
+      }
     }
   }
 
@@ -69,11 +74,17 @@ class _ReelCardState extends State<ReelCard> with AutomaticKeepAliveClientMixin 
         debugPrint('ReelCard: ACTIVE [${widget.reel.id}]');
         if (!widget.reel.isPhoto) {
           _controller?.play();
+        } else if (widget.reel.audioUrl != null) {
+          // Photo post - trigger audio via store
+          widget.store.playReelAudio(widget.reel.audioUrl!, widget.reel.id);
         }
       } else if (!widget.shouldPlay && oldWidget.shouldPlay) {
         debugPrint('ReelCard: INACTIVE [${widget.reel.id}]');
         if (!widget.reel.isPhoto) {
           _controller?.pause();
+        } else {
+          // Photo post - stop audio via store
+          widget.store.stopAudio();
         }
       }
     }
@@ -91,22 +102,7 @@ class _ReelCardState extends State<ReelCard> with AutomaticKeepAliveClientMixin 
     super.build(context);
     final c = context.appColors;
 
-    return VisibilityDetector(
-      key: Key('reel_vis_${widget.reel.id}'),
-      onVisibilityChanged: (info) {
-        if (!mounted || !_initialized) return;
-        
-        if (info.visibleFraction < 0.05) {
-          if (!widget.reel.isPhoto) {
-            _controller?.pause();
-          }
-        } else if (info.visibleFraction > 0.1) {
-          if (widget.shouldPlay && !widget.reel.isPhoto) {
-            _controller?.play();
-          }
-        }
-      },
-      child: Stack(
+    return Stack(
         fit: StackFit.expand,
         children: [
           // Background media: image or video
@@ -147,8 +143,7 @@ class _ReelCardState extends State<ReelCard> with AutomaticKeepAliveClientMixin 
           // Overlay content
           _buildOverlay(context, c),
         ],
-      ),
-    );
+      );
   }
 
   Widget _buildOverlay(BuildContext context, AppColorScheme c) {

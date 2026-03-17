@@ -588,7 +588,7 @@ class _HomePageState extends State<HomePage> {
     showMatchNotificationDialog(
       context,
       matchedUser,
-      isSuperLike: _discoverStore.isNewMatchSuperLike, // Pass SuperLike info
+      // isSuperLike: _discoverStore.isNewMatchSuperLike, // Pass SuperLike info
       onKeepSwiping: () {
         print('🔄 Keep swiping pressed');
         _discoverStore.clearNewMatch();

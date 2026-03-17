@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import '../stores/reels_store.dart';
-import 'package:audioplayers/audioplayers.dart';
+import 'package:just_audio/just_audio.dart';
 
 class MusicSelectionSheet extends StatefulWidget {
   final ReelsStore store;
@@ -31,15 +31,12 @@ class _MusicSelectionSheetState extends State<MusicSelectionSheet> {
   Future<void> _togglePlay(String url) async {
     if (_playingUrl == url) {
       await _audioPlayer.stop();
-      setState(() {
-        _playingUrl = null;
-      });
+      setState(() => _playingUrl = null);
     } else {
       await _audioPlayer.stop();
-      await _audioPlayer.play(UrlSource(url));
-      setState(() {
-        _playingUrl = url;
-      });
+      await _audioPlayer.setUrl(url);
+      await _audioPlayer.play();
+      setState(() => _playingUrl = url);
     }
   }
 
