@@ -322,7 +322,7 @@ class AuthDatasource {
     try {
       final res = await _supabaseClient.auth.signInWithOAuth(
         OAuthProvider.google,
-        redirectTo: 'myapp://login-callback',
+        redirectTo: 'heartlink://login-callback',
       );
 
       if (!res) {

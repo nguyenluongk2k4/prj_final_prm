@@ -30,7 +30,8 @@ android {
         targetSdk = flutter.targetSdkVersion
         versionCode = flutter.versionCode
         versionName = flutter.versionName
-        manifestPlaceholders["appScheme"] = "myapp"
+        manifestPlaceholders["appScheme"] = "heartlink"
+        manifestPlaceholders["appHost"] = "heartlink-app.com"
     }
 
     buildTypes {

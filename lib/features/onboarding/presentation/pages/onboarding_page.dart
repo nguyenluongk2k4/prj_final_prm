@@ -7,6 +7,7 @@ import '../../../../core/presentation/widgets/widgets.dart';
 import '../../../../core/router/app_routes.dart';
 import '../../../../i18n/strings.g.dart';
 import '../../domain/entities/onboarding_item.dart';
+
 class OnboardingPage extends StatefulWidget {
   const OnboardingPage({super.key});
 
@@ -24,6 +25,7 @@ class _OnboardingPageState extends State<OnboardingPage>
     super.initState();
     _carouselController = CarouselSliderController();
   }
+
   List<OnboardingItem> _buildItems(Translations t) => [
         OnboardingItem(
           title: t.onboarding1Title,
@@ -61,39 +63,82 @@ class _OnboardingPageState extends State<OnboardingPage>
       body: SafeArea(
         child: Column(
           children: [
-            const SizedBox(height: 32),
+            const SizedBox(height: 24),
+
+            // Carousel phần animation
             _buildLottieCarousel(items),
-            const SizedBox(height: 44),
-            Expanded(
-              child: SingleChildScrollView(
-                child: _buildTextContent(items[_currentPage], items.length),
-              ),
-            ),
+
+            const SizedBox(height: 32),
+
+            // Phần text + indicators + buttons (không dùng Expanded để text luôn hiển thị hết)
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 20),
+              padding: const EdgeInsets.symmetric(horizontal: 32.0),
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
+                  Text(
+                    items[_currentPage].title,
+                    style: const TextStyle(
+                      fontSize: 28,
+                      fontWeight: FontWeight.bold,
+                      color: AppColors.primary,
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+                  const SizedBox(height: 16),
+                  Text(
+                    items[_currentPage].description,
+                    style: const TextStyle(
+                      fontSize: 16,
+                      height: 1.5,
+                      color: Color(0xFF4A4A4A), // Có thể thay bằng Theme.of(context).textTheme.bodyMedium?.color để adaptive dark/light
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+                  const SizedBox(height: 32),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: List.generate(
+                      items.length,
+                      (index) => _buildPageIndicator(index),
+                    ),
+                  ),
+                  const SizedBox(height: 40),
+
+                  // Nút Create account
                   AppPrimaryButton(
                     text: t.createAnAccount,
                     onPressed: () => _nextPage(items),
                   ),
-                  const SizedBox(height: 20),
+                  const SizedBox(height: 24),
+
+                  // Sign in link
                   GestureDetector(
                     onTap: () => context.go(AppRoutes.login),
-                    child: Text(
-                      t.alreadyHaveAccountSignIn,
-                      style: const TextStyle(
-                        fontSize: 14,
-                        fontWeight: FontWeight.w700,
-                        color: AppColors.primary,
+                    child: RichText(
+                      text: TextSpan(
+                        text: t.alreadyHaveAccount,
+                        style: const TextStyle(
+                          fontSize: 16,
+                          color: Colors.grey,
+                        ),
+                        children: [
+                          TextSpan(
+                            text: ' ${t.signIn}',
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              color: AppColors.primary,
+                            ),
+                          ),
+                        ],
                       ),
                     ),
                   ),
-                  const SizedBox(height: 20),
                 ],
               ),
             ),
+
+            const Spacer(), // Đẩy nhẹ xuống dưới nếu màn hình lớn
           ],
         ),
       ),
@@ -101,104 +146,62 @@ class _OnboardingPageState extends State<OnboardingPage>
   }
 
   Widget _buildLottieCarousel(List<OnboardingItem> items) {
-    return SizedBox(
-      height: 400,
-      child: CarouselSlider.builder(
-        carouselController: _carouselController,
-        itemCount: items.length,
-        options: CarouselOptions(
-          height: 400,
-          viewportFraction: 0.62,
-          enlargeCenterPage: true,
-          enlargeFactor: 0.3,
-          autoPlay: false,
-          enableInfiniteScroll: true,
-          onPageChanged: (index, reason) {
-            setState(() => _currentPage = index);
-          },
-        ),
-        itemBuilder: (context, index, realIndex) {
-          final item = items[index];
-          final isCenter = index == _currentPage;
+  return SizedBox(
+    height: 380,
+    child: CarouselSlider.builder(
+      carouselController: _carouselController,
+      itemCount: items.length,
+      options: CarouselOptions(
+        height: 380,
+        viewportFraction: 0.75,
+        enlargeCenterPage: true,
+        enlargeFactor: 0.25,
+        enlargeStrategy: CenterPageEnlargeStrategy.height,
+        autoPlay: false,
+        enableInfiniteScroll: true,
+        scrollPhysics: const BouncingScrollPhysics(),
+        onPageChanged: (index, reason) {
+          setState(() => _currentPage = index);
+        },
+      ),
+      itemBuilder: (context, index, realIndex) {
+        final item = items[index];
+        final isCenter = index == _currentPage;
 
-          return AnimatedOpacity(
-            duration: const Duration(milliseconds: 300),
-            opacity: isCenter ? 1.0 : 0.6,
-            child: Center(
-              child: Container(
-                width: isCenter ? 240 : 140,
-                height: isCenter ? 400 : 240,
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(20),
-                  boxShadow: isCenter
-                      ? [
-                          const BoxShadow(
-                            color: Colors.black26,
-                            blurRadius: 20,
-                            offset: Offset(0, 10),
-                          ),
-                        ]
-                      : null,
-                ),
-                child: ClipRRect(
-                  borderRadius: BorderRadius.circular(20),
-                  child: Lottie.asset(
-                    item.imagePath,
-                    fit: BoxFit.contain,
-                    animate: isCenter,
-                    errorBuilder: (context, error, stackTrace) {
-                      return const Center(
-                        child: Icon(Icons.animation, size: 40),
-                      );
-                    },
-                  ),
+        return AnimatedOpacity(
+          duration: const Duration(milliseconds: 500),
+          opacity: isCenter ? 1.0 : 0.5,
+          child: AnimatedScale(
+            scale: isCenter ? 1.0 : 0.75,
+            duration: const Duration(milliseconds: 500),
+            curve: Curves.easeOutCubic,  // ← Sửa ở đây: dùng curve có sẵn
+            // Hoặc thử: Curves.easeInOutCubicEmphasized (nếu muốn emphasized hơn)
+            // curve: Curves.easeInOutCubicEmphasized,
+            child: Container(
+              margin: const EdgeInsets.symmetric(horizontal: 12.0),
+              // Không decoration để transparent
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(32),
+                child: Lottie.asset(
+                  item.imagePath,
+                  fit: BoxFit.contain,
+                  alignment: Alignment.center,
+                  animate: isCenter,
+                  repeat: true,
+                  errorBuilder: (context, error, stackTrace) {
+                    return const Center(
+                      child: Icon(Icons.error_outline, size: 80, color: Colors.grey),
+                    );
+                  },
                 ),
               ),
             ),
-          );
-        },
-      ),
-    );
-  }
-
-  // Các hàm _buildTextContent và _buildPageIndicator giữ nguyên như cũ...
-  Widget _buildTextContent(OnboardingItem item, int itemCount) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 40),
-      child: Column(
-        children: [
-          Text(
-            item.title,
-            style: const TextStyle(
-              fontSize: 24,
-              fontWeight: FontWeight.w700,
-              color: AppColors.primary,
-            ),
-            textAlign: TextAlign.center,
           ),
-          const SizedBox(height: 10),
-          Text(
-            item.description,
-            style: const TextStyle(
-              fontSize: 14,
-              fontWeight: FontWeight.w400,
-              color: Color(0xFF323755),
-              height: 1.5,
-            ),
-            textAlign: TextAlign.center,
-          ),
-          const SizedBox(height: 36),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: List.generate(
-              itemCount,
-              (index) => _buildPageIndicator(index),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
+        );
+      },
+    ),
+  );
+}
 
   Widget _buildPageIndicator(int index) {
     final isActive = index == _currentPage;
