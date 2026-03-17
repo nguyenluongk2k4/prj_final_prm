@@ -12,6 +12,7 @@
 import 'package:firebase_auth/firebase_auth.dart' as _i59;
 import 'package:get_it/get_it.dart' as _i174;
 import 'package:injectable/injectable.dart' as _i526;
+import 'package:shared_preferences/shared_preferences.dart' as _i460;
 import 'package:supabase_flutter/supabase_flutter.dart' as _i454;
 
 import '../../features/album/domain/repositories/album_repository.dart'
@@ -115,6 +116,7 @@ import '../../features/home/domain/usecases/get_discover_batch_usecase.dart'
     as _i236;
 import '../../features/home/domain/usecases/reels_usecases.dart' as _i514;
 import '../../features/home/domain/usecases/submit_swipe_usecase.dart' as _i219;
+import '../../features/home/domain/usecases/undo_swipe_usecase.dart' as _i657;
 import '../../features/home/infrastructure/datasources/reels_datasource.dart'
     as _i947;
 import '../../features/home/infrastructure/repositories/reels_repository_impl.dart'
@@ -131,15 +133,19 @@ import 'register_module.dart' as _i291;
 
 extension GetItInjectableX on _i174.GetIt {
   // initializes the registration of main-scope dependencies inside of GetIt
-  _i174.GetIt init({
+  Future<_i174.GetIt> init({
     String? environment,
     _i526.EnvironmentFilter? environmentFilter,
-  }) {
+  }) async {
     final gh = _i526.GetItHelper(this, environment, environmentFilter);
     final registerModule = _$RegisterModule();
     final authModule = _$AuthModule();
     gh.lazySingleton<_i59.FirebaseAuth>(() => registerModule.firebaseAuth);
     gh.lazySingleton<_i454.SupabaseClient>(() => registerModule.supabaseClient);
+    await gh.lazySingletonAsync<_i460.SharedPreferences>(
+      () => registerModule.sharedPreferences,
+      preResolve: true,
+    );
     gh.lazySingleton<_i667.DioClient>(() => _i667.DioClient());
     gh.lazySingleton<_i606.ImageUploadService>(
       () => _i606.ImageUploadService(),
@@ -172,6 +178,9 @@ extension GetItInjectableX on _i174.GetIt {
     gh.factory<_i219.SubmitSwipeUseCase>(
       () => _i219.SubmitSwipeUseCase(gh<_i952.DiscoverRepository>()),
     );
+    gh.factory<_i657.UndoSwipeUseCase>(
+      () => _i657.UndoSwipeUseCase(gh<_i952.DiscoverRepository>()),
+    );
     gh.lazySingleton<_i787.AuthRepository>(
       () => _i748.AuthRepositoryImpl(
         gh<_i59.FirebaseAuth>(),
@@ -180,6 +189,14 @@ extension GetItInjectableX on _i174.GetIt {
     );
     gh.factory<_i82.GetUserProfileUseCase>(
       () => _i82.GetUserProfileUseCase(gh<_i787.AuthRepository>()),
+    );
+    gh.factory<_i436.DiscoverStore>(
+      () => _i436.DiscoverStore(
+        gh<_i236.GetDiscoverBatchUseCase>(),
+        gh<_i219.SubmitSwipeUseCase>(),
+        gh<_i657.UndoSwipeUseCase>(),
+        gh<_i460.SharedPreferences>(),
+      ),
     );
     gh.lazySingleton<_i910.FirebaseMessagingService>(
       () => _i910.FirebaseMessagingService(gh<_i454.SupabaseClient>()),
@@ -216,12 +233,6 @@ extension GetItInjectableX on _i174.GetIt {
     );
     gh.factory<_i185.TypingRepository>(
       () => _i706.TypingRepositoryImpl(gh<_i677.TypingDatasource>()),
-    );
-    gh.factory<_i436.DiscoverStore>(
-      () => _i436.DiscoverStore(
-        gh<_i236.GetDiscoverBatchUseCase>(),
-        gh<_i219.SubmitSwipeUseCase>(),
-      ),
     );
     gh.factory<_i473.FriendsRepository>(
       () => _i189.FriendsRepositoryImpl(gh<_i38.FriendsDatasource>()),

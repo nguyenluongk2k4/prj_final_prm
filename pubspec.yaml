@@ -78,7 +78,7 @@ dependencies:
   firebase_messaging: ^15.0.0
 
   # Map & Location
-  mapbox_maps_flutter: ^2.1.0
+  # mapbox_maps_flutter: ^2.1.0  # Commented out - causing build issues
 
   # Chat & Video Call
   tencent_cloud_chat_sdk: ^8.9.7511

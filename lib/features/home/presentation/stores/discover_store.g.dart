@@ -27,6 +27,24 @@ mixin _$DiscoverStore on _DiscoverStore, Store {
     });
   }
 
+  late final _$isSwipeInProgressAtom = Atom(
+    name: '_DiscoverStore.isSwipeInProgress',
+    context: context,
+  );
+
+  @override
+  bool get isSwipeInProgress {
+    _$isSwipeInProgressAtom.reportRead();
+    return super.isSwipeInProgress;
+  }
+
+  @override
+  set isSwipeInProgress(bool value) {
+    _$isSwipeInProgressAtom.reportWrite(value, super.isSwipeInProgress, () {
+      super.isSwipeInProgress = value;
+    });
+  }
+
   late final _$errorAtom = Atom(name: '_DiscoverStore.error', context: context);
 
   @override
@@ -96,6 +114,80 @@ mixin _$DiscoverStore on _DiscoverStore, Store {
     });
   }
 
+  late final _$currentFilterAtom = Atom(
+    name: '_DiscoverStore.currentFilter',
+    context: context,
+  );
+
+  @override
+  DiscoverFilter? get currentFilter {
+    _$currentFilterAtom.reportRead();
+    return super.currentFilter;
+  }
+
+  @override
+  set currentFilter(DiscoverFilter? value) {
+    _$currentFilterAtom.reportWrite(value, super.currentFilter, () {
+      super.currentFilter = value;
+    });
+  }
+
+  late final _$lastSwipedIdAtom = Atom(
+    name: '_DiscoverStore.lastSwipedId',
+    context: context,
+  );
+
+  @override
+  String? get lastSwipedId {
+    _$lastSwipedIdAtom.reportRead();
+    return super.lastSwipedId;
+  }
+
+  @override
+  set lastSwipedId(String? value) {
+    _$lastSwipedIdAtom.reportWrite(value, super.lastSwipedId, () {
+      super.lastSwipedId = value;
+    });
+  }
+
+  late final _$lastSwipeTypeAtom = Atom(
+    name: '_DiscoverStore.lastSwipeType',
+    context: context,
+  );
+
+  @override
+  domain.SwipeType? get lastSwipeType {
+    _$lastSwipeTypeAtom.reportRead();
+    return super.lastSwipeType;
+  }
+
+  @override
+  set lastSwipeType(domain.SwipeType? value) {
+    _$lastSwipeTypeAtom.reportWrite(value, super.lastSwipeType, () {
+      super.lastSwipeType = value;
+    });
+  }
+
+  late final _$setFilterAsyncAction = AsyncAction(
+    '_DiscoverStore.setFilter',
+    context: context,
+  );
+
+  @override
+  Future<void> setFilter(DiscoverFilter filter) {
+    return _$setFilterAsyncAction.run(() => super.setFilter(filter));
+  }
+
+  late final _$clearFilterAsyncAction = AsyncAction(
+    '_DiscoverStore.clearFilter',
+    context: context,
+  );
+
+  @override
+  Future<void> clearFilter() {
+    return _$clearFilterAsyncAction.run(() => super.clearFilter());
+  }
+
   late final _$fetchInitialBatchAsyncAction = AsyncAction(
     '_DiscoverStore.fetchInitialBatch',
     context: context,
@@ -116,18 +208,38 @@ mixin _$DiscoverStore on _DiscoverStore, Store {
     return _$fetchNextBatchAsyncAction.run(() => super.fetchNextBatch());
   }
 
+  late final _$onSwipedAsyncAction = AsyncAction(
+    '_DiscoverStore.onSwiped',
+    context: context,
+  );
+
+  @override
+  Future<void> onSwiped(UserModel profile, domain.SwipeType swipeType) {
+    return _$onSwipedAsyncAction.run(() => super.onSwiped(profile, swipeType));
+  }
+
+  late final _$undoLastSwipeAsyncAction = AsyncAction(
+    '_DiscoverStore.undoLastSwipe',
+    context: context,
+  );
+
+  @override
+  Future<bool> undoLastSwipe() {
+    return _$undoLastSwipeAsyncAction.run(() => super.undoLastSwipe());
+  }
+
   late final _$_DiscoverStoreActionController = ActionController(
     name: '_DiscoverStore',
     context: context,
   );
 
   @override
-  void onSwiped(UserModel profile, bool isLike) {
+  void _loadFilter() {
     final _$actionInfo = _$_DiscoverStoreActionController.startAction(
-      name: '_DiscoverStore.onSwiped',
+      name: '_DiscoverStore._loadFilter',
     );
     try {
-      return super.onSwiped(profile, isLike);
+      return super._loadFilter();
     } finally {
       _$_DiscoverStoreActionController.endAction(_$actionInfo);
     }
@@ -137,9 +249,13 @@ mixin _$DiscoverStore on _DiscoverStore, Store {
   String toString() {
     return '''
 isLoading: ${isLoading},
+isSwipeInProgress: ${isSwipeInProgress},
 error: ${error},
 profiles: ${profiles},
-hasReachedEnd: ${hasReachedEnd}
+hasReachedEnd: ${hasReachedEnd},
+currentFilter: ${currentFilter},
+lastSwipedId: ${lastSwipedId},
+lastSwipeType: ${lastSwipeType}
     ''';
   }
 }

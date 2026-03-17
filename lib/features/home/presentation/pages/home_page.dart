@@ -13,7 +13,8 @@ import 'package:go_router/go_router.dart';
 import '../../../../core/di/injection.dart';
 import '../../../../core/router/app_routes.dart';
 import '../stores/discover_store.dart';
-import '../../../chat/presentation/widgets/chat_filter_sheet.dart';
+import '../../domain/entities/swipe_type.dart' as domain;
+import '../widgets/discover_filter_sheet.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -79,7 +80,15 @@ class _HomePageState extends State<HomePage> {
         padding: const EdgeInsets.only(right: 12),
         child: AppBarIconButton(
           icon: Assets.icons.icSetting.svg(width: 24, height: 24),
-          onTap: () => showChatFilterSheet(context),
+          onTap: () async {
+            final filter = await showDiscoverFilterSheet(
+              context,
+              currentFilter: _discoverStore.currentFilter,
+            );
+            if (filter != null) {
+              await _discoverStore.setFilter(filter);
+            }
+          },
         ),
       ),
       body: RefreshIndicator(
@@ -101,7 +110,11 @@ class _HomePageState extends State<HomePage> {
                 child: Observer(
                   builder: (context) {
                     if (_discoverStore.isLoading && _discoverStore.profiles.isEmpty) {
-                      return const Center(child: CircularProgressIndicator());
+                      return _buildSkeletonLoader();
+                    }
+
+                    if (_discoverStore.error != null && _discoverStore.profiles.isEmpty) {
+                      return _buildErrorView();
                     }
 
                     if (_discoverStore.profiles.isEmpty) {
@@ -120,14 +133,11 @@ class _HomePageState extends State<HomePage> {
                       numberOfCardsDisplayed: _discoverStore.profiles.length > 1 ? 2 : 1,
                       backCardOffset: const Offset(0, -30),
                       padding: EdgeInsets.zero,
-                      isLoop: false, // Changed to false for dynamic list
+                      isLoop: false,
                       scale: 0.9,
                       onSwipe: _onSwipe,
                       onUndo: _onUndo,
-                      allowedSwipeDirection: const AllowedSwipeDirection.symmetric(
-                        horizontal: true,
-                        vertical: false,
-                      ),
+                      allowedSwipeDirection: const AllowedSwipeDirection.all(),
                       cardBuilder:
                           (
                             context,
@@ -148,103 +158,148 @@ class _HomePageState extends State<HomePage> {
             // Action buttons
             Padding(
               padding: EdgeInsets.symmetric(horizontal: horizontalPadding),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  // Dislike button
-                  GestureDetector(
-                    onTap: () =>
-                        _swiperController.swipe(CardSwiperDirection.left),
-                    child: Container(
-                      width: screenWidth * 0.21,
-                      height: screenWidth * 0.21,
-                      decoration: BoxDecoration(
-                        color: c.background,
-                        shape: BoxShape.circle,
-                        border: Border.all(color: c.border),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black.withOpacity(0.05),
-                            blurRadius: 10,
-                            offset: const Offset(0, 5),
+              child: Observer(
+                builder: (_) => Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    // Rewind button
+                    GestureDetector(
+                      onTap: _discoverStore.isSwipeInProgress || _discoverStore.lastSwipedId == null
+                          ? null
+                          : () async {
+                              final success = await _discoverStore.undoLastSwipe();
+                              if (success && mounted) {
+                                _swiperController.undo();
+                              }
+                            },
+                      child: Opacity(
+                        opacity: _discoverStore.lastSwipedId == null ? 0.5 : 1.0,
+                        child: Container(
+                          width: screenWidth * 0.15,
+                          height: screenWidth * 0.15,
+                          decoration: BoxDecoration(
+                            color: c.background,
+                            shape: BoxShape.circle,
+                            border: Border.all(color: c.border),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black.withValues(alpha: 0.05),
+                                blurRadius: 10,
+                                offset: const Offset(0, 5),
+                              ),
+                            ],
                           ),
-                        ],
-                      ),
-                      child: const Center(
-                        child: Icon(
-                          Icons.close,
-                          color: Color(0xFFF27121),
-                          size: 32,
+                          child: const Center(
+                            child: Icon(
+                              Icons.replay,
+                              color: Color(0xFFFFC107),
+                              size: 24,
+                            ),
+                          ),
                         ),
                       ),
                     ),
-                  ),
 
-                  SizedBox(width: screenWidth * 0.043),
+                    SizedBox(width: screenWidth * 0.03),
 
-                  // Like button
-                  GestureDetector(
-                    onTap: () =>
-                        _swiperController.swipe(CardSwiperDirection.right),
-                    child: Container(
-                      width: screenWidth * 0.264,
-                      height: screenWidth * 0.264,
-                      decoration: BoxDecoration(
-                        gradient: const LinearGradient(
-                          colors: [Color(0xFFE94057), Color(0xFFF27121)],
-                          begin: Alignment.topLeft,
-                          end: Alignment.bottomRight,
+                    // Dislike button
+                    GestureDetector(
+                      onTap: _discoverStore.isSwipeInProgress
+                          ? null
+                          : () => _swiperController.swipe(CardSwiperDirection.left),
+                      child: Container(
+                        width: screenWidth * 0.21,
+                        height: screenWidth * 0.21,
+                        decoration: BoxDecoration(
+                          color: c.background,
+                          shape: BoxShape.circle,
+                          border: Border.all(color: c.border),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withValues(alpha: 0.05),
+                              blurRadius: 10,
+                              offset: const Offset(0, 5),
+                            ),
+                          ],
                         ),
-                        shape: BoxShape.circle,
-                        boxShadow: [
-                          BoxShadow(
-                            color: const Color(0xFFE94057).withOpacity(0.3),
-                            blurRadius: 15,
-                            offset: const Offset(0, 8),
+                        child: const Center(
+                          child: Icon(
+                            Icons.close,
+                            color: Color(0xFFF27121),
+                            size: 32,
                           ),
-                        ],
-                      ),
-                      child: const Center(
-                        child: Icon(
-                          Icons.favorite,
-                          color: Colors.white,
-                          size: 40,
                         ),
                       ),
                     ),
-                  ),
 
-                  SizedBox(width: screenWidth * 0.043),
+                    SizedBox(width: screenWidth * 0.043),
 
-                  // Super like button
-                  GestureDetector(
-                    onTap: () =>
-                        _swiperController.swipe(CardSwiperDirection.top),
-                    child: Container(
-                      width: screenWidth * 0.21,
-                      height: screenWidth * 0.21,
-                      decoration: BoxDecoration(
-                        color: c.background,
-                        shape: BoxShape.circle,
-                        border: Border.all(color: c.border),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black.withOpacity(0.05),
-                            blurRadius: 10,
-                            offset: const Offset(0, 5),
+                    // Like button
+                    GestureDetector(
+                      onTap: _discoverStore.isSwipeInProgress
+                          ? null
+                          : () => _swiperController.swipe(CardSwiperDirection.right),
+                      child: Container(
+                        width: screenWidth * 0.264,
+                        height: screenWidth * 0.264,
+                        decoration: BoxDecoration(
+                          gradient: const LinearGradient(
+                            colors: [Color(0xFFE94057), Color(0xFFF27121)],
+                            begin: Alignment.topLeft,
+                            end: Alignment.bottomRight,
                           ),
-                        ],
-                      ),
-                      child: const Center(
-                        child: Icon(
-                          Icons.star,
-                          color: Color(0xFF8A2387),
-                          size: 32,
+                          shape: BoxShape.circle,
+                          boxShadow: [
+                            BoxShadow(
+                              color: const Color(0xFFE94057).withValues(alpha: 0.3),
+                              blurRadius: 15,
+                              offset: const Offset(0, 8),
+                            ),
+                          ],
+                        ),
+                        child: const Center(
+                          child: Icon(
+                            Icons.favorite,
+                            color: Colors.white,
+                            size: 40,
+                          ),
                         ),
                       ),
                     ),
-                  ),
-                ],
+
+                    SizedBox(width: screenWidth * 0.043),
+
+                    // Super like button
+                    GestureDetector(
+                      onTap: _discoverStore.isSwipeInProgress
+                          ? null
+                          : () => _swiperController.swipe(CardSwiperDirection.top),
+                      child: Container(
+                        width: screenWidth * 0.21,
+                        height: screenWidth * 0.21,
+                        decoration: BoxDecoration(
+                          color: c.background,
+                          shape: BoxShape.circle,
+                          border: Border.all(color: c.border),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withValues(alpha: 0.05),
+                              blurRadius: 10,
+                              offset: const Offset(0, 5),
+                            ),
+                          ],
+                        ),
+                        child: const Center(
+                          child: Icon(
+                            Icons.star,
+                            color: Color(0xFF8A2387),
+                            size: 32,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ),
 
@@ -307,7 +362,7 @@ class _HomePageState extends State<HomePage> {
                 gradient: LinearGradient(
                   begin: Alignment.topCenter,
                   end: Alignment.bottomCenter,
-                  colors: [Colors.transparent, Colors.black.withOpacity(0.8)],
+                  colors: [Colors.transparent, Colors.black.withValues(alpha: 0.8)],
                 ),
               ),
             ),
@@ -320,7 +375,7 @@ class _HomePageState extends State<HomePage> {
             child: Container(
               padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
               decoration: BoxDecoration(
-                color: Colors.white.withOpacity(0.15),
+                color: Colors.white.withValues(alpha: 0.15),
                 borderRadius: BorderRadius.circular(7),
               ),
               child: Row(
@@ -354,7 +409,7 @@ class _HomePageState extends State<HomePage> {
                     shape: BoxShape.circle,
                     color: index == 0
                         ? AppColors.primary
-                        : Colors.white.withOpacity(0.3),
+                        : Colors.white.withValues(alpha: 0.3),
                   ),
                 ),
               ),
@@ -397,22 +452,25 @@ class _HomePageState extends State<HomePage> {
     if (previousIndex < _discoverStore.profiles.length) {
       final profile = _discoverStore.profiles[previousIndex];
 
+      domain.SwipeType domainSwipeType;
       switch (direction) {
         case CardSwiperDirection.left:
+          domainSwipeType = domain.SwipeType.dislike;
           debugPrint('Disliked: ${profile.name}');
-          _discoverStore.onSwiped(profile, false);
           break;
         case CardSwiperDirection.right:
+          domainSwipeType = domain.SwipeType.like;
           debugPrint('Liked: ${profile.name}');
-          _discoverStore.onSwiped(profile, true);
           break;
         case CardSwiperDirection.top:
+          domainSwipeType = domain.SwipeType.superlike;
           debugPrint('Super Liked: ${profile.name}');
-          _discoverStore.onSwiped(profile, true);
           break;
         default:
-          break;
+          return false;
       }
+
+      _discoverStore.onSwiped(profile, domainSwipeType);
     }
 
     if (currentIndex != null) {
@@ -435,5 +493,64 @@ class _HomePageState extends State<HomePage> {
     CardSwiperDirection direction,
   ) {
     return true;
+  }
+
+  Widget _buildSkeletonLoader() {
+    final screenHeight = MediaQuery.of(context).size.height;
+    final cardHeight = screenHeight * 0.57;
+    
+    return Container(
+      width: double.infinity,
+      height: cardHeight,
+      decoration: BoxDecoration(
+        color: Colors.grey[300],
+        borderRadius: BorderRadius.circular(15),
+      ),
+      child: const Center(
+        child: CircularProgressIndicator(),
+      ),
+    );
+  }
+
+  Widget _buildErrorView() {
+    final screenHeight = MediaQuery.of(context).size.height;
+    final cardHeight = screenHeight * 0.57;
+    final c = context.appColors;
+    
+    return Container(
+      width: double.infinity,
+      height: cardHeight,
+      decoration: BoxDecoration(
+        color: c.background,
+        borderRadius: BorderRadius.circular(15),
+        border: Border.all(color: c.border),
+      ),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(
+            Icons.error_outline,
+            size: 64,
+            color: c.text70,
+          ),
+          const SizedBox(height: 16),
+          Text(
+            'Failed to load profiles',
+            style: AppTextStyles.bodyLarge.copyWith(color: c.textPrimary),
+          ),
+          const SizedBox(height: 8),
+          Text(
+            _discoverStore.error ?? 'Unknown error',
+            style: AppTextStyles.bodyMedium.copyWith(color: c.text70),
+            textAlign: TextAlign.center,
+          ),
+          const SizedBox(height: 16),
+          ElevatedButton(
+            onPressed: () => _discoverStore.fetchInitialBatch(),
+            child: const Text('Retry'),
+          ),
+        ],
+      ),
+    );
   }
 }
