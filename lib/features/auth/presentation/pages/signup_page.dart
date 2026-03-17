@@ -1,14 +1,30 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
+import '../../../../core/di/injection.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_color_scheme.dart';
 import '../../../../core/presentation/widgets/widgets.dart';
 import '../../../../core/router/app_routes.dart';
 import '../../../../i18n/strings.g.dart';
+import '../stores/auth_store.dart';
 
-class SignUpPage extends StatelessWidget {
+class SignUpPage extends StatefulWidget {
   const SignUpPage({super.key});
+
+  @override
+  State<SignUpPage> createState() => _SignUpPageState();
+}
+
+class _SignUpPageState extends State<SignUpPage> {
+  late final _authStore = getIt<AuthStore>();
+
+  void _handleGoogleLogin() async {
+    await _authStore.signInWithGoogle();
+    if (_authStore.isAuthenticated && mounted) {
+      context.goNamed(AppRoutes.homeName);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -147,9 +163,7 @@ class SignUpPage extends StatelessWidget {
                       const SizedBox(width: 20),
                       _buildSocialButton(
                         assetPath: 'assets/images/google_icon.svg',
-                        onPressed: () {
-                          // Google login
-                        },
+                        onPressed: _handleGoogleLogin,
                       ),
                       const SizedBox(width: 20),
                       _buildSocialButton(

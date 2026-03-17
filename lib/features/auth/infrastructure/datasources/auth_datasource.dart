@@ -317,6 +317,90 @@ class AuthDatasource {
     }
   }
 
+  /// Đăng nhập bằng Google (OAuth qua Supabase)
+  Future<AuthResponse<UserModel>> signInWithGoogle() async {
+    try {
+      final res = await _supabaseClient.auth.signInWithOAuth(
+        OAuthProvider.google,
+        redirectTo: 'myapp://login-callback',
+      );
+
+      if (!res) {
+        return AuthResponse.failure('Không thể mở trang đăng nhập Google');
+      }
+
+      // OAuth flow opens browser → redirect back → auth listener picks up session
+      // Wait briefly for auth state to propagate
+      await Future.delayed(const Duration(seconds: 2));
+
+      final user = await getCurrentUser();
+      if (user != null) {
+        return AuthResponse.success(user);
+      }
+
+      // User will be resolved via auth state listener
+      return AuthResponse.failure('pending_oauth');
+    } on AuthException catch (e) {
+      return AuthResponse.failure(e.message);
+    } catch (e) {
+      return AuthResponse.failure('Error: ${e.toString()}');
+    }
+  }
+
+  /// Xử lý callback sau khi OAuth redirect về app
+  Future<AuthResponse<UserModel>> handleOAuthCallback() async {
+    try {
+      final session = _supabaseClient.auth.currentSession;
+      if (session == null) {
+        return AuthResponse.failure('Không có session sau OAuth');
+      }
+
+      final userId = session.user.id;
+      final email = session.user.email ?? '';
+      final name = session.user.userMetadata?['full_name'] ?? 
+                   session.user.userMetadata?['name'] ?? '';
+      final avatarUrl = session.user.userMetadata?['avatar_url'] ?? 
+                        session.user.userMetadata?['picture'];
+
+      // Check nếu user đã tồn tại trong bảng users
+      var user = await getCurrentUser(userId: userId);
+
+      if (user == null) {
+        // User mới từ Google → tạo record
+        const defaultAvatarUrl =
+            'https://res.cloudinary.com/djmftornv/image/upload/v1772683330/wngnvdvo7buy25qzfwet.jpg';
+        final finalAvatar = (avatarUrl != null && avatarUrl.toString().isNotEmpty)
+            ? avatarUrl.toString()
+            : defaultAvatarUrl;
+
+        await _supabaseClient.from('users').insert({
+          'id': userId,
+          'email': email,
+          'name': name,
+          'avatar_url': finalAvatar,
+        });
+
+        await _supabaseClient.from('profiles').insert({
+          'user_id': userId,
+          'display_name': name,
+          'avatar_url': finalAvatar,
+          'is_online': false,
+          'last_active': DateTime.now().toIso8601String(),
+        });
+
+        user = await getCurrentUser(userId: userId);
+      }
+
+      if (user == null) {
+        return AuthResponse.failure('Lỗi khi lấy thông tin người dùng sau OAuth');
+      }
+
+      return AuthResponse.success(user);
+    } catch (e) {
+      return AuthResponse.failure('Error: ${e.toString()}');
+    }
+  }
+
   /// Đăng xuất
   Future<void> logout() async {
     try {

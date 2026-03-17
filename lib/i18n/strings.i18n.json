@@ -135,6 +135,8 @@
   "continueWithEmail": "Continue with email",
   "usePhoneNumber": "Use phone number",
   "orSignUpWith": "or sign up with",
+  "orLoginWith": "or login with",
+  "continueWithGoogle": "Continue with Google",
   "termsOfUse": "Terms of use",
   "privacyPolicy": "Privacy Policy",
   "bio": "Bio",
