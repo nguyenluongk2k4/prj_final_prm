@@ -7,14 +7,18 @@ import 'core/theme/app_theme.dart';
 import 'core/router/app_router.dart';
 import 'i18n/strings.g.dart';
 
+import 'package:flutter_callkit_incoming/flutter_callkit_incoming.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:get_it/get_it.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'features/auth/infrastructure/datasources/auth_datasource.dart';
 import 'features/auth/presentation/stores/auth_store.dart';
 import 'features/auth/presentation/stores/presence_store.dart';
+import 'features/call/presentation/models/call_args.dart';
+import 'core/router/app_routes.dart';
 import 'core/services/firebase_messaging_service.dart';
 import 'core/utils/notification_service.dart';
 
@@ -80,6 +84,43 @@ void main() async {
   runApp(TranslationProvider(
     child: const AppRoot(),
   ));
+
+  // Check if app was launched by tapping callkit "Accept" while app was killed
+  WidgetsBinding.instance.addPostFrameCallback((_) async {
+    await _handleCallkitLaunch();
+  });
+}
+
+/// Called once after first frame — navigates to InCallPage if callkit has an active accepted call
+Future<void> _handleCallkitLaunch() async {
+  try {
+    final calls = await FlutterCallkitIncoming.activeCalls();
+    if (calls is List && calls.isNotEmpty) {
+      final call = calls.first as Map?;
+      if (call == null) return;
+      final extra = call['extra'] as Map? ?? {};
+      final channelId = extra['channel_id']?.toString() ?? '';
+      final callerId = extra['caller_id']?.toString() ?? '';
+      final receiverId = extra['receiver_id']?.toString() ?? '';
+      final isVideo = extra['is_video']?.toString() == 'true';
+      final callerName = call['nameCaller']?.toString() ?? 'Người dùng';
+
+      if (channelId.isEmpty || callerId.isEmpty) return;
+
+      final args = CallArgs(
+        channelId: channelId,
+        localUserId: receiverId,
+        remoteUserId: callerId,
+        remoteName: callerName,
+        remoteAvatarUrl: null,
+        isVideo: isVideo,
+        isIncoming: true,
+      );
+
+      await Future.delayed(const Duration(milliseconds: 500));
+      AppRouter.router.push(AppRoutes.callActive, extra: args);
+    }
+  } catch (_) {}
 }
 
 class AppRoot extends StatefulWidget {
@@ -97,6 +138,15 @@ class _AppRootState extends State<AppRoot> with WidgetsBindingObserver {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
     _presenceStore.forcePing();
+    _requestOverlayPermission();
+  }
+
+  /// Request SYSTEM_ALERT_WINDOW — needed for full-screen call when app is killed
+  Future<void> _requestOverlayPermission() async {
+    final status = await Permission.systemAlertWindow.status;
+    if (!status.isGranted) {
+      await Permission.systemAlertWindow.request();
+    }
   }
 
   @override

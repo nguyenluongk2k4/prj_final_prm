@@ -1,4 +1,7 @@
+import 'dart:async';
+
 import 'package:agora_rtc_engine/agora_rtc_engine.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:permission_handler/permission_handler.dart';
@@ -25,6 +28,8 @@ class _InCallPageState extends State<InCallPage> {
   bool _videoEnabled = false;
   bool _frontCamera = true;
   String? _error;
+  Timer? _noAnswerTimer;
+
   static const bool _useTempAgoraConfig = false;
   static const String _tempAppId = 'd4d165d27296449b980a873124010d74';
   static const String _tempChannel = 'aa';
@@ -35,41 +40,32 @@ class _InCallPageState extends State<InCallPage> {
   void initState() {
     super.initState();
     _videoEnabled = widget.args.isVideo;
-    print('[Agora] init call channel=${widget.args.channelId} user=${widget.args.localUserId}');
     _setupCall();
   }
 
   @override
   void dispose() {
+    _noAnswerTimer?.cancel();
     _leaveChannel();
     super.dispose();
   }
 
   Future<void> _setupCall() async {
     try {
-      print('[Agora] setup start');
-      final appId = _useTempAgoraConfig
-          ? _tempAppId
-          : dotenv.env['AGORA_APP_ID'];
+      final appId = _useTempAgoraConfig ? _tempAppId : dotenv.env['AGORA_APP_ID'];
       if (appId == null || appId.isEmpty) {
-        print('[Agora] missing AGORA_APP_ID');
         setState(() => _error = 'AGORA_APP_ID is missing');
         return;
       }
-      print('[Agora] appId length=${appId.length} head=${appId.substring(0, 4)} tail=${appId.substring(appId.length - 4)}');
 
-      final channelId = _useTempAgoraConfig
-          ? _tempChannel
-          : widget.args.channelId;
+      final channelId = _useTempAgoraConfig ? _tempChannel : widget.args.channelId;
 
       final permissionsOk = await _ensurePermissions();
       if (!permissionsOk) {
-        print('[Agora] permissions denied');
         setState(() => _error = 'Permissions are required for calling');
         return;
       }
 
-      print('[Agora] create engine');
       final engine = createAgoraRtcEngine();
       await engine.initialize(
         RtcEngineContext(
@@ -77,57 +73,54 @@ class _InCallPageState extends State<InCallPage> {
           channelProfile: ChannelProfileType.channelProfileCommunication,
         ),
       );
-      print('[Agora] engine initialized');
+
       engine.registerEventHandler(
         RtcEngineEventHandler(
           onJoinChannelSuccess: (connection, elapsed) {
             if (!mounted) return;
-            print('[Agora] join success channel=${connection.channelId}');
             _applySpeakerphone();
             setState(() => _isConnecting = false);
+            // Auto end if remote doesn't join within 60s
+            _noAnswerTimer = Timer(const Duration(seconds: 60), () {
+              if (mounted && _remoteUid == null) _endCall();
+            });
           },
           onUserJoined: (connection, uid, elapsed) {
             if (!mounted) return;
-            print('[Agora] remote joined uid=$uid');
+            _noAnswerTimer?.cancel();
             setState(() => _remoteUid = uid);
           },
           onUserOffline: (connection, uid, reason) {
             if (!mounted) return;
-            print('[Agora] remote offline uid=$uid reason=$reason');
             setState(() => _remoteUid = null);
-            _endCall();
+            if (reason == UserOfflineReasonType.userOfflineDropped ||
+                reason == UserOfflineReasonType.userOfflineQuit) {
+              _endCall();
+            }
           },
           onLeaveChannel: (connection, stats) {
             if (!mounted) return;
-            print('[Agora] leave channel');
             setState(() => _remoteUid = null);
           },
           onError: (err, msg) {
             if (!mounted) return;
-            final mapped = _mapAgoraError(err, msg);
-            print('[Agora] error code=$err msg=$msg mapped=$mapped');
-            setState(() => _error = mapped);
+            setState(() => _error = _mapAgoraError(err, msg));
           },
         ),
       );
 
       try {
-        print('[Agora] enable audio');
         await engine.enableAudio();
       } catch (err) {
-        print('[Agora] enableAudio error: $err');
         setState(() => _error = err.toString());
         return;
       }
 
-
       if (_videoEnabled) {
         try {
-          print('[Agora] enable video');
           await engine.enableVideo();
           await engine.startPreview();
         } catch (err) {
-          print('[Agora] enableVideo/startPreview error: $err');
           setState(() => _error = err.toString());
           return;
         }
@@ -136,19 +129,15 @@ class _InCallPageState extends State<InCallPage> {
       String token;
       if (_useTempAgoraConfig) {
         token = _tempToken;
-        print('[Agora] using temp token');
       } else {
         final tokenService = CallTokenService(Supabase.instance.client);
-        print('[Agora] fetch token');
         token = await tokenService.fetchToken(
           channelId: channelId,
           userId: widget.args.localUserId,
           isPublisher: true,
         );
-        print('[Agora] token length=${token.length}');
       }
 
-      print('[Agora] join channel (user account)');
       await engine.joinChannelWithUserAccount(
         token: token,
         channelId: channelId,
@@ -161,15 +150,9 @@ class _InCallPageState extends State<InCallPage> {
         ),
       );
 
-      if (mounted) {
-        print('[Agora] setup done');
-        setState(() => _engine = engine);
-      }
+      if (mounted) setState(() => _engine = engine);
     } catch (err) {
-      if (mounted) {
-        print('[Agora] setup error: $err');
-        setState(() => _error = err.toString());
-      }
+      if (mounted) setState(() => _error = err.toString());
     }
   }
 
@@ -220,11 +203,8 @@ class _InCallPageState extends State<InCallPage> {
   Future<void> _applySpeakerphone() async {
     if (_engine == null) return;
     try {
-      print('[Agora] apply speakerphone=${_speakerOn ? 'on' : 'off'}');
       await _engine!.setEnableSpeakerphone(_speakerOn);
-    } catch (err) {
-      print('[Agora] apply speakerphone error: $err');
-    }
+    } catch (_) {}
   }
 
   void _toggleVideo() {
@@ -245,10 +225,9 @@ class _InCallPageState extends State<InCallPage> {
   }
 
   void _endCall() {
+    _noAnswerTimer?.cancel();
     _leaveChannel();
-    if (mounted) {
-      Navigator.of(context).pop();
-    }
+    if (mounted) Navigator.of(context).pop();
   }
 
   @override
@@ -263,9 +242,12 @@ class _InCallPageState extends State<InCallPage> {
         child: Stack(
           children: [
             Positioned.fill(
-              child: isVideo ? _buildVideoView(name, avatarUrl) : _buildAudioView(name, avatarUrl),
+              child: isVideo
+                  ? _buildVideoView(name, avatarUrl)
+                  : _buildAudioView(name, avatarUrl),
             ),
-            if (isVideo) Positioned(top: 16, right: 16, child: _buildLocalPreview()),
+            if (isVideo)
+              Positioned(top: 16, right: 16, child: _buildLocalPreview()),
             Positioned(
               top: 24,
               left: 24,
@@ -298,10 +280,7 @@ class _InCallPageState extends State<InCallPage> {
 
     return Column(
       children: [
-        Text(
-          name,
-          style: AppTextStyles.h2.copyWith(color: Colors.white),
-        ),
+        Text(name, style: AppTextStyles.h2.copyWith(color: Colors.white)),
         const SizedBox(height: 4),
         Text(
           statusText,
@@ -315,7 +294,6 @@ class _InCallPageState extends State<InCallPage> {
     if (_remoteUid == null || _engine == null) {
       return _buildAudioView(name, avatarUrl);
     }
-
     return AgoraVideoView(
       controller: VideoViewController.remote(
         rtcEngine: _engine!,
@@ -326,10 +304,7 @@ class _InCallPageState extends State<InCallPage> {
   }
 
   Widget _buildLocalPreview() {
-    if (_engine == null || !_videoEnabled) {
-      return const SizedBox.shrink();
-    }
-
+    if (_engine == null || !_videoEnabled) return const SizedBox.shrink();
     return Container(
       width: 110,
       height: 150,
@@ -354,7 +329,6 @@ class _InCallPageState extends State<InCallPage> {
     final initials = name.trim().isNotEmpty
         ? name.trim().split(' ').map((p) => p[0]).take(2).join()
         : '?';
-
     return Container(
       color: Colors.black,
       child: Center(
@@ -364,17 +338,15 @@ class _InCallPageState extends State<InCallPage> {
             CircleAvatar(
               radius: 60,
               backgroundColor: Colors.white10,
-              foregroundImage: avatarUrl.isNotEmpty ? NetworkImage(avatarUrl) : null,
+              foregroundImage:
+                  avatarUrl.isNotEmpty ? NetworkImage(avatarUrl) : null,
               child: Text(
                 initials.toUpperCase(),
                 style: AppTextStyles.h2.copyWith(color: Colors.white),
               ),
             ),
             const SizedBox(height: 16),
-            Text(
-              name,
-              style: AppTextStyles.h3.copyWith(color: Colors.white),
-            ),
+            Text(name, style: AppTextStyles.h3.copyWith(color: Colors.white)),
           ],
         ),
       ),
@@ -383,7 +355,6 @@ class _InCallPageState extends State<InCallPage> {
 
   Widget _buildControls() {
     final isVideo = widget.args.isVideo;
-
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
@@ -471,7 +442,7 @@ class _ErrorBanner extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
       decoration: BoxDecoration(
-        color: Colors.red.withOpacity(0.2),
+        color: Colors.red.withValues(alpha: 0.2),
         borderRadius: BorderRadius.circular(12),
         border: Border.all(color: Colors.redAccent),
       ),

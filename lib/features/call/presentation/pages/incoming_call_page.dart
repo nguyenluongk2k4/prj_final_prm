@@ -1,8 +1,8 @@
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_callkit_incoming/flutter_callkit_incoming.dart';
 import 'package:go_router/go_router.dart';
-import 'package:prj_final_prm/core/theme/app_color_scheme.dart';
 import '../../../../core/router/app_routes.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../models/call_args.dart';
@@ -20,11 +20,13 @@ class _IncomingCallPageState extends State<IncomingCallPage> {
   double _sliderValue = 0;
 
   void _acceptCall() {
+    FlutterCallkitIncoming.endAllCalls();
     final nextArgs = widget.args.copyWith(isIncoming: true);
     context.pushReplacement(AppRoutes.callActive, extra: nextArgs);
   }
 
   void _declineCall() {
+    FlutterCallkitIncoming.endAllCalls();
     context.pop();
   }
 
@@ -127,7 +129,6 @@ class _BlurredBackdrop extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final c = context.appColors;
     return Container(
       decoration: const BoxDecoration(
         gradient: LinearGradient(

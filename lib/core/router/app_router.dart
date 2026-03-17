@@ -163,8 +163,27 @@ class AppRouter {
         path: AppRoutes.callIncoming,
         name: AppRoutes.callIncomingName,
         builder: (context, state) {
-          final args = state.extra as CallArgs;
-          return IncomingCallPage(args: args);
+          // From normal navigation: extra is CallArgs
+          if (state.extra is CallArgs) {
+            return IncomingCallPage(args: state.extra as CallArgs);
+          }
+          // From IncomingCallActivity via query params
+          final channelId = state.uri.queryParameters['channel_id'] ?? '';
+          final callerId = state.uri.queryParameters['caller_id'] ?? '';
+          final receiverId = state.uri.queryParameters['receiver_id'] ?? '';
+          final isVideo = state.uri.queryParameters['is_video'] == 'true';
+          final callerName = state.uri.queryParameters['caller_name'] ?? 'Người dùng';
+          return IncomingCallPage(
+            args: CallArgs(
+              channelId: channelId,
+              localUserId: receiverId,
+              remoteUserId: callerId,
+              remoteName: callerName,
+              remoteAvatarUrl: null,
+              isVideo: isVideo,
+              isIncoming: true,
+            ),
+          );
         },
       ),
       GoRoute(

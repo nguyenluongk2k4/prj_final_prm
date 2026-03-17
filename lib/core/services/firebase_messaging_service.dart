@@ -3,9 +3,11 @@ import 'dart:async';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/foundation.dart';
+import 'package:flutter_callkit_incoming/entities/entities.dart';
+import 'package:flutter_callkit_incoming/flutter_callkit_incoming.dart';
 import 'package:injectable/injectable.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-import 'package:prj_final_prm/core/utils/notification_service.dart';
+import 'package:uuid/uuid.dart';
 import 'package:prj_final_prm/core/router/app_routes.dart';
 import 'package:prj_final_prm/core/router/app_router.dart';
 import 'package:prj_final_prm/features/call/presentation/models/call_args.dart';
@@ -13,30 +15,82 @@ import 'package:prj_final_prm/features/call/presentation/models/call_args.dart';
 @pragma('vm:entry-point')
 Future<void> firebaseMessagingBackgroundHandler(RemoteMessage message) async {
   await Firebase.initializeApp();
-  if (kDebugMode) {
-    debugPrint('[FCM] background message: ${message.messageId}');
-  }
+  final data = message.data;
+  final type = data['type']?.toString().toLowerCase();
+  if (type != 'call') return;
 
-  // Show full-screen call notification when app is killed/background
-  if (message.data['type']?.toString().toLowerCase() == 'call') {
-    final data = message.data;
-    final channelId = data['channel']?.toString().trim() ?? '';
-    final callerId = data['caller_id']?.toString().trim() ?? '';
-    final receiverId = data['receiver_id']?.toString().trim() ?? '';
-    final callType = data['call_type']?.toString().trim().toLowerCase() ?? 'voice';
-    final callerName = data['caller_name']?.toString().trim() ?? 'Người dùng';
+  final channelId = data['channel']?.toString().trim() ?? '';
+  final callerId = data['caller_id']?.toString().trim() ?? '';
+  final receiverId = data['receiver_id']?.toString().trim() ?? '';
+  final callType = data['call_type']?.toString().toLowerCase() ?? 'voice';
+  final callerName = data['caller_name']?.toString().trim() ?? 'Người dùng';
 
-    if (channelId.isNotEmpty && callerId.isNotEmpty) {
-      await NotificationService.init();
-      await NotificationService.showIncomingCallNotification(
-        callerName: callerName,
-        channelId: channelId,
-        callerId: callerId,
-        receiverId: receiverId,
-        isVideo: callType == 'video',
-      );
-    }
-  }
+  if (channelId.isEmpty || callerId.isEmpty) return;
+
+  await _showCallkit(
+    uuid: const Uuid().v4(),
+    channelId: channelId,
+    callerId: callerId,
+    receiverId: receiverId,
+    callerName: callerName,
+    isVideo: callType == 'video',
+    avatarUrl: data['caller_avatar']?.toString(),
+  );
+}
+
+Future<void> _showCallkit({
+  required String uuid,
+  required String channelId,
+  required String callerId,
+  required String receiverId,
+  required String callerName,
+  required bool isVideo,
+  String? avatarUrl,
+}) async {
+  final params = CallKitParams(
+    id: uuid,
+    nameCaller: callerName,
+    appName: 'Heart Link',
+    avatar: avatarUrl,
+    handle: channelId,
+    type: isVideo ? 1 : 0,
+    duration: 60000,
+    textAccept: 'Nghe máy',
+    textDecline: 'Từ chối',
+    extra: {
+      'channel_id': channelId,
+      'caller_id': callerId,
+      'receiver_id': receiverId,
+      'is_video': isVideo.toString(),
+    },
+    android: const AndroidParams(
+      isCustomNotification: true,
+      isShowLogo: false,
+      ringtonePath: 'incoming_call',
+      backgroundColor: '#1B1B1B',
+      actionColor: '#4CAF50',
+      textColor: '#ffffff',
+      incomingCallNotificationChannelName: 'Incoming Calls',
+      missedCallNotificationChannelName: 'Missed Calls',
+    ),
+    ios: const IOSParams(
+      iconName: 'CallKitLogo',
+      handleType: 'generic',
+      supportsVideo: true,
+      maximumCallGroups: 1,
+      maximumCallsPerCallGroup: 1,
+      audioSessionMode: 'default',
+      audioSessionActive: true,
+      audioSessionPreferredSampleRate: 44100.0,
+      audioSessionPreferredIOBufferDuration: 0.005,
+      supportsDTMF: false,
+      supportsHolding: false,
+      supportsGrouping: false,
+      supportsUngrouping: false,
+      ringtonePath: 'system_ringtone_default',
+    ),
+  );
+  await FlutterCallkitIncoming.showCallkitIncoming(params);
 }
 
 @lazySingleton
@@ -62,146 +116,84 @@ class FirebaseMessagingService {
     );
 
     final token = await _messaging.getToken();
-    if (kDebugMode) {
-      debugPrint('[FCM] token=$token');
-    }
+    if (kDebugMode) debugPrint('[FCM] token=$token');
     await _saveToken(token);
 
-    _messaging.onTokenRefresh.listen((newToken) async {
-      if (kDebugMode) {
-        debugPrint('[FCM] token refreshed');
-      }
-      await _saveToken(newToken);
-    });
+    _messaging.onTokenRefresh.listen((t) async => _saveToken(t));
 
-    // Handle notification tap when app is in background (not killed)
-    NotificationService.setOnNotificationTap(_handleLocalNotificationTap);
+    // Listen for callkit events (accept/decline from notification)
+    FlutterCallkitIncoming.onEvent.listen(_onCallkitEvent);
 
     FirebaseMessaging.onMessage.listen((message) {
-      if (kDebugMode) {
-        debugPrint('[FCM] foreground message: ${message.messageId}');
-      }
+      if (kDebugMode) debugPrint('[FCM] foreground: ${message.messageId}');
       if (_isCallMessage(message)) {
         unawaited(_handleCallMessage(message));
-        return;
       }
-      NotificationService.showForegroundNotification(message);
+      // non-call foreground notifications handled by FCM itself
     });
 
     FirebaseMessaging.onMessageOpenedApp.listen((message) {
-      if (kDebugMode) {
-        debugPrint('[FCM] opened message: ${message.messageId}');
-      }
-      if (_isCallMessage(message)) {
-        unawaited(_handleCallMessage(message));
-      }
+      if (_isCallMessage(message)) unawaited(_handleCallMessage(message));
     });
 
-    // App launched from killed state via notification tap
-    final initialMessage = await _messaging.getInitialMessage();
-    if (initialMessage != null && _isCallMessage(initialMessage)) {
-      await _handleCallMessage(initialMessage);
-    }
-
-    // Check if app was opened by tapping local call notification
-    final launchDetails = await NotificationService.getLaunchDetails();
-    if (launchDetails?.didNotificationLaunchApp == true) {
-      final payload = launchDetails?.notificationResponse?.payload;
-      if (payload != null) {
-        _handleLocalNotificationTap(payload);
-      }
+    final initial = await _messaging.getInitialMessage();
+    if (initial != null && _isCallMessage(initial)) {
+      await _handleCallMessage(initial);
     }
 
     _authSub ??= _supabase.auth.onAuthStateChange.listen((data) async {
       if (data.session?.user == null) return;
-      final freshToken = await _messaging.getToken();
-      await _saveToken(freshToken);
+      await _saveToken(await _messaging.getToken());
     });
   }
 
-  Future<void> _saveToken(String? token) async {
-    if (token == null || token.isEmpty) return;
-    final session = _supabase.auth.currentSession;
-    if (session == null) return;
-    final expiresAt = session.expiresAt;
-    if (expiresAt != null) {
-      final nowSeconds = DateTime.now().millisecondsSinceEpoch ~/ 1000;
-      if (nowSeconds >= expiresAt) {
-        try {
-          await _supabase.auth.refreshSession();
-        } catch (e) {
-          if (kDebugMode) {
-            debugPrint('[FCM] failed to refresh session: $e');
-          }
-          return;
-        }
-      }
-    }
+  void _onCallkitEvent(CallEvent? event) {
+    if (event == null) return;
+    final extra = event.body['extra'] as Map? ?? {};
+    final channelId = extra['channel_id']?.toString() ?? '';
+    final callerId = extra['caller_id']?.toString() ?? '';
+    final receiverId = extra['receiver_id']?.toString() ?? '';
+    final isVideo = extra['is_video']?.toString() == 'true';
+    final callerName = event.body['nameCaller']?.toString() ?? 'Người dùng';
 
-    final userId = _supabase.auth.currentUser?.id;
-    if (userId == null) return;
-    try {
-      final response = await _supabase
-          .from('profiles')
-          .update({'fcm_token': token})
-          .eq('user_id', userId)
-          .select('user_id,fcm_token');
-      if (kDebugMode) {
-        debugPrint('[FCM] token saved for $userId: $response');
-      }
-    } catch (e) {
-      if (kDebugMode) {
-        debugPrint('[FCM] failed to save token: $e');
-      }
+    switch (event.event) {
+      case Event.actionCallAccept:
+        final args = CallArgs(
+          channelId: channelId,
+          localUserId: receiverId,
+          remoteUserId: callerId,
+          remoteName: callerName,
+          remoteAvatarUrl: null,
+          isVideo: isVideo,
+          isIncoming: true,
+        );
+        Future.delayed(const Duration(milliseconds: 300), () {
+          AppRouter.router.push(AppRoutes.callActive, extra: args);
+        });
+        break;
+      case Event.actionCallDecline:
+      case Event.actionCallEnded:
+        FlutterCallkitIncoming.endAllCalls();
+        break;
+      default:
+        break;
     }
   }
 
-  void _handleLocalNotificationTap(String payload) {
-    // payload format: "call|channelId|callerId|receiverId|voice/video"
-    final parts = payload.split('|');
-    if (parts.length < 5 || parts[0] != 'call') return;
-
-    final channelId = parts[1];
-    final callerId = parts[2];
-    final receiverId = parts[3];
-    final isVideo = parts[4] == 'video';
-
-    NotificationService.cancelCallNotification();
-
-    final args = CallArgs(
-      channelId: channelId,
-      localUserId: receiverId,
-      remoteUserId: callerId,
-      remoteName: 'Người dùng',
-      remoteAvatarUrl: null,
-      isVideo: isVideo,
-      isIncoming: true,
-    );
-
-    AppRouter.router.push(AppRoutes.callIncoming, extra: args);
-  }
-
-  bool _isCallMessage(RemoteMessage message) {
-    final type = message.data['type']?.toString().toLowerCase();
-    return type == 'call';
-  }
+  bool _isCallMessage(RemoteMessage message) =>
+      message.data['type']?.toString().toLowerCase() == 'call';
 
   Future<void> _handleCallMessage(RemoteMessage message) async {
     final data = message.data;
     final channelId = data['channel']?.toString().trim() ?? '';
     final callerId = data['caller_id']?.toString().trim() ?? '';
     final receiverId = data['receiver_id']?.toString().trim() ?? '';
-    final callType = data['call_type']?.toString().trim().toLowerCase() ?? 'voice';
+    final callType = data['call_type']?.toString().toLowerCase() ?? 'voice';
 
-    if (channelId.isEmpty || callerId.isEmpty || receiverId.isEmpty) {
-      if (kDebugMode) {
-        debugPrint('[FCM] missing call payload fields');
-      }
-      return;
-    }
+    if (channelId.isEmpty || callerId.isEmpty) return;
 
-    String remoteName = 'Người dùng';
-    String? remoteAvatarUrl;
+    String callerName = 'Người dùng';
+    String? avatarUrl;
     try {
       final profile = await _supabase
           .from('profiles')
@@ -209,26 +201,37 @@ class FirebaseMessagingService {
           .eq('user_id', callerId)
           .maybeSingle();
       if (profile != null) {
-        final name = profile['display_name']?.toString().trim() ?? '';
-        if (name.isNotEmpty) remoteName = name;
-        remoteAvatarUrl = profile['avatar_url']?.toString();
+        final n = profile['display_name']?.toString().trim() ?? '';
+        if (n.isNotEmpty) callerName = n;
+        avatarUrl = profile['avatar_url']?.toString();
       }
-    } catch (e) {
-      if (kDebugMode) {
-        debugPrint('[FCM] failed to load caller profile: $e');
-      }
-    }
+    } catch (_) {}
 
-    final args = CallArgs(
+    await _showCallkit(
+      uuid: const Uuid().v4(),
       channelId: channelId,
-      localUserId: receiverId,
-      remoteUserId: callerId,
-      remoteName: remoteName,
-      remoteAvatarUrl: remoteAvatarUrl,
+      callerId: callerId,
+      receiverId: receiverId,
+      callerName: callerName,
       isVideo: callType == 'video',
-      isIncoming: true,
+      avatarUrl: avatarUrl,
     );
+  }
 
-    AppRouter.router.push(AppRoutes.callIncoming, extra: args);
+  Future<void> _saveToken(String? token) async {
+    if (token == null || token.isEmpty) return;
+    final session = _supabase.auth.currentSession;
+    if (session == null) return;
+    final userId = _supabase.auth.currentUser?.id;
+    if (userId == null) return;
+    try {
+      await _supabase
+          .from('profiles')
+          .update({'fcm_token': token})
+          .eq('user_id', userId);
+      if (kDebugMode) debugPrint('[FCM] token saved for $userId');
+    } catch (e) {
+      if (kDebugMode) debugPrint('[FCM] failed to save token: $e');
+    }
   }
 }

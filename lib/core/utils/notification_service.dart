@@ -1,3 +1,5 @@
+import 'dart:typed_data';
+
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:permission_handler/permission_handler.dart';
@@ -5,6 +7,7 @@ import 'package:permission_handler/permission_handler.dart';
 class NotificationService {
   static final FlutterLocalNotificationsPlugin _plugin =
       FlutterLocalNotificationsPlugin();
+
   static const AndroidNotificationChannel _channel =
       AndroidNotificationChannel(
     'high_importance_channel',
@@ -12,12 +15,17 @@ class NotificationService {
     description: 'Used for important notifications.',
     importance: Importance.high,
   );
-  static const AndroidNotificationChannel _callChannel =
+
+  static final AndroidNotificationChannel _callChannel =
       AndroidNotificationChannel(
     'call_channel',
     'Incoming Calls',
     description: 'Used for incoming call notifications.',
     importance: Importance.max,
+    sound: const RawResourceAndroidNotificationSound('incoming_call'),
+    playSound: true,
+    enableVibration: true,
+    vibrationPattern: Int64List.fromList([0, 1000, 500, 1000, 500, 1000]),
   );
 
   static void Function(String payload)? _onTap;
@@ -55,7 +63,7 @@ class NotificationService {
     return _plugin.getNotificationAppLaunchDetails();
   }
 
-  /// Show full-screen incoming call notification (works when app is killed/background)
+  /// Show full-screen incoming call notification — wakes screen, plays ringtone
   static Future<void> showIncomingCallNotification({
     required String callerName,
     required String channelId,
@@ -75,6 +83,11 @@ class NotificationService {
         ongoing: true,
         autoCancel: false,
         icon: '@mipmap/ic_launcher',
+        sound: const RawResourceAndroidNotificationSound('incoming_call'),
+        playSound: true,
+        enableVibration: true,
+        vibrationPattern: Int64List.fromList([0, 1000, 500, 1000, 500, 1000]),
+        additionalFlags: Int32List.fromList([4]),
       ),
     );
 
