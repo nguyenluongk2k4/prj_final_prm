@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
 import '../../../../core/di/injection.dart';
 import '../../../../core/router/app_routes.dart';
@@ -46,6 +47,13 @@ class _LoginPageState extends State<LoginPage> {
       if (_authStore.isAuthenticated && mounted) {
         context.goNamed(AppRoutes.homeName);
       }
+    }
+  }
+
+  void _handleGoogleLogin() async {
+    await _authStore.signInWithGoogle();
+    if (_authStore.isAuthenticated && mounted) {
+      context.goNamed(AppRoutes.homeName);
     }
   }
 
@@ -142,6 +150,50 @@ class _LoginPageState extends State<LoginPage> {
                     onPressed: _authStore.isLoading ? null : _handleLogin,
                   ),
                 ),
+                const SizedBox(height: 24),
+
+                // Divider with text
+                Row(
+                  children: [
+                    Expanded(
+                      child: Divider(color: c.border, thickness: 0.5),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 14),
+                      child: Text(
+                        t.orLoginWith,
+                        style: AppTextStyles.bodySmall.copyWith(
+                          color: c.text70,
+                        ),
+                      ),
+                    ),
+                    Expanded(
+                      child: Divider(color: c.border, thickness: 0.5),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 24),
+
+                // Social buttons
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    _buildSocialButton(
+                      assetPath: 'assets/images/facebook_icon.svg',
+                      onPressed: () {},
+                    ),
+                    const SizedBox(width: 20),
+                    _buildSocialButton(
+                      assetPath: 'assets/images/google_icon.svg',
+                      onPressed: _authStore.isLoading ? () {} : _handleGoogleLogin,
+                    ),
+                    const SizedBox(width: 20),
+                    _buildSocialButton(
+                      assetPath: 'assets/images/apple_icon.svg',
+                      onPressed: () {},
+                    ),
+                  ],
+                ),
                 const SizedBox(height: 16),
 
                 // Sign up link
@@ -169,6 +221,20 @@ class _LoginPageState extends State<LoginPage> {
             ),
           ),
         ),
+      ),
+    );
+  }
+
+  Widget _buildSocialButton({
+    required String assetPath,
+    required VoidCallback onPressed,
+  }) {
+    return SizedBox(
+      width: 64,
+      height: 64,
+      child: IconButton(
+        icon: SvgPicture.asset(assetPath),
+        onPressed: onPressed,
       ),
     );
   }

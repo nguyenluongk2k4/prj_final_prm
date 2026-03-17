@@ -227,6 +227,46 @@ abstract class _AuthStore with Store {
   }
 
   @action
+  Future<void> signInWithGoogle() async {
+    isLoading = true;
+    errorMessage = null;
+    successMessage = null;
+
+    final response = await authDatasource.signInWithGoogle();
+
+    if (response.success) {
+      currentUser = response.data;
+      isAuthenticated = true;
+      successMessage = 'Google login successful';
+    } else if (response.errorMessage == 'pending_oauth') {
+      // OAuth flow đang mở browser, auth listener sẽ xử lý
+      // Không set error
+    } else {
+      errorMessage = response.errorMessage;
+      isAuthenticated = false;
+    }
+
+    isLoading = false;
+  }
+
+  @action
+  Future<void> handleOAuthCallback() async {
+    isLoading = true;
+    errorMessage = null;
+
+    final response = await authDatasource.handleOAuthCallback();
+
+    if (response.success) {
+      currentUser = response.data;
+      isAuthenticated = true;
+    } else {
+      errorMessage = response.errorMessage;
+    }
+
+    isLoading = false;
+  }
+
+  @action
   Future<void> logout() async {
     isLoading = true;
     errorMessage = null;

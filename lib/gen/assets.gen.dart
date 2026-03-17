@@ -17,11 +17,47 @@ import 'package:vector_graphics/vector_graphics.dart' as _vg;
 class $AssetsAnimationsGen {
   const $AssetsAnimationsGen();
 
+  /// File path: assets/animations/Chat - Copy.lottie
+  String get chatCopyLottie => 'assets/animations/Chat - Copy.lottie';
+
+  /// File path: assets/animations/Chat - Copy.rar
+  String get chatCopyRar => 'assets/animations/Chat - Copy.rar';
+
+  /// File path: assets/animations/Chat.json
+  String get chatJson => 'assets/animations/Chat.json';
+
+  /// File path: assets/animations/Chat.lottie
+  String get chatLottie => 'assets/animations/Chat.lottie';
+
+  /// File path: assets/animations/Dating app Lottie JSON animation.json
+  String get datingAppLottieJSONAnimationJson =>
+      'assets/animations/Dating app Lottie JSON animation.json';
+
+  /// File path: assets/animations/Dating app Lottie JSON animation.lottie
+  String get datingAppLottieJSONAnimationLottie =>
+      'assets/animations/Dating app Lottie JSON animation.lottie';
+
+  /// File path: assets/animations/Firery Passion.json
+  String get fireryPassionJson => 'assets/animations/Firery Passion.json';
+
+  /// File path: assets/animations/Firery Passion.lottie
+  String get fireryPassionLottie => 'assets/animations/Firery Passion.lottie';
+
   /// File path: assets/animations/splash.lottie
   String get splash => 'assets/animations/splash.lottie';
 
   /// List of all assets
-  List<String> get values => [splash];
+  List<String> get values => [
+    chatCopyLottie,
+    chatCopyRar,
+    chatJson,
+    chatLottie,
+    datingAppLottieJSONAnimationJson,
+    datingAppLottieJSONAnimationLottie,
+    fireryPassionJson,
+    fireryPassionLottie,
+    splash,
+  ];
 }
 
 class $AssetsIconsGen {

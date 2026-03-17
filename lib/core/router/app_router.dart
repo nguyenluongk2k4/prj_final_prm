@@ -203,7 +203,14 @@ class AppRouter {
     ],
     // Handle deep links
     redirect: (context, state) {
-      // Add authentication logic here if needed
+      final location = state.uri.toString();
+      // OAuth callback: full URI is heartlink://login-callback/?code=...
+      // GoRouter can't match custom scheme URIs as paths,
+      // so intercept here and redirect to home.
+      // Supabase auth listener will handle the session automatically.
+      if (location.contains('login-callback')) {
+        return AppRoutes.home;
+      }
       return null;
     },
   );

@@ -236,6 +236,28 @@ mixin _$AuthStore on _AuthStore, Store {
     return _$uploadAvatarAsyncAction.run(() => super.uploadAvatar(imageFile));
   }
 
+  late final _$signInWithGoogleAsyncAction = AsyncAction(
+    '_AuthStore.signInWithGoogle',
+    context: context,
+  );
+
+  @override
+  Future<void> signInWithGoogle() {
+    return _$signInWithGoogleAsyncAction.run(() => super.signInWithGoogle());
+  }
+
+  late final _$handleOAuthCallbackAsyncAction = AsyncAction(
+    '_AuthStore.handleOAuthCallback',
+    context: context,
+  );
+
+  @override
+  Future<void> handleOAuthCallback() {
+    return _$handleOAuthCallbackAsyncAction.run(
+      () => super.handleOAuthCallback(),
+    );
+  }
+
   late final _$logoutAsyncAction = AsyncAction(
     '_AuthStore.logout',
     context: context,

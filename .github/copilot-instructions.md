@@ -1,336 +1,205 @@
-# Claude Code Instructions for PRM Dating App
+# Copilot AI Instructions - PRM (Profile Matching App)
 
-This file provides Claude Code with essential context for working efficiently on this Flutter dating application.
+**Project**: PRM - Dating & Matching Application  
+**Tech Stack**: Flutter + Dart + Supabase + MobX  
+**Architecture**: Clean Architecture (DDD) with three-layer separation  
+**Last Updated**: March 17, 2026
 
-## Quick Start Commands
+---
 
+## Quick Start for AI Assistant
+
+### Essential Commands
 ```bash
-# Install dependencies
-flutter pub get
+# Development
+flutter run                                    # Run app on connected device
+flutter run -d chrome                          # Run on web
+flutter run --verbose                          # Debug mode
 
-# Code generation (required after model changes)
-dart run build_runner build --delete-conflicting-outputs
+# Code Generation (ALWAYS run after model/store changes)
+flutter pub run build_runner build --delete-conflicting-outputs
+flutter pub run build_runner watch --delete-conflicting-outputs
 
-# Regenerate translations (after slang.yaml changes)
-dart run slang
+# Analysis & Formatting
+flutter analyze                                # Check lint errors
+dart format lib                                # Auto-format all code
+flutter test                                   # Run tests
 
-# Format code
-dart format .
-
-# Run static analysis
-flutter analyze
-
-# Run the app (Android/iOS/Web)
-flutter run
-
-# Run tests
-flutter test
+# Dependencies
+flutter pub get                                # Install dependencies
+flutter pub upgrade                            # Check for updates
 ```
 
-## Project Overview
-
-**PRM** is a Flutter dating app using **Clean Architecture with Domain-Driven Design (DDD)**, featuring:
-- Real-time messaging via Tencent Cloud Chat
-- Video calling via Agora RTC
-- Location matching with Google Maps & Mapbox
-- Authentication via Firebase
-- Database & realtime tracking via Supabase
-- Internationalization (EN/VI) via Slang
-
-**Tech Stack:**
-- **State Management**: MobX (flutter_mobx)
-- **DI**: GetIt + Injectable
-- **Navigation**: GoRouter
-- **HTTP Client**: Dio
-- **Functional Programming**: Dartz (Either, Option)
-- **Code Generation**: build_runner, mobx_codegen, json_serializable, freezed, slang
-- **Localization**: Slang (files in `lib/i18n/`)
-- **Platform-specific**: Tencent SDK, Agora RTC, Firebase, Supabase
+### Environment Setup
+1. Copy `.env.example` → `.env` (contains SUPABASE_URL, SUPABASE_ANON_KEY, MAPBOX_ACCESS_TOKEN, etc.)
+2. Run `flutter pub get`
+3. Run `flutter pub run build_runner build --delete-conflicting-outputs`
+4. Run `flutter run`
 
 ---
 
-## Architecture & Code Structure
+## Architecture Overview
 
-### Core Layer (`lib/core/`)
-
-Shared infrastructure and utilities used across all features:
-
+### Three-Layer Clean Architecture
 ```
-lib/core/
-├── di/              # Dependency injection setup (GetIt + Injectable)
-├── errors/          # Error handling (Failures, Exceptions, mappers)
-├── network/         # Dio HTTP client configuration
-├── router/          # GoRouter navigation setup
-├── theme/           # Color schemes, typography, text styles
-├── presentation/    # Base widgets, mixins, extensions
-├── services/        # Background services (notifications, geolocation, etc.)
-├── usecases/        # BaseUseCase abstract class
-├── constants/       # App-wide constants
-├── enums/           # Shared enums
-├── utils/           # Helper functions, extensions
-└── app_stores.dart  # Global MobX stores (auth, user, theme, etc.)
+Presentation Layer (Pages, Stores, Widgets)
+        ↑
+        └─── depends on ───→ Infrastructure Layer (Datasources, Models, Repositories impl)
+                                    ↑
+                                    └─── depends on ───→ Domain Layer (Entities, Abstract Repositories, UseCases)
 ```
 
-**Key Files:**
-- `app_stores.dart` - Global app state (authentication status, user data, theme)
-- `di/` - Service locator registration (models, services, repositories)
-- `errors/failure_mapper.dart` - Maps API errors to user-friendly messages
-- `router/app_router.dart` - Route definitions with deep linking
+**Dependency Rule**: Presentation → Infrastructure → Domain (never reverse)
 
-### Features Layer (`lib/features/`)
+### Layer Responsibilities
 
-Each feature is self-contained, following **DDD + Clean Architecture**:
+#### **Domain Layer** (`lib/features/[feature]/domain/`)
+- ✅ Pure business logic (no Framework, no external services)
+- ✅ Abstract classes only (repositories, use cases, entities)
+- ✅ Immutable data structures (@immutable)
+- ❌ NO database/API calls
+- ❌ NO external package dependencies (except dartz)
+- ❌ NO framework-specific code
 
-```
-lib/features/{feature}/
-├── domain/
-│   ├── entities/            # Pure Dart classes, business logic
-│   ├── repositories/        # Repository interfaces
-│   └── usecases/            # Business logic (UseCase<Output, Input>)
-├── data/
-│   ├── models/              # JSON serializable DTOs (@JsonSerializable)
-│   ├── datasources/         # API calls, local DB, remote calls
-│   │   ├── {feature}_remote_datasource.dart
-│   │   └── {feature}_local_datasource.dart  (if applicable)
-│   └── repositories/        # Concrete implementation, wraps datasources
-└── presentation/
-    ├── mobx/                # MobX stores (*.g.dart generated)
-    │   ├── {feature}_store.dart (@injectable singleton)
-    │   └── events_store.dart (if needed)
-    ├── pages/               # Screen widgets
-    ├── widgets/             # Feature-specific widgets
-    └── mixins/              # State lifecycle mixins
-```
-
-**Example Features:**
-- `auth/` - Firebase authentication (sign up, sign in, password reset)
-- `profile/` - User profile, edit details, preferences
-- `home/` - Discover cards, swipe, recommendations
-- `chat/` - Tencent Cloud Chat messages
-- `call/` - Agora video/voice calls
-- `map/` - Google Maps, location matching
-- `album/` - Photo gallery, media management
-- `onboarding/` - First-time setup flow
-
-### Internationalization (`lib/i18n/`)
-
-- Slang generates translation strings in `strings.dart` and locale-specific files
-- **Files Never Edit Manually**: `strings.dart`, language files - always use `dart run slang` after editing `slang.yaml`
-- **Supported Languages**: English (en.yaml), Vietnamese (vi.yaml)
-
-### Generated Code (`lib/gen/`)
-
-- **DO NOT EDIT** - Auto-generated by build_runner for:
-  - Asset constants (images, animations, fonts)
-  - Fonts registry
-- Regenerate: `dart run build_runner build --delete-conflicting-outputs`
-
----
-
-## Code Style & Conventions
-
-### File Naming
-- **Dart Files**: `snake_case.dart` (e.g., `user_store.dart`, `profile_page.dart`)
-- **Classes/Enums**: `PascalCase`
-- **Variables/Functions**: `lowerCamelCase`
-
-### Formatting & Linting
-- **Auto-format**: `dart format .` (run before commits)
-- **Linting Config**: `analysis_options.yaml` (Flutter recommended lints)
-- **Generated Files**: Never manually edit `*.g.dart`, `*.freezed.dart`, `*.config.dart`
-
-### Code Organization
-
-#### Models (Data Layer)
+**Example**:
 ```dart
-// Use @JsonSerializable for automatic JSON serialization
-@JsonSerializable()
-class UserModel {
+@immutable
+class User {
   final String id;
-  final String name;
+  final String email;
   
-  UserModel({required this.id, required this.name});
-  
-  factory UserModel.fromJson(Map<String, dynamic> json) =>
-      _$UserModelFromJson(json);
-  
-  Map<String, dynamic> toJson() => _$UserModelToJson(this);
+  const User({required this.id, required this.email});
 }
-```
 
-#### Entities (Domain Layer)
-```dart
-// Use Freezed for immutable value objects
-@freezed
-class User with _$User {
-  const factory User({
-    required String id,
-    required String name,
-  }) = _User;
-}
-```
-
-#### Repositories
-```dart
-// Always return Either<Failure, T> from domain repositories
 abstract class UserRepository {
-  Future<Either<Failure, User>> getUser(String id);
+  Future<User> getUserById(String id);
 }
+```
 
-// Data layer implements with error handling
-@Injectable(as: UserRepository)
-class UserRepositoryImpl implements UserRepository {
-  final UserRemoteDataSource _remote;
-  UserRepositoryImpl(this._remote);
-  
-  @override
-  Future<Either<Failure, User>> getUser(String id) async {
+#### **Infrastructure Layer** (`lib/features/[feature]/infrastructure/`)
+- ✅ Implements abstract domain repositories
+- ✅ All external service logic (Supabase, Firebase, APIs)
+- ✅ @JsonSerializable models with fromJson, toJson, copyWith
+- ✅ Wrap all responses in AuthResponse<T> or custom Response
+- ✅ Error handling with try-catch in datasources
+- ✅ Return domain entities (not models) from repositories
+- ❌ NO direct UI imports
+- ❌ NO presentation logic
+
+**Datasource Pattern**:
+```dart
+class AuthDatasource {
+  Future<AuthResponse<UserModel>> login({required String email, required String password}) async {
     try {
-      final model = await _remote.getUser(id);
-      return Right(model.toDomain());
+      final result = await _client.auth.signInWithPassword(email: email, password: password);
+      return AuthResponse.success(UserModel.fromJson(...));
     } catch (e) {
-      return Left(FailureMapper.map(e));
+      return AuthResponse.failure('Login failed: ${e.toString()}');
     }
   }
 }
 ```
 
-#### MobX Stores
+**Model Pattern** (@JsonSerializable):
 ```dart
-// Use @injectable(singleton: true) for global stores
-@injectable
-class UserStore = UserStoreBase with _$UserStore;
-
-abstract class UserStoreBase with Store {
-  @observable
-  User? user;
+@JsonSerializable()
+class UserModel {
+  @JsonKey(name: 'user_id')
+  final String id;
   
-  @action
-  Future<void> loadUser(String id) async {
-    // Implementation
-  }
+  factory UserModel.fromJson(Map<String, dynamic> json) => _$UserModelFromJson(json);
+  Map<String, dynamic> toJson() => _$UserModelToJson(this);
   
-  @computed
-  String get userDisplayName => user?.name ?? 'Unknown';
-}
-```
-
-### Widget Patterns
-- **Prefer** `StatelessWidget` + MobX stores over `StatefulWidget`
-- Use **trailing commas** for multi-line widget trees
-- Extract reusable widgets to separate files in `presentation/widgets/`
-- Use `@Observable` and `@Computed` instead of setState
-
-### Error Handling
-All network operations should return `Either<Failure, T>`:
-```dart
-// NOT: Future<User> or Future<User?>
-// YES: Future<Either<Failure, User>>
-
-// Usage with Dartz pattern matching
-await userRepository.getUser(id).then((result) {
-  result.fold(
-    (failure) => _showError(failure),
-    (user) => _onUserLoaded(user),
+  UserModel copyWith({String? id, String? email}) => UserModel(
+    id: id ?? this.id,
+    email: email ?? this.email,
   );
-});
-```
-
----
-
-## Feature Development Workflow
-
-### 1. Create a New Feature
-```
-lib/features/{feature_name}/
-├── domain/
-│   ├── entities/{feature}_entity.dart
-│   ├── repositories/{feature}_repository.dart
-│   └── usecases/{action}_usecase.dart
-├── data/
-│   ├── models/{feature}_model.dart
-│   ├── datasources/{feature}_remote_datasource.dart
-│   └── repositories/{feature}_repository_impl.dart
-└── presentation/
-    ├── mobx/{feature}_store.dart
-    ├── pages/{feature}_page.dart
-    └── widgets/{custom_widget}.dart
-```
-
-### 2. Define Domain Models & Interfaces
-- Create entity in `domain/entities/`
-- Create repository interface in `domain/repositories/`
-- Use `@freezed` for immutability
-
-### 3. Implement Data Layer
-- Create model in `data/models/` (with `@JsonSerializable`)
-- Create datasource in `data/datasources/`
-- Implement repository in `data/repositories/` (return `Either<Failure, T>`)
-
-### 4. Create Use Cases (if complex business logic)
-```dart
-@injectable
-class GetUserUseCase {
-  final UserRepository _repo;
-  GetUserUseCase(this._repo);
   
-  Future<Either<Failure, User>> call(String id) => _repo.getUser(id);
+  User toDomain() => User(id: id, email: email);
 }
 ```
 
-### 5. Wire DI
-- Add `@injectable(as: SomeRepository)` to implementation class
-- Add `@singleton` or `@lazySingleton` for stores
-- Run `dart run build_runner build --delete-conflicting-outputs`
+#### **Presentation Layer** (`lib/features/[feature]/presentation/`)
+- ✅ Inject Store via GetIt (not create new instances)
+- ✅ Use Observer wrapper for reactive changes
+- ✅ Keep business logic in Store, not in State
+- ✅ Form validation in TextFormField
+- ✅ All async calls in Store methods with isLoading state
+- ✅ Navigate using context.goNamed()
+- ❌ NO direct repository/datasource imports
+- ❌ NO database calls from pages
+- ❌ NO business logic in build() method
 
-### 6. Create MobX Store
+**Store Pattern (MobX)**:
 ```dart
-@injectable
-class YourFeatureStore = YourFeatureStoreBase with _$YourFeatureStore;
+class AuthStore = _AuthStore with _$AuthStore;
 
-abstract class YourFeatureStoreBase with Store {
-  final YourRepository _repository;
-  
-  @observable
-  YourEntity? data;
+abstract class _AuthStore with Store {
+  final AuthDatasource datasource;
   
   @observable
   bool isLoading = false;
   
+  @observable
+  String? errorMessage;
+  
+  @observable
+  UserModel? currentUser;
+  
   @action
-  Future<void> loadData() async {
+  Future<void> login(String email, String password) async {
     isLoading = true;
-    final result = await _repository.getData();
-    result.fold(
-      (failure) => _handleError(failure),
-      (data) => this.data = data,
-    );
+    errorMessage = null;
+    
+    final response = await datasource.login(email: email, password: password);
+    
+    if (response.success) {
+      currentUser = response.data;
+    } else {
+      errorMessage = response.errorMessage;
+    }
+    
     isLoading = false;
   }
+  
+  @action
+  void clearMessages() {
+    errorMessage = null;
+  }
 }
 ```
 
-### 7. Create UI (Pages & Widgets)
+**Page Pattern**:
 ```dart
-class YourFeaturePage extends StatelessWidget {
-  const YourFeaturePage({Key? key}) : super(key: key);
+class LoginPage extends StatefulWidget {
+  @override
+  State<LoginPage> createState() => _LoginPageState();
+}
 
+class _LoginPageState extends State<LoginPage> {
+  final _formKey = GlobalKey<FormState>();
+  late final _authStore = getIt<AuthStore>();
+  
+  void _handleLogin() {
+    if (_formKey.currentState!.validate()) {
+      runAsync(() async {
+        await _authStore.login(_emailCtrl.text, _passwordCtrl.text);
+        
+        if (_authStore.currentUser != null && mounted) {
+          context.goNamed(AppRoutes.mainName);
+        }
+      });
+    }
+  }
+  
   @override
   Widget build(BuildContext context) {
-    // Use Observer wrapper for MobX reactivity
-    return Observer(
-      builder: (_) {
-        final store = GetIt.I<YourFeatureStore>();
-        
-        if (store.isLoading) {
-          return const Center(child: CircularProgressIndicator());
-        }
-        
-        return ListView.builder(
-          itemCount: store.items.length,
-          itemBuilder: (_, i) => _buildItem(store.items[i]),
-        );
-      },
+    return Scaffold(
+      body: Observer(
+        builder: (_) => _authStore.isLoading
+            ? const LoadingWidget()
+            : _buildForm(),
+      ),
     );
   }
 }
@@ -338,235 +207,537 @@ class YourFeaturePage extends StatelessWidget {
 
 ---
 
-## Common Development Tasks
+## Dependency Injection (GetIt)
 
-### Adding a New Screen
-1. Create `lib/features/home/presentation/pages/new_screen_page.dart`
-2. Create MobX store in `lib/features/home/presentation/mobx/new_screen_store.dart` if needed
-3. Register in DI
-4. Add route in `lib/core/router/app_router.dart`
-5. Test navigation
+**CRITICAL RULE**: ***Never use `new` keyword for services. Always inject via GetIt.***
 
-### Adding a New API Endpoint
-1. Create/update model in `data/models/`
-2. Add method to datasource
-3. Implement repository method with error handling (return `Either`)
-4. Create use case if complex logic
-5. Wire in DI
-6. Add store action to call use case
-7. Update UI to bind store
-
-### Adding a New Translation
-1. Edit `slang.yaml` with new translation keys
-2. Run `dart run slang`
-3. Use `context.tr.yourKey` in widgets or just `tr.yourKey` if context available
-
-### Updating Database Schema
-1. Create migration SQL script in `supabase/migrations/`
-2. File format: `{timestamp}_description.sql`
-3. Execute in Supabase SQL Editor
-4. Update corresponding models in code
-
----
-
-## Important Conventions & Gotchas
-
-### ⚠️ DO NOT:
-- **Edit `*.g.dart`, `*.freezed.dart`, `*.config.dart`** - These are generated
-- **Edit `lib/i18n/strings.dart` or locale files** - Use `dart run slang` instead
-- **Hardcode API URLs** - Use `.env` file and `flutter_dotenv`
-- **Push API keys to git** - `.env` is in `.gitignore` for a reason
-- **Create platform-specific code without proper abstraction** - Wrap in services
-
-### ✅ DO:
-- **Use `Either<Failure, T>` for async operations** - Consistent error handling
-- **Inject dependencies via constructor** - Makes testing easier
-- **Mark streams/observables with `@observable`** - Enables MobX reactivity
-- **Use `Observer` widget** to wrap MobX store access
-- **Run code generation** after any model/DI changes: `dart run build_runner build --delete-conflicting-outputs`
-- **Format code** before committing: `dart format .`
-- **Add tests** for critical business logic in `test/`
-
-### Global Stores (from `app_stores.dart`)
-Access via `GetIt.I<AppStores>()`:
-- `authStore` - Authentication state, current user
-- `userStore` - User profile data
-- `themeStore` - Dark/light theme, locale
-- `notificationStore` - In-app notifications
-- Other feature-specific global stores
-
----
-
-## Environment Configuration
-
-### `.env` File Required
-Create `.env` in project root with:
-```env
-SUPABASE_URL=your_supabase_url
-SUPABASE_ANON_KEY=your_supabase_anon_key
-
-FIREBASE_WEB_API_KEY=your_firebase_key
-
-MAPBOX_ACCESS_TOKEN=your_mapbox_token
-
-TENCENT_SDK_APP_ID=your_tencent_app_id
-TENCENT_SECRET_KEY=your_tencent_secret
-
-AGORA_APP_ID=your_agora_app_id
-```
-
-Access in code:
+### Registration Pattern
 ```dart
-import 'package:flutter_dotenv/flutter_dotenv.dart';
-final supabaseUrl = dotenv.env['SUPABASE_URL']!;
+// lib/core/di/auth_module.dart
+@module
+abstract class AuthModule {
+  @lazySingleton
+  AuthDatasource authDatasource(SupabaseClient client) 
+    => AuthDatasource(supabaseClient: client);
+
+  @lazySingleton
+  AuthStore authStore(AuthDatasource datasource) 
+    => AuthStore(authDatasource: datasource);
+}
 ```
 
-📄 See `README_SETUP.md` for detailed service setup instructions.
+### Usage in Pages
+```dart
+// ✅ CORRECT
+class _LoginPageState extends State<LoginPage> {
+  late final _authStore = getIt<AuthStore>();
+}
+
+// ❌ WRONG - Creates hard dependency
+class _LoginPageState extends State<LoginPage> {
+  final _authStore = AuthStore(
+    datasource: AuthDatasource(client: Supabase.instance.client)
+  );
+}
+```
 
 ---
 
-## Git Conventions
+## State Management (MobX)
 
-### Commit Messages
-- Keep commits focused and descriptive
-- Existing history uses **lowercase, no strict prefixes**: "add swipe", "update auth", "fix noti, chat"
-- Include what changed, not just "fix" or "add"
+### Observable Pattern
+```dart
+@observable
+bool isLoading = false;
 
-### Pull Requests
-- Include short summary of changes
-- Document **testing done** (commands + results)
-- Add **screenshots** for UI changes
-- Reference issues if applicable
+@observable
+String? errorMessage;
 
-### Branch Naming
-- `feature/{feature-name}` - New features
-- `fix/{issue-name}` - Bug fixes
-- `refactor/{area}` - Code improvements
-- `docs/{topic}` - Documentation updates
+@computed
+bool get hasError => errorMessage != null && errorMessage!.isNotEmpty;
+```
+
+### Action Methods
+```dart
+// ✅ CORRECT - async/await pattern
+@action
+Future<void> fetchData() async {
+  isLoading = true;
+  try {
+    final response = await datasource.getData();
+    if (response.success) {
+      data = response.data;
+    } else {
+      errorMessage = response.errorMessage;
+    }
+  } catch (e) {
+    errorMessage = e.toString();
+  }
+  isLoading = false;
+}
+
+// ❌ WRONG - using .then() chains
+@action
+Future<void> fetchData() {
+  return datasource.getData().then((response) { ... });
+}
+```
+
+### UI Reactivity
+```dart
+@override
+Widget build(BuildContext context) {
+  return Observer(
+    builder: (_) {
+      if (_store.isLoading) return LoadingWidget();
+      if (_store.hasError) return ErrorWidget(message: _store.errorMessage!);
+      return SuccessWidget();
+    },
+  );
+}
+```
+
+### Post-Async Navigation
+```dart
+// ✅ CORRECT - Use runAsync for navigation after store action
+void _handleLogin() {
+  runAsync(() async {
+    await _authStore.login(email, password);
+    if (_authStore.currentUser != null && mounted) {
+      context.goNamed(AppRoutes.mainName);
+    }
+  });
+}
+
+// ❌ WRONG - Race condition
+void _handleLogin() {
+  _authStore.login(email, password);
+  context.goNamed(AppRoutes.mainName);  // Navigates before login!
+}
+```
 
 ---
 
-## Testing
+## Naming Conventions
 
-### Unit Tests
-Place in `test/` with `*_test.dart` naming:
+| Element | Pattern | Example |
+|---------|---------|---------|
+| Class | PascalCase | `UserModel`, `AuthStore`, `LoginPage` |
+| File | snake_case | `user_model.dart`, `auth_store.dart` |
+| Variable | camelCase | `isLoading`, `currentUser`, `emailController` |
+| Constant | camelCase | `kMaxRetries = 3` |
+| Enum | PascalCase (enum), camelCase (values) | `enum Status { active, inactive }` |
+
+### Import Order
+```dart
+// 1. Dart imports
+import 'dart:async';
+
+// 2. Flutter imports
+import 'package:flutter/material.dart';
+
+// 3. Package imports
+import 'package:mobx/mobx.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
+
+// 4. Internal imports (full path)
+import 'package:prj_final_prm/core/di/injection.dart';
+
+// 5. Relative imports
+import '../stores/auth_store.dart';
+
+// 6. Generated files
+part 'auth_store.g.dart';
+```
+
+---
+
+## Error Handling Strategy
+
+### Datasource Level - Always wrap external calls
+```dart
+Future<AuthResponse<UserModel>> login({...}) async {
+  try {
+    final result = await _client.auth.signInWithPassword(...);
+    return AuthResponse.success(UserModel.fromJson(...));
+  } on AuthException catch (e) {
+    return AuthResponse.failure('Auth: ${e.message}');
+  } on SocketException {
+    return AuthResponse.failure('Network error');
+  } catch (e) {
+    return AuthResponse.failure('Unknown: $e');
+  }
+}
+```
+
+### Store Level - Handle response and set state
+```dart
+@action
+Future<void> login(String email, String password) async {
+  isLoading = true;
+  final response = await datasource.login(email: email, password: password);
+  
+  if (response.success) {
+    currentUser = response.data;
+    isAuthenticated = true;
+  } else {
+    errorMessage = response.errorMessage ?? 'Unknown error';
+    isAuthenticated = false;
+  }
+  
+  isLoading = false;
+}
+```
+
+### Page Level - Display to user
+```dart
+@override
+Widget build(BuildContext context) {
+  return Observer(
+    builder: (_) => Column(
+      children: [
+        if (_authStore.hasError)
+          ErrorBanner(message: _authStore.errorMessage!),
+        // ... rest of UI
+      ],
+    ),
+  );
+}
+```
+
+---
+
+## Code Generation
+
+### CRITICAL: Always regenerate after model/store changes
 ```bash
-test/
+flutter pub run build_runner build --delete-conflicting-outputs
+```
+
+### What Triggers Regeneration
+- ✅ Add `@JsonSerializable()` or `@observable` annotations
+- ✅ Modify store fields/methods
+- ✅ Change model structure
+- ✅ Add freezed classes
+- ✅ Update i18n JSON files
+
+### Generated Files (DO NOT EDIT manually)
+- `*.g.dart` (JSON serialization)
+- `*.g.dart` (MobX observables)
+- Generated `.config.dart` files
+
+---
+
+## Internationalization (i18n)
+
+### Usage in Code
+```dart
+import 'package:prj_final_prm/i18n/strings.g.dart';
+
+// In build:
+final t = Translations.of(context);
+Text(t.auth.login_button)
+
+// In Store (no context):
+final t = Translations.of(context);
+```
+
+### Adding New Strings
+1. Edit `lib/i18n/strings.i18n.json` (English)
+2. Edit `lib/i18n/strings_vi.i18n.json` (Vietnamese)
+3. Run build_runner:
+   ```bash
+   flutter pub run build_runner build --delete-conflicting-outputs
+   ```
+4. Use in code: `t.your.new.key`
+
+---
+
+## Feature Structure Template
+
+When creating a new feature, follow this exact structure:
+
+```
+lib/features/[feature]/
+├── [feature].dart                          # Barrel export (optional)
+├── domain/
+│   ├── entities/
+│   │   └── *.dart                          # Pure data classes
+│   ├── repositories/
+│   │   └── [feature]_repository.dart       # Abstract interface
+│   └── usecases/
+│       └── *.dart                          # Business operations
+├── infrastructure/
+│   ├── datasources/
+│   │   ├── datasources.dart                # Barrel export
+│   │   └── [feature]_datasource.dart       # Supabase/API wrapper
+│   ├── models/
+│   │   ├── models.dart                     # Barrel export
+│   │   └── *_model.dart                    # @JsonSerializable models
+│   └── repositories/
+│       └── [feature]_repository_impl.dart  # Implementation
+└── presentation/
+    ├── stores/
+    │   └── [feature]_store.dart            # MobX store
+    ├── pages/
+    │   └── *.dart                          # UI screens
+    └── widgets/
+        └── *.dart                          # Reusable components
+```
+
+---
+
+## Project Structure Overview
+
+```
+lib/
+├── main.dart                               # App entry point
+├── core/
+│   ├── di/                                 # Dependency Injection modules
+│   │   ├── injection.dart                  # GetIt setup
+│   │   ├── auth_module.dart
+│   │   └── *.dart
+│   ├── errors/                             # Failures, Exceptions
+│   ├── network/                            # Dio client configuration
+│   ├── router/                             # GoRouter setup
+│   │   ├── app_router.dart
+│   │   └── app_routes.dart
+│   ├── theme/                              # Colors, TextStyles
+│   └── usecases/                           # Base UseCase class
 ├── features/
-│   └── auth/
-│       ├── domain/
-│       │   └── usecases/
-│       │       └── login_usecase_test.dart
-│       └── data/
-│           └── repositories/
-│               └── auth_repository_test.dart
-└── core/
-    └── errors/
-        └── failure_mapper_test.dart
+│   ├── auth/                               # Authentication feature
+│   ├── match/                              # Matching feature
+│   ├── chat/                               # Chat feature
+│   └── *.dart                              # Other features
+├── gen/                                    # Generated assets (not manual)
+└── i18n/                                   # i18n generated strings
+    ├── strings.g.dart                      # Generated
+    └── strings.i18n.json                   # Source (edit this)
 ```
 
-Run tests:
+---
+
+## Debugging Checklist
+
+### "Expression evaluates to a not supported value"
+- Caused by: Public fields in Store without @observable
+- Fix: Add `@observable` to all state in Store
+
+### "The getter 'X' isn't defined for type 'AuthStore'"
+- Caused by: Generated .g.dart files out of sync
+- Fix: Run `flutter pub run build_runner build --delete-conflicting-outputs`
+
+### "Circular import between layers"
+- Caused by: Infrastructure importing Presentation or Domain importing Infrastructure
+- Rule: Always depend upward (Presentation → Infrastructure → Domain)
+
+### "Models not serializing correctly"
+- Caused by: @JsonKey names don't match database fields
+- Fix: Use `@JsonKey(name: 'db_column_name')` on each field
+
+### App crashes with "No provider for AuthStore"
+- Caused by: Store not registered in GetIt
+- Fix: Verify module is registered in `lib/core/di/injection.dart`
+
+### "Cannot run build_runner on Windows"
+- Solution: Use WSL or run from terminal with admin privileges
+
+---
+
+## Development Workflow
+
+### Before Starting Work
 ```bash
-flutter test
-flutter test --coverage  # Generate coverage report
+flutter pub get
+flutter pub run build_runner build --delete-conflicting-outputs
+flutter analyze
 ```
 
-### Widget Tests
-Test UI components with MobX by mocking stores:
+### During Development
+Keep watch mode running in separate terminal:
+```bash
+flutter pub run build_runner watch --delete-conflicting-outputs
+```
+
+### Before Committing
+```bash
+# 1. Format code
+dart format lib
+
+# 2. Analyze
+flutter analyze
+
+# 3. Run tests (if exist)
+flutter test
+
+# 4. Build once to verify
+flutter pub run build_runner build --delete-conflicting-outputs
+
+# 5. Final check
+git diff                                     # Review changes
+git status
+```
+
+### Commit Message Format
+```
+feat: add [feature_name]
+  - Add domain layer (entities, repositories)
+  - Add infrastructure layer (datasources, models)
+  - Add presentation layer (stores, pages)
+  - Add DI module
+
+Closes #[issue]
+```
+
+---
+
+## Key Principles & Anti-Patterns
+
+### ✅ DO
+- ✅ Inject dependencies via GetIt, not with `new` keyword
+- ✅ Keep all async operations in Store methods only
+- ✅ Use @observable for all state in MobX Store
+- ✅ Wrap external service calls in try-catch with AuthResponse<T>
+- ✅ Return domain entities from repositories, not models
+- ✅ Use Observer wrapper for reactive UI updates
+- ✅ Run build_runner after every model/store change
+- ✅ Use context.goNamed() for navigation
+- ✅ Validate user input before store method calls
+- ✅ Pass isLoading state to Show/Hide UI elements
+
+### ❌ DON'T
+- ❌ Call Supabase directly from pages or stores
+- ❌ Import infrastructure directly in presentation
+- ❌ Create multiple stores per feature
+- ❌ Hardcode strings (use i18n)
+- ❌ Ignore build_runner .g.dart changes
+- ❌ Return models to UIlayer (convert to entities)
+- ❌ Make external service calls from build() method
+- ❌ Modify Store state directly (always use @action)
+- ❌ Skip error handling in datasources
+- ❌ Store sensitive data in public Store properties
+
+---
+
+## External Services Integration
+
+### Supabase Usage
+- Initialize in: `lib/core/network/supabase_client.dart`
+- Wrap in: `infrastructure/datasources/[feature]_datasource.dart`
+- Return: `AuthResponse<Model>` from all methods
+- Do NOT call directly from pages
+
+### Firebase Auth (Phone OTP)
+- Configured via `flutterfire configure`
+- Used in: `infrastructure/repositories/auth_repository_impl.dart`
+- Request tokens via store: `await _authStore.sendOTP(phone)`
+- Verify tokens via store: `await _authStore.verifyOTP(otp)`
+
+### GoRouter Navigation
 ```dart
-testWidgets('AuthPage shows error on login failure', (tester) async {
-  final mockAuthStore = MockAuthStore();
-  
-  // Setup test expectations
-  when(mockAuthStore.isLoading).thenReturn(false);
-  when(mockAuthStore.errorMessage).thenReturn('Invalid credentials');
-  
-  // Build widget
-  await tester.pumpWidget(_buildTestApp(mockAuthStore));
-  
-  // Verify
-  expect(find.text('Invalid credentials'), findsOneWidget);
+// Define route
+GoRoute(
+  name: AppRoutes.loginName,
+  path: '/login',
+  builder: (context, state) => const LoginPage(),
+)
+
+// Navigate
+context.goNamed(AppRoutes.mainName);
+context.push('/path');
+```
+
+### i18n with Slang
+- Source files: `lib/i18n/*.i18n.json`
+- Usage: `t.feature.key` (auto-generated)
+- Pluralization supported: `t.item.count(n: 5)`
+
+---
+
+## Performance Tips
+
+1. **Use `@computed` in Store** - Caches calculation results
+   ```dart
+   @computed
+   bool get isValid => email.isNotEmpty && password.length >= 8;
+   ```
+
+2. **Lazy-load dependencies** - Use `@lazySingleton` in di/modules
+   ```dart
+   @lazySingleton
+   AuthStore authStore(AuthDatasource ds) => AuthStore(authDatasource: ds);
+   ```
+
+3. **Dispose resources** - Clean up controllers
+   ```dart
+   @override
+   void dispose() {
+     _emailController.dispose();
+     super.dispose();
+   }
+   ```
+
+4. **Use `const` widgets** - Prevents rebuilds
+   ```dart
+   const SizedBox(height: 16)  // ✅ const
+   SizedBox(height: 16)        // ❌ rebuilds every time
+   ```
+
+---
+
+## Common Questions
+
+**Q: Where should I validate user input?**  
+A: In TextFormField validators for UI validation, in Store for business logic validation.
+
+**Q: How do I share data between features?**  
+A: Via domain entities passed through navigation or shared Store (if critical app state).
+
+**Q: Can I call multiple Store methods in sequence?**  
+A: Yes, but use `runAsync()` to avoid race conditions:
+```dart
+runAsync(() async {
+  await store.method1();
+  await store.method2();
+  if (mounted) navigate();
 });
 ```
 
----
+**Q: How do I mock Store in tests?**  
+A: Use MockMobX or create MockStore class implementing the interface.
 
-## Troubleshooting
-
-### Compilation Errors After Model Changes
-```bash
-# Clean and regenerate code
-flutter clean
-flutter pub get
-dart run build_runner build --delete-conflicting-outputs
-flutter pub get  # Sometimes needed after build_runner
-```
-
-### Translations Not Updating
-```bash
-# Always run slang after editing slang.yaml
-dart run slang
-```
-
-### DI Registration Issues
-- Verify `@injectable()` decorator is on implementation class
-- Ensure parent class/interface is correctly specified: `@injectable(as: MyRepository)`
-- Run code generation: `dart run build_runner build`
-
-### MobX Not Reacting to Changes
-- Wrap store access with `Observer` widget
-- Verify fields are marked `@observable`
-- Computed values use `@computed`
-- Check that store is properly registered in DI as singleton
-
-### Firebase/Supabase Connection Issues
-- Verify `.env` keys are correct
-- Check `README_SETUP.md` for service-specific setup
-- Run locally with `--verbose` flag: `flutter run -v`
-
-### Hot Reload Not Working
-```bash
-# Try hot restart
-r  # In Flutter CLI
-
-# Or cold restart
-flutter run
-```
+**Q: Should I use Provider instead of MobX?**  
+A: No, this project uses MobX exclusively for consistency.
 
 ---
 
 ## References & Documentation
 
-- **Flutter Docs**: https://flutter.dev/docs
-- **Dart Docs**: https://dart.dev/guides
-- **MobX Dart**: https://mobx.js.org/
-- **Injectable**: https://github.com/google/inject.dart
-- **Slang i18n**: https://slang.localizely.com/
-- **Supabase Docs**: https://supabase.com/docs
-- **Firebase Docs**: https://firebase.google.com/docs
+- **Flutter**: https://flutter.dev/docs
+- **MobX**: https://mobx.pub
 - **GoRouter**: https://pub.dev/packages/go_router
-- **Tencent Cloud Chat**: https://cloud.tencent.com/document/product/269
-- **Agora RTC**: https://docs.agora.io/
+- **GetIt**: https://pub.dev/packages/get_it  
+- **Supabase**: https://supabase.com/docs/guides/getting-started/quickstarts/flutter
+- **Firebase**: https://firebase.flutter.dev
+- **Slang i18n**: https://pub.dev/packages/slang
 
 ---
 
-## When to Ask For Help
+## For AI Assistants
 
-Claude Code will efficiently handle:
-- ✅ Creating new features following DDD patterns
-- ✅ Adding API endpoints and models
-- ✅ UI updates and widget creation
-- ✅ MobX store implementation
-- ✅ Bug fixes and refactoring
-- ✅ Test writing
+When implementing features:
 
-Ask for help when:
-- ❓ Unsure about architecture patterns for a specific feature
-- ❓ Need to integrate new third-party SDK
-- ❓ Platform-specific issues (native Android/iOS/Web)
-- ❓ Performance optimization strategies
+1. **Always check the attached architecture rules** - Reference ARCHITECTURE_RULES.md, AUTH_ARCHITECTURE.md, FEATURE_CHECKLIST.md
+2. **Follow the exact layer structure** - Never deviate from Domain → Infrastructure → Presentation
+3. **Use existing patterns** - Copy from auth feature and adapt (it's the golden standard)
+4. **Run build_runner** - After every model/store change: `flutter pub run build_runner build --delete-conflicting-outputs`
+5. **Test injection** - Verify GetIt registration in `lib/core/di/injection.dart`
+6. **Use Observer wrapper** - All pages reading observable state must wrap in Observer
+7. **Handle errors** - No raw exceptions should reach UI layer
+8. **Clean code** - Run `dart format lib` and `flutter analyze` before completion
 
 ---
 
-**Last Updated**: March 2026  
-**Maintained by**: Development Team
+**Maintainers**: Development Team  
+**Last Updated**: March 17, 2026  
+**Version**: 1.0 - Initial Bootstrap

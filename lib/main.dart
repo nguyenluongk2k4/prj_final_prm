@@ -32,6 +32,9 @@ void main() async {
   await Supabase.initialize(
     url: dotenv.env['SUPABASE_URL']!,
     anonKey: dotenv.env['SUPABASE_ANON_KEY']!,
+    authOptions: const FlutterAuthClientOptions(
+      authFlowType: AuthFlowType.pkce,
+    ),
   );
 
   // Initialize Firebase (vì config thủ công bằng google-services.json nên gọi hàm này là đủ)
