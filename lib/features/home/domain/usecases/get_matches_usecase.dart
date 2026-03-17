@@ -1,10 +1,20 @@
-import '../entities/match_profile.dart';
-import '../repositories/matches_repository.dart';
+import 'package:injectable/injectable.dart';
+import '../entities/match.dart';
+import '../repositories/match_repository.dart';
 
+@injectable
 class GetMatchesUseCase {
-  final MatchesRepository _repository;
+  final MatchRepository _repository;
 
-  const GetMatchesUseCase(this._repository);
+  GetMatchesUseCase(this._repository);
 
-  Future<List<MatchProfile>> call() => _repository.getMatches();
+  Future<List<Match>> execute({
+    required int limit,
+    required int offset,
+  }) async {
+    return await _repository.getMatches(
+      limit: limit,
+      offset: offset,
+    );
+  }
 }

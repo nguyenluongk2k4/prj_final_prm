@@ -1,26 +1,21 @@
 import 'package:dartz/dartz.dart';
 import 'package:injectable/injectable.dart';
 import '../repositories/discover_repository.dart';
-import '../entities/swipe_type.dart' as domain;
 
 @injectable
-class SubmitSwipeUseCase {
+class UndoSwipeUseCase {
   final DiscoverRepository _repository;
 
-  SubmitSwipeUseCase(this._repository);
+  UndoSwipeUseCase(this._repository);
 
   Future<Either<String, void>> execute({
     required String swipedId,
-    required domain.SwipeType swipeType,
   }) async {
     try {
-      await _repository.submitSwipe(
-        swipedId: swipedId,
-        swipeType: swipeType,
-      );
+      await _repository.undoSwipe(swipedId: swipedId);
       return const Right(null);
     } catch (e) {
-      return Left('Failed to submit swipe: ${e.toString()}');
+      return Left('Failed to undo swipe: ${e.toString()}');
     }
   }
 }

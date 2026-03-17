@@ -9,11 +9,15 @@ import '../../../../gen/assets.gen.dart';
 import '../../../../i18n/strings.g.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
+import 'package:mobx/mobx.dart';
 import 'package:go_router/go_router.dart';
 import '../../../../core/di/injection.dart';
 import '../../../../core/router/app_routes.dart';
 import '../stores/discover_store.dart';
-import '../../../chat/presentation/widgets/chat_filter_sheet.dart';
+import '../../../chat/domain/usecases/send_first_message_usecase.dart';
+import '../../domain/entities/swipe_type.dart' as domain;
+import '../widgets/discover_filter_sheet.dart';
+import '../widgets/match_notification_dialog.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -25,13 +29,45 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   final CardSwiperController _swiperController = CardSwiperController();
   late final DiscoverStore _discoverStore;
+  SendFirstMessageUseCase? _sendFirstMessageUseCase;
 
   @override
   void initState() {
     super.initState();
-    _discoverStore = getIt<DiscoverStore>();
+    print('🏠 HomePage initState called');
+    
+    try {
+      _discoverStore = getIt<DiscoverStore>();
+      print('✅ DiscoverStore injected successfully: ${_discoverStore.runtimeType}');
+    } catch (e) {
+      print('❌ Error injecting DiscoverStore: $e');
+      rethrow;
+    }
+    
+    // Try to get SendFirstMessageUseCase, but don't fail if it's not available
+    try {
+      _sendFirstMessageUseCase = getIt<SendFirstMessageUseCase>();
+      print('✅ SendFirstMessageUseCase injected successfully');
+    } catch (e) {
+      print('⚠️ SendFirstMessageUseCase not available: $e');
+    }
+    
     _discoverStore.fetchInitialBatch();
     _checkLocationPermission();
+    
+    // Listen for new matches
+    reaction(
+      (_) => _discoverStore.newMatchUser,
+      (UserModel? matchedUser) {
+        print('🎯 Reaction triggered: newMatchUser = ${matchedUser?.name}');
+        if (matchedUser != null) {
+          print('🎉 Showing match notification for ${matchedUser.name}');
+          _showMatchNotification(matchedUser);
+        }
+      },
+    );
+    
+    print('🏠 HomePage initState completed');
   }
 
   Future<void> _checkLocationPermission() async {
@@ -77,9 +113,44 @@ class _HomePageState extends State<HomePage> {
       centerTitle: true,
       secondaryAction: Padding(
         padding: const EdgeInsets.only(right: 12),
-        child: AppBarIconButton(
-          icon: Assets.icons.icSetting.svg(width: 24, height: 24),
-          onTap: () => showChatFilterSheet(context),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            // Test match button (for debugging)
+            AppBarIconButton(
+              icon: Icon(Icons.favorite, color: Colors.red, size: 24),
+              onTap: () {
+                print('🧪 Test match button pressed');
+                if (_discoverStore.profiles.isNotEmpty) {
+                  print('🧪 Testing match notification with ${_discoverStore.profiles.first.name}');
+                  _showMatchNotification(_discoverStore.profiles.first);
+                } else {
+                  print('🧪 No profiles available for testing');
+                  // Create a dummy user for testing
+                  final dummyUser = UserModel(
+                    id: 'test-id',
+                    email: 'test@example.com',
+                    name: 'Test User',
+                    avatarUrl: null,
+                  );
+                  _showMatchNotification(dummyUser);
+                }
+              },
+            ),
+            const SizedBox(width: 8),
+            AppBarIconButton(
+              icon: Assets.icons.icSetting.svg(width: 24, height: 24),
+              onTap: () async {
+                final filter = await showDiscoverFilterSheet(
+                  context,
+                  currentFilter: _discoverStore.currentFilter,
+                );
+                if (filter != null) {
+                  await _discoverStore.setFilter(filter);
+                }
+              },
+            ),
+          ],
         ),
       ),
       body: RefreshIndicator(
@@ -101,7 +172,11 @@ class _HomePageState extends State<HomePage> {
                 child: Observer(
                   builder: (context) {
                     if (_discoverStore.isLoading && _discoverStore.profiles.isEmpty) {
-                      return const Center(child: CircularProgressIndicator());
+                      return _buildSkeletonLoader();
+                    }
+
+                    if (_discoverStore.error != null && _discoverStore.profiles.isEmpty) {
+                      return _buildErrorView();
                     }
 
                     if (_discoverStore.profiles.isEmpty) {
@@ -120,14 +195,11 @@ class _HomePageState extends State<HomePage> {
                       numberOfCardsDisplayed: _discoverStore.profiles.length > 1 ? 2 : 1,
                       backCardOffset: const Offset(0, -30),
                       padding: EdgeInsets.zero,
-                      isLoop: false, // Changed to false for dynamic list
+                      isLoop: false,
                       scale: 0.9,
                       onSwipe: _onSwipe,
                       onUndo: _onUndo,
-                      allowedSwipeDirection: const AllowedSwipeDirection.symmetric(
-                        horizontal: true,
-                        vertical: false,
-                      ),
+                      allowedSwipeDirection: const AllowedSwipeDirection.all(),
                       cardBuilder:
                           (
                             context,
@@ -148,103 +220,148 @@ class _HomePageState extends State<HomePage> {
             // Action buttons
             Padding(
               padding: EdgeInsets.symmetric(horizontal: horizontalPadding),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  // Dislike button
-                  GestureDetector(
-                    onTap: () =>
-                        _swiperController.swipe(CardSwiperDirection.left),
-                    child: Container(
-                      width: screenWidth * 0.21,
-                      height: screenWidth * 0.21,
-                      decoration: BoxDecoration(
-                        color: c.background,
-                        shape: BoxShape.circle,
-                        border: Border.all(color: c.border),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black.withOpacity(0.05),
-                            blurRadius: 10,
-                            offset: const Offset(0, 5),
+              child: Observer(
+                builder: (_) => Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    // Rewind button
+                    GestureDetector(
+                      onTap: _discoverStore.isSwipeInProgress || _discoverStore.lastSwipedId == null
+                          ? null
+                          : () async {
+                              final success = await _discoverStore.undoLastSwipe();
+                              if (success && mounted) {
+                                _swiperController.undo();
+                              }
+                            },
+                      child: Opacity(
+                        opacity: _discoverStore.lastSwipedId == null ? 0.5 : 1.0,
+                        child: Container(
+                          width: screenWidth * 0.15,
+                          height: screenWidth * 0.15,
+                          decoration: BoxDecoration(
+                            color: c.background,
+                            shape: BoxShape.circle,
+                            border: Border.all(color: c.border),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black.withValues(alpha: 0.05),
+                                blurRadius: 10,
+                                offset: const Offset(0, 5),
+                              ),
+                            ],
                           ),
-                        ],
-                      ),
-                      child: const Center(
-                        child: Icon(
-                          Icons.close,
-                          color: Color(0xFFF27121),
-                          size: 32,
+                          child: const Center(
+                            child: Icon(
+                              Icons.replay,
+                              color: Color(0xFFFFC107),
+                              size: 24,
+                            ),
+                          ),
                         ),
                       ),
                     ),
-                  ),
 
-                  SizedBox(width: screenWidth * 0.043),
+                    SizedBox(width: screenWidth * 0.03),
 
-                  // Like button
-                  GestureDetector(
-                    onTap: () =>
-                        _swiperController.swipe(CardSwiperDirection.right),
-                    child: Container(
-                      width: screenWidth * 0.264,
-                      height: screenWidth * 0.264,
-                      decoration: BoxDecoration(
-                        gradient: const LinearGradient(
-                          colors: [Color(0xFFE94057), Color(0xFFF27121)],
-                          begin: Alignment.topLeft,
-                          end: Alignment.bottomRight,
+                    // Dislike button
+                    GestureDetector(
+                      onTap: _discoverStore.isSwipeInProgress
+                          ? null
+                          : () => _swiperController.swipe(CardSwiperDirection.left),
+                      child: Container(
+                        width: screenWidth * 0.21,
+                        height: screenWidth * 0.21,
+                        decoration: BoxDecoration(
+                          color: c.background,
+                          shape: BoxShape.circle,
+                          border: Border.all(color: c.border),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withValues(alpha: 0.05),
+                              blurRadius: 10,
+                              offset: const Offset(0, 5),
+                            ),
+                          ],
                         ),
-                        shape: BoxShape.circle,
-                        boxShadow: [
-                          BoxShadow(
-                            color: const Color(0xFFE94057).withOpacity(0.3),
-                            blurRadius: 15,
-                            offset: const Offset(0, 8),
+                        child: const Center(
+                          child: Icon(
+                            Icons.close,
+                            color: Color(0xFFF27121),
+                            size: 32,
                           ),
-                        ],
-                      ),
-                      child: const Center(
-                        child: Icon(
-                          Icons.favorite,
-                          color: Colors.white,
-                          size: 40,
                         ),
                       ),
                     ),
-                  ),
 
-                  SizedBox(width: screenWidth * 0.043),
+                    SizedBox(width: screenWidth * 0.043),
 
-                  // Super like button
-                  GestureDetector(
-                    onTap: () =>
-                        _swiperController.swipe(CardSwiperDirection.top),
-                    child: Container(
-                      width: screenWidth * 0.21,
-                      height: screenWidth * 0.21,
-                      decoration: BoxDecoration(
-                        color: c.background,
-                        shape: BoxShape.circle,
-                        border: Border.all(color: c.border),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black.withOpacity(0.05),
-                            blurRadius: 10,
-                            offset: const Offset(0, 5),
+                    // Like button
+                    GestureDetector(
+                      onTap: _discoverStore.isSwipeInProgress
+                          ? null
+                          : () => _swiperController.swipe(CardSwiperDirection.right),
+                      child: Container(
+                        width: screenWidth * 0.264,
+                        height: screenWidth * 0.264,
+                        decoration: BoxDecoration(
+                          gradient: const LinearGradient(
+                            colors: [Color(0xFFE94057), Color(0xFFF27121)],
+                            begin: Alignment.topLeft,
+                            end: Alignment.bottomRight,
                           ),
-                        ],
-                      ),
-                      child: const Center(
-                        child: Icon(
-                          Icons.star,
-                          color: Color(0xFF8A2387),
-                          size: 32,
+                          shape: BoxShape.circle,
+                          boxShadow: [
+                            BoxShadow(
+                              color: const Color(0xFFE94057).withValues(alpha: 0.3),
+                              blurRadius: 15,
+                              offset: const Offset(0, 8),
+                            ),
+                          ],
+                        ),
+                        child: const Center(
+                          child: Icon(
+                            Icons.favorite,
+                            color: Colors.white,
+                            size: 40,
+                          ),
                         ),
                       ),
                     ),
-                  ),
-                ],
+
+                    SizedBox(width: screenWidth * 0.043),
+
+                    // Super like button
+                    GestureDetector(
+                      onTap: _discoverStore.isSwipeInProgress
+                          ? null
+                          : () => _swiperController.swipe(CardSwiperDirection.top),
+                      child: Container(
+                        width: screenWidth * 0.21,
+                        height: screenWidth * 0.21,
+                        decoration: BoxDecoration(
+                          color: c.background,
+                          shape: BoxShape.circle,
+                          border: Border.all(color: c.border),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withValues(alpha: 0.05),
+                              blurRadius: 10,
+                              offset: const Offset(0, 5),
+                            ),
+                          ],
+                        ),
+                        child: const Center(
+                          child: Icon(
+                            Icons.star,
+                            color: Color(0xFF8A2387),
+                            size: 32,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ),
 
@@ -307,7 +424,7 @@ class _HomePageState extends State<HomePage> {
                 gradient: LinearGradient(
                   begin: Alignment.topCenter,
                   end: Alignment.bottomCenter,
-                  colors: [Colors.transparent, Colors.black.withOpacity(0.8)],
+                  colors: [Colors.transparent, Colors.black.withValues(alpha: 0.8)],
                 ),
               ),
             ),
@@ -320,7 +437,7 @@ class _HomePageState extends State<HomePage> {
             child: Container(
               padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
               decoration: BoxDecoration(
-                color: Colors.white.withOpacity(0.15),
+                color: Colors.white.withValues(alpha: 0.15),
                 borderRadius: BorderRadius.circular(7),
               ),
               child: Row(
@@ -354,7 +471,7 @@ class _HomePageState extends State<HomePage> {
                     shape: BoxShape.circle,
                     color: index == 0
                         ? AppColors.primary
-                        : Colors.white.withOpacity(0.3),
+                        : Colors.white.withValues(alpha: 0.3),
                   ),
                 ),
               ),
@@ -394,25 +511,36 @@ class _HomePageState extends State<HomePage> {
     int? currentIndex,
     CardSwiperDirection direction,
   ) {
+    print('🎯 _onSwipe called: previousIndex=$previousIndex, direction=$direction');
+    
     if (previousIndex < _discoverStore.profiles.length) {
       final profile = _discoverStore.profiles[previousIndex];
+      print('👤 Profile: ${profile.name} (${profile.id})');
 
+      domain.SwipeType domainSwipeType;
       switch (direction) {
         case CardSwiperDirection.left:
+          domainSwipeType = domain.SwipeType.dislike;
           debugPrint('Disliked: ${profile.name}');
-          _discoverStore.onSwiped(profile, false);
           break;
         case CardSwiperDirection.right:
+          domainSwipeType = domain.SwipeType.like;
           debugPrint('Liked: ${profile.name}');
-          _discoverStore.onSwiped(profile, true);
           break;
         case CardSwiperDirection.top:
+          domainSwipeType = domain.SwipeType.superlike;
           debugPrint('Super Liked: ${profile.name}');
-          _discoverStore.onSwiped(profile, true);
           break;
         default:
-          break;
+          print('❌ Unknown swipe direction: $direction');
+          return false;
       }
+
+      print('📞 Calling _discoverStore.onSwiped...');
+      _discoverStore.onSwiped(profile, domainSwipeType);
+      print('✅ _discoverStore.onSwiped called');
+    } else {
+      print('❌ Invalid previousIndex: $previousIndex >= ${_discoverStore.profiles.length}');
     }
 
     if (currentIndex != null) {
@@ -435,5 +563,95 @@ class _HomePageState extends State<HomePage> {
     CardSwiperDirection direction,
   ) {
     return true;
+  }
+
+  Widget _buildSkeletonLoader() {
+    final screenHeight = MediaQuery.of(context).size.height;
+    final cardHeight = screenHeight * 0.57;
+    
+    return Container(
+      width: double.infinity,
+      height: cardHeight,
+      decoration: BoxDecoration(
+        color: Colors.grey[300],
+        borderRadius: BorderRadius.circular(15),
+      ),
+      child: const Center(
+        child: CircularProgressIndicator(),
+      ),
+    );
+  }
+
+  Widget _buildErrorView() {
+    final screenHeight = MediaQuery.of(context).size.height;
+    final cardHeight = screenHeight * 0.57;
+    final c = context.appColors;
+    
+    return Container(
+      width: double.infinity,
+      height: cardHeight,
+      decoration: BoxDecoration(
+        color: c.background,
+        borderRadius: BorderRadius.circular(15),
+        border: Border.all(color: c.border),
+      ),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(
+            Icons.error_outline,
+            size: 64,
+            color: c.text70,
+          ),
+          const SizedBox(height: 16),
+          Text(
+            'Failed to load profiles',
+            style: AppTextStyles.bodyLarge.copyWith(color: c.textPrimary),
+          ),
+          const SizedBox(height: 8),
+          Text(
+            _discoverStore.error ?? 'Unknown error',
+            style: AppTextStyles.bodyMedium.copyWith(color: c.text70),
+            textAlign: TextAlign.center,
+          ),
+          const SizedBox(height: 16),
+          ElevatedButton(
+            onPressed: () => _discoverStore.fetchInitialBatch(),
+            child: const Text('Retry'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showMatchNotification(UserModel matchedUser) {
+    print('🎯 _showMatchNotification called for ${matchedUser.name}');
+    showMatchNotificationDialog(
+      context,
+      matchedUser,
+      onKeepSwiping: () {
+        print('🔄 Keep swiping pressed');
+        _discoverStore.clearNewMatch();
+      },
+      onSendMessage: (String message) async {
+        print('💬 Home: Received message to send: "$message"');
+        if (_sendFirstMessageUseCase == null) {
+          print('⚠️ SendFirstMessageUseCase not available');
+          throw Exception('Message service not available');
+        }
+        try {
+          print('📤 Calling SendFirstMessageUseCase...');
+          await _sendFirstMessageUseCase!.execute(
+            receiverId: matchedUser.id,
+            message: message,
+          );
+          print('✅ Message sent via SendFirstMessageUseCase');
+          _discoverStore.clearNewMatch();
+        } catch (e) {
+          print('❌ Error sending first message: $e');
+          rethrow; // Let the dialog handle the error
+        }
+      },
+    );
   }
 }
