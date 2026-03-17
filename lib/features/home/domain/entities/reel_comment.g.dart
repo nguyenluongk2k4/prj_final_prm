@@ -13,6 +13,7 @@ _$ReelCommentImpl _$$ReelCommentImplFromJson(Map<String, dynamic> json) =>
       userId: json['userId'] as String,
       content: json['content'] as String,
       createdAt: DateTime.parse(json['createdAt'] as String),
+      parentId: json['parentId'] as String?,
       user: json['user'] == null
           ? null
           : ReelAuthor.fromJson(json['user'] as Map<String, dynamic>),
@@ -25,5 +26,6 @@ Map<String, dynamic> _$$ReelCommentImplToJson(_$ReelCommentImpl instance) =>
       'userId': instance.userId,
       'content': instance.content,
       'createdAt': instance.createdAt.toIso8601String(),
+      'parentId': instance.parentId,
       'user': instance.user,
     };

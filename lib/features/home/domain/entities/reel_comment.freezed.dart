@@ -26,6 +26,7 @@ mixin _$ReelComment {
   String get userId => throw _privateConstructorUsedError;
   String get content => throw _privateConstructorUsedError;
   DateTime get createdAt => throw _privateConstructorUsedError;
+  String? get parentId => throw _privateConstructorUsedError;
   ReelAuthor? get user => throw _privateConstructorUsedError;
 
   /// Serializes this ReelComment to a JSON map.
@@ -51,6 +52,7 @@ abstract class $ReelCommentCopyWith<$Res> {
     String userId,
     String content,
     DateTime createdAt,
+    String? parentId,
     ReelAuthor? user,
   });
 
@@ -77,6 +79,7 @@ class _$ReelCommentCopyWithImpl<$Res, $Val extends ReelComment>
     Object? userId = null,
     Object? content = null,
     Object? createdAt = null,
+    Object? parentId = freezed,
     Object? user = freezed,
   }) {
     return _then(
@@ -101,6 +104,10 @@ class _$ReelCommentCopyWithImpl<$Res, $Val extends ReelComment>
                 ? _value.createdAt
                 : createdAt // ignore: cast_nullable_to_non_nullable
                       as DateTime,
+            parentId: freezed == parentId
+                ? _value.parentId
+                : parentId // ignore: cast_nullable_to_non_nullable
+                      as String?,
             user: freezed == user
                 ? _value.user
                 : user // ignore: cast_nullable_to_non_nullable
@@ -140,6 +147,7 @@ abstract class _$$ReelCommentImplCopyWith<$Res>
     String userId,
     String content,
     DateTime createdAt,
+    String? parentId,
     ReelAuthor? user,
   });
 
@@ -166,6 +174,7 @@ class __$$ReelCommentImplCopyWithImpl<$Res>
     Object? userId = null,
     Object? content = null,
     Object? createdAt = null,
+    Object? parentId = freezed,
     Object? user = freezed,
   }) {
     return _then(
@@ -190,6 +199,10 @@ class __$$ReelCommentImplCopyWithImpl<$Res>
             ? _value.createdAt
             : createdAt // ignore: cast_nullable_to_non_nullable
                   as DateTime,
+        parentId: freezed == parentId
+            ? _value.parentId
+            : parentId // ignore: cast_nullable_to_non_nullable
+                  as String?,
         user: freezed == user
             ? _value.user
             : user // ignore: cast_nullable_to_non_nullable
@@ -208,6 +221,7 @@ class _$ReelCommentImpl implements _ReelComment {
     required this.userId,
     required this.content,
     required this.createdAt,
+    this.parentId,
     this.user,
   });
 
@@ -225,11 +239,13 @@ class _$ReelCommentImpl implements _ReelComment {
   @override
   final DateTime createdAt;
   @override
+  final String? parentId;
+  @override
   final ReelAuthor? user;
 
   @override
   String toString() {
-    return 'ReelComment(id: $id, reelId: $reelId, userId: $userId, content: $content, createdAt: $createdAt, user: $user)';
+    return 'ReelComment(id: $id, reelId: $reelId, userId: $userId, content: $content, createdAt: $createdAt, parentId: $parentId, user: $user)';
   }
 
   @override
@@ -243,13 +259,23 @@ class _$ReelCommentImpl implements _ReelComment {
             (identical(other.content, content) || other.content == content) &&
             (identical(other.createdAt, createdAt) ||
                 other.createdAt == createdAt) &&
+            (identical(other.parentId, parentId) ||
+                other.parentId == parentId) &&
             (identical(other.user, user) || other.user == user));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
-  int get hashCode =>
-      Object.hash(runtimeType, id, reelId, userId, content, createdAt, user);
+  int get hashCode => Object.hash(
+    runtimeType,
+    id,
+    reelId,
+    userId,
+    content,
+    createdAt,
+    parentId,
+    user,
+  );
 
   /// Create a copy of ReelComment
   /// with the given fields replaced by the non-null parameter values.
@@ -272,6 +298,7 @@ abstract class _ReelComment implements ReelComment {
     required final String userId,
     required final String content,
     required final DateTime createdAt,
+    final String? parentId,
     final ReelAuthor? user,
   }) = _$ReelCommentImpl;
 
@@ -288,6 +315,8 @@ abstract class _ReelComment implements ReelComment {
   String get content;
   @override
   DateTime get createdAt;
+  @override
+  String? get parentId;
   @override
   ReelAuthor? get user;
 

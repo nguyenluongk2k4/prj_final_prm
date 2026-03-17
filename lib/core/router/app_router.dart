@@ -21,6 +21,7 @@ import '../../features/home/presentation/pages/edit_profile_page.dart';
 import '../../features/home/presentation/pages/profile_page.dart';
 import '../../features/home/presentation/pages/reels_page.dart';
 import '../../features/home/presentation/pages/reels_upload_page.dart';
+import '../../features/home/presentation/pages/photo_upload_page.dart';
 import '../../features/album/presentation/pages/my_album_page.dart';
 import '../../features/map/presentation/pages/map_page.dart';
 import '../../features/call/presentation/pages/incoming_call_page.dart';
@@ -153,6 +154,11 @@ class AppRouter {
         path: AppRoutes.map,
         name: AppRoutes.mapName,
         builder: (context, state) => const MapPage(),
+      ),
+      GoRoute(
+        path: AppRoutes.photoUpload,
+        name: AppRoutes.photoUploadName,
+        builder: (context, state) => const PhotoUploadPage(),
       ),
       GoRoute(
         path: AppRoutes.myAlbum,
