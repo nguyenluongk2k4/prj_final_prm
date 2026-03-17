@@ -116,26 +116,25 @@ class _HomePageState extends State<HomePage> {
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            // Test match button (for debugging)
-            AppBarIconButton(
-              icon: Icon(Icons.favorite, color: Colors.red, size: 24),
-              onTap: () {
-                print('🧪 Test match button pressed');
-                if (_discoverStore.profiles.isNotEmpty) {
-                  print('🧪 Testing match notification with ${_discoverStore.profiles.first.name}');
-                  _showMatchNotification(_discoverStore.profiles.first);
-                } else {
-                  print('🧪 No profiles available for testing');
-                  // Create a dummy user for testing
-                  final dummyUser = UserModel(
-                    id: 'test-id',
-                    email: 'test@example.com',
-                    name: 'Test User',
-                    avatarUrl: null,
-                  );
-                  _showMatchNotification(dummyUser);
-                }
-              },
+            // Undo button moved to top right
+            Observer(
+              builder: (_) => AppBarIconButton(
+                icon: Icon(
+                  Icons.replay,
+                  color: _discoverStore.lastSwipedId == null 
+                      ? Colors.grey 
+                      : Color(0xFFFFC107),
+                  size: 24,
+                ),
+                onTap: _discoverStore.isSwipeInProgress || _discoverStore.lastSwipedId == null
+                    ? null
+                    : () async {
+                        final success = await _discoverStore.undoLastSwipe();
+                        if (success && mounted) {
+                          _swiperController.undo();
+                        }
+                      },
+              ),
             ),
             const SizedBox(width: 8),
             AppBarIconButton(
@@ -224,46 +223,6 @@ class _HomePageState extends State<HomePage> {
                 builder: (_) => Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    // Rewind button
-                    GestureDetector(
-                      onTap: _discoverStore.isSwipeInProgress || _discoverStore.lastSwipedId == null
-                          ? null
-                          : () async {
-                              final success = await _discoverStore.undoLastSwipe();
-                              if (success && mounted) {
-                                _swiperController.undo();
-                              }
-                            },
-                      child: Opacity(
-                        opacity: _discoverStore.lastSwipedId == null ? 0.5 : 1.0,
-                        child: Container(
-                          width: screenWidth * 0.15,
-                          height: screenWidth * 0.15,
-                          decoration: BoxDecoration(
-                            color: c.background,
-                            shape: BoxShape.circle,
-                            border: Border.all(color: c.border),
-                            boxShadow: [
-                              BoxShadow(
-                                color: Colors.black.withValues(alpha: 0.05),
-                                blurRadius: 10,
-                                offset: const Offset(0, 5),
-                              ),
-                            ],
-                          ),
-                          child: const Center(
-                            child: Icon(
-                              Icons.replay,
-                              color: Color(0xFFFFC107),
-                              size: 24,
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-
-                    SizedBox(width: screenWidth * 0.03),
-
                     // Dislike button
                     GestureDetector(
                       onTap: _discoverStore.isSwipeInProgress
@@ -629,6 +588,7 @@ class _HomePageState extends State<HomePage> {
     showMatchNotificationDialog(
       context,
       matchedUser,
+      isSuperLike: _discoverStore.isNewMatchSuperLike, // Pass SuperLike info
       onKeepSwiping: () {
         print('🔄 Keep swiping pressed');
         _discoverStore.clearNewMatch();
