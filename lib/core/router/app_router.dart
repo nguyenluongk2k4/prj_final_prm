@@ -12,6 +12,7 @@ import '../../features/chat/presentation/pages/friend_list_page.dart';
 import '../../features/auth/presentation/pages/notification_page.dart';
 import '../../features/home/presentation/pages/main_page.dart';
 import '../../features/home/presentation/pages/match_page.dart';
+import '../../features/home/presentation/pages/matches_page.dart';
 import '../../features/auth/presentation/pages/login_page.dart';
 
 import '../../features/auth/presentation/pages/email_register_page.dart';

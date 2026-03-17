@@ -79,6 +79,8 @@ import '../../features/chat/domain/usecases/download_chat_file_usecase.dart'
 import '../../features/chat/domain/usecases/get_friends_usecase.dart' as _i50;
 import '../../features/chat/domain/usecases/get_messages_usecase.dart' as _i325;
 import '../../features/chat/domain/usecases/get_presence_usecase.dart' as _i904;
+import '../../features/chat/domain/usecases/send_first_message_usecase.dart'
+    as _i120;
 import '../../features/chat/domain/usecases/send_message_usecase.dart' as _i795;
 import '../../features/chat/domain/usecases/send_typing_usecase.dart' as _i372;
 import '../../features/chat/domain/usecases/subscribe_friends_realtime_usecase.dart'
@@ -110,18 +112,24 @@ import '../../features/home/data/repositories/discover_repository_impl.dart'
     as _i90;
 import '../../features/home/domain/repositories/discover_repository.dart'
     as _i952;
+import '../../features/home/domain/repositories/match_repository.dart' as _i640;
 import '../../features/home/domain/repositories/reels_repository.dart'
     as _i1000;
+import '../../features/home/domain/usecases/check_match_usecase.dart' as _i8;
 import '../../features/home/domain/usecases/get_discover_batch_usecase.dart'
     as _i236;
+import '../../features/home/domain/usecases/get_matches_usecase.dart' as _i1031;
 import '../../features/home/domain/usecases/reels_usecases.dart' as _i514;
 import '../../features/home/domain/usecases/submit_swipe_usecase.dart' as _i219;
 import '../../features/home/domain/usecases/undo_swipe_usecase.dart' as _i657;
 import '../../features/home/infrastructure/datasources/reels_datasource.dart'
     as _i947;
+import '../../features/home/infrastructure/repositories/match_repository_impl.dart'
+    as _i372;
 import '../../features/home/infrastructure/repositories/reels_repository_impl.dart'
     as _i533;
 import '../../features/home/presentation/stores/discover_store.dart' as _i436;
+import '../../features/home/presentation/stores/matches_store.dart' as _i987;
 import '../../features/home/presentation/stores/profile_store.dart' as _i937;
 import '../../features/home/presentation/stores/reels_store.dart' as _i679;
 import '../network/dio_client.dart' as _i667;
@@ -149,6 +157,9 @@ extension GetItInjectableX on _i174.GetIt {
     gh.lazySingleton<_i667.DioClient>(() => _i667.DioClient());
     gh.lazySingleton<_i606.ImageUploadService>(
       () => _i606.ImageUploadService(),
+    );
+    gh.factory<_i640.MatchRepository>(
+      () => _i372.MatchRepositoryImpl(supabase: gh<_i454.SupabaseClient>()),
     );
     gh.lazySingleton<_i932.NetworkInfo>(() => _i932.NetworkInfoImpl());
     gh.lazySingleton<_i307.PresenceDatasource>(
@@ -190,16 +201,14 @@ extension GetItInjectableX on _i174.GetIt {
     gh.factory<_i82.GetUserProfileUseCase>(
       () => _i82.GetUserProfileUseCase(gh<_i787.AuthRepository>()),
     );
-    gh.factory<_i436.DiscoverStore>(
-      () => _i436.DiscoverStore(
-        gh<_i236.GetDiscoverBatchUseCase>(),
-        gh<_i219.SubmitSwipeUseCase>(),
-        gh<_i657.UndoSwipeUseCase>(),
-        gh<_i460.SharedPreferences>(),
-      ),
-    );
     gh.lazySingleton<_i910.FirebaseMessagingService>(
       () => _i910.FirebaseMessagingService(gh<_i454.SupabaseClient>()),
+    );
+    gh.factory<_i1031.GetMatchesUseCase>(
+      () => _i1031.GetMatchesUseCase(gh<_i640.MatchRepository>()),
+    );
+    gh.factory<_i8.CheckMatchUseCase>(
+      () => _i8.CheckMatchUseCase(gh<_i640.MatchRepository>()),
     );
     gh.lazySingleton<_i831.CheckAuthUseCase>(
       () => _i831.CheckAuthUseCase(gh<_i787.AuthRepository>()),
@@ -259,6 +268,9 @@ extension GetItInjectableX on _i174.GetIt {
     gh.factory<_i420.ChatRepository>(
       () => _i504.ChatRepositoryImpl(gh<_i759.ChatMessagesDatasource>()),
     );
+    gh.factory<_i987.MatchesStore>(
+      () => _i987.MatchesStore(gh<_i1031.GetMatchesUseCase>()),
+    );
     gh.factory<_i325.GetMessagesUseCase>(
       () => _i325.GetMessagesUseCase(gh<_i420.ChatRepository>()),
     );
@@ -275,6 +287,15 @@ extension GetItInjectableX on _i174.GetIt {
       () => authModule.authStore(
         gh<_i696.AuthDatasource>(),
         gh<_i606.ImageUploadService>(),
+      ),
+    );
+    gh.factory<_i436.DiscoverStore>(
+      () => _i436.DiscoverStore(
+        gh<_i236.GetDiscoverBatchUseCase>(),
+        gh<_i219.SubmitSwipeUseCase>(),
+        gh<_i657.UndoSwipeUseCase>(),
+        gh<_i8.CheckMatchUseCase>(),
+        gh<_i460.SharedPreferences>(),
       ),
     );
     gh.factory<_i920.CreateTypingChannelUseCase>(
@@ -335,6 +356,12 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i454.SupabaseClient>(),
         gh<_i544.IAlbumRepository>(),
         gh<_i603.AuthStore>(),
+      ),
+    );
+    gh.factory<_i120.SendFirstMessageUseCase>(
+      () => _i120.SendFirstMessageUseCase(
+        gh<_i420.ChatRepository>(),
+        gh<_i473.FriendsRepository>(),
       ),
     );
     gh.factory<_i855.ConversationDetailStore>(

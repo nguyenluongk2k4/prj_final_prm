@@ -9,12 +9,15 @@ import '../../../../gen/assets.gen.dart';
 import '../../../../i18n/strings.g.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
+import 'package:mobx/mobx.dart';
 import 'package:go_router/go_router.dart';
 import '../../../../core/di/injection.dart';
 import '../../../../core/router/app_routes.dart';
 import '../stores/discover_store.dart';
+import '../../../chat/domain/usecases/send_first_message_usecase.dart';
 import '../../domain/entities/swipe_type.dart' as domain;
 import '../widgets/discover_filter_sheet.dart';
+import '../widgets/match_notification_dialog.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -26,13 +29,45 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   final CardSwiperController _swiperController = CardSwiperController();
   late final DiscoverStore _discoverStore;
+  SendFirstMessageUseCase? _sendFirstMessageUseCase;
 
   @override
   void initState() {
     super.initState();
-    _discoverStore = getIt<DiscoverStore>();
+    print('🏠 HomePage initState called');
+    
+    try {
+      _discoverStore = getIt<DiscoverStore>();
+      print('✅ DiscoverStore injected successfully: ${_discoverStore.runtimeType}');
+    } catch (e) {
+      print('❌ Error injecting DiscoverStore: $e');
+      rethrow;
+    }
+    
+    // Try to get SendFirstMessageUseCase, but don't fail if it's not available
+    try {
+      _sendFirstMessageUseCase = getIt<SendFirstMessageUseCase>();
+      print('✅ SendFirstMessageUseCase injected successfully');
+    } catch (e) {
+      print('⚠️ SendFirstMessageUseCase not available: $e');
+    }
+    
     _discoverStore.fetchInitialBatch();
     _checkLocationPermission();
+    
+    // Listen for new matches
+    reaction(
+      (_) => _discoverStore.newMatchUser,
+      (UserModel? matchedUser) {
+        print('🎯 Reaction triggered: newMatchUser = ${matchedUser?.name}');
+        if (matchedUser != null) {
+          print('🎉 Showing match notification for ${matchedUser.name}');
+          _showMatchNotification(matchedUser);
+        }
+      },
+    );
+    
+    print('🏠 HomePage initState completed');
   }
 
   Future<void> _checkLocationPermission() async {
@@ -78,17 +113,44 @@ class _HomePageState extends State<HomePage> {
       centerTitle: true,
       secondaryAction: Padding(
         padding: const EdgeInsets.only(right: 12),
-        child: AppBarIconButton(
-          icon: Assets.icons.icSetting.svg(width: 24, height: 24),
-          onTap: () async {
-            final filter = await showDiscoverFilterSheet(
-              context,
-              currentFilter: _discoverStore.currentFilter,
-            );
-            if (filter != null) {
-              await _discoverStore.setFilter(filter);
-            }
-          },
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            // Test match button (for debugging)
+            AppBarIconButton(
+              icon: Icon(Icons.favorite, color: Colors.red, size: 24),
+              onTap: () {
+                print('🧪 Test match button pressed');
+                if (_discoverStore.profiles.isNotEmpty) {
+                  print('🧪 Testing match notification with ${_discoverStore.profiles.first.name}');
+                  _showMatchNotification(_discoverStore.profiles.first);
+                } else {
+                  print('🧪 No profiles available for testing');
+                  // Create a dummy user for testing
+                  final dummyUser = UserModel(
+                    id: 'test-id',
+                    email: 'test@example.com',
+                    name: 'Test User',
+                    avatarUrl: null,
+                  );
+                  _showMatchNotification(dummyUser);
+                }
+              },
+            ),
+            const SizedBox(width: 8),
+            AppBarIconButton(
+              icon: Assets.icons.icSetting.svg(width: 24, height: 24),
+              onTap: () async {
+                final filter = await showDiscoverFilterSheet(
+                  context,
+                  currentFilter: _discoverStore.currentFilter,
+                );
+                if (filter != null) {
+                  await _discoverStore.setFilter(filter);
+                }
+              },
+            ),
+          ],
         ),
       ),
       body: RefreshIndicator(
@@ -449,8 +511,11 @@ class _HomePageState extends State<HomePage> {
     int? currentIndex,
     CardSwiperDirection direction,
   ) {
+    print('🎯 _onSwipe called: previousIndex=$previousIndex, direction=$direction');
+    
     if (previousIndex < _discoverStore.profiles.length) {
       final profile = _discoverStore.profiles[previousIndex];
+      print('👤 Profile: ${profile.name} (${profile.id})');
 
       domain.SwipeType domainSwipeType;
       switch (direction) {
@@ -467,10 +532,15 @@ class _HomePageState extends State<HomePage> {
           debugPrint('Super Liked: ${profile.name}');
           break;
         default:
+          print('❌ Unknown swipe direction: $direction');
           return false;
       }
 
+      print('📞 Calling _discoverStore.onSwiped...');
       _discoverStore.onSwiped(profile, domainSwipeType);
+      print('✅ _discoverStore.onSwiped called');
+    } else {
+      print('❌ Invalid previousIndex: $previousIndex >= ${_discoverStore.profiles.length}');
     }
 
     if (currentIndex != null) {
@@ -551,6 +621,37 @@ class _HomePageState extends State<HomePage> {
           ),
         ],
       ),
+    );
+  }
+
+  void _showMatchNotification(UserModel matchedUser) {
+    print('🎯 _showMatchNotification called for ${matchedUser.name}');
+    showMatchNotificationDialog(
+      context,
+      matchedUser,
+      onKeepSwiping: () {
+        print('🔄 Keep swiping pressed');
+        _discoverStore.clearNewMatch();
+      },
+      onSendMessage: (String message) async {
+        print('💬 Home: Received message to send: "$message"');
+        if (_sendFirstMessageUseCase == null) {
+          print('⚠️ SendFirstMessageUseCase not available');
+          throw Exception('Message service not available');
+        }
+        try {
+          print('📤 Calling SendFirstMessageUseCase...');
+          await _sendFirstMessageUseCase!.execute(
+            receiverId: matchedUser.id,
+            message: message,
+          );
+          print('✅ Message sent via SendFirstMessageUseCase');
+          _discoverStore.clearNewMatch();
+        } catch (e) {
+          print('❌ Error sending first message: $e');
+          rethrow; // Let the dialog handle the error
+        }
+      },
     );
   }
 }

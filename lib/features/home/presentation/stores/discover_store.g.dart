@@ -168,6 +168,24 @@ mixin _$DiscoverStore on _DiscoverStore, Store {
     });
   }
 
+  late final _$newMatchUserAtom = Atom(
+    name: '_DiscoverStore.newMatchUser',
+    context: context,
+  );
+
+  @override
+  UserModel? get newMatchUser {
+    _$newMatchUserAtom.reportRead();
+    return super.newMatchUser;
+  }
+
+  @override
+  set newMatchUser(UserModel? value) {
+    _$newMatchUserAtom.reportWrite(value, super.newMatchUser, () {
+      super.newMatchUser = value;
+    });
+  }
+
   late final _$setFilterAsyncAction = AsyncAction(
     '_DiscoverStore.setFilter',
     context: context,
@@ -246,6 +264,18 @@ mixin _$DiscoverStore on _DiscoverStore, Store {
   }
 
   @override
+  void clearNewMatch() {
+    final _$actionInfo = _$_DiscoverStoreActionController.startAction(
+      name: '_DiscoverStore.clearNewMatch',
+    );
+    try {
+      return super.clearNewMatch();
+    } finally {
+      _$_DiscoverStoreActionController.endAction(_$actionInfo);
+    }
+  }
+
+  @override
   String toString() {
     return '''
 isLoading: ${isLoading},
@@ -255,7 +285,8 @@ profiles: ${profiles},
 hasReachedEnd: ${hasReachedEnd},
 currentFilter: ${currentFilter},
 lastSwipedId: ${lastSwipedId},
-lastSwipeType: ${lastSwipeType}
+lastSwipeType: ${lastSwipeType},
+newMatchUser: ${newMatchUser}
     ''';
   }
 }
