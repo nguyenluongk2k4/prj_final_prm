@@ -147,6 +147,11 @@ class _AccountPageState extends State<AccountPage> {
             onTap: () {},
           ),
           _SettingsTile(
+            icon: Icons.lock_rounded,
+            label: t.changePassword,
+            onTap: () => context.pushNamed(AppRoutes.changePasswordName),
+          ),
+          _SettingsTile(
             icon: Icons.logout_rounded,
             label: t.logout,
             iconColor: AppColors.primary,

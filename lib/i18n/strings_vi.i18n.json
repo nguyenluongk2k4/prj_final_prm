@@ -186,5 +186,17 @@
   "deletePhoto": "Xóa ảnh",
   "deletePhotoConfirm": "Bạn có chắc chắn muốn xóa ảnh này không?",
   "viewProfile": "Xem hồ sơ",
-  "seeAll": "Tất cả"
+  "seeAll": "Tất cả",
+  "resetPassword": "Đặt lại mật khẩu",
+  "resetPasswordDesc": "Nhập email và chúng tôi sẽ gửi cho bạn liên kết để đặt lại mật khẩu.",
+  "sendResetLink": "Gửi liên kết đặt lại",
+  "resetLinkSent": "Đã gửi liên kết đặt lại mật khẩu! Kiểm tra email của bạn.",
+  "backToLogin": "Quay lại đăng nhập",
+  "changePassword": "Đổi mật khẩu",
+  "currentPassword": "Mật khẩu hiện tại",
+  "newPassword": "Mật khẩu mới",
+  "confirmNewPassword": "Xác nhận mật khẩu mới",
+  "passwordChanged": "Đổi mật khẩu thành công!",
+  "newPasswordHint": "Nhập mật khẩu mới",
+  "confirmNewPasswordHint": "Nhập lại mật khẩu mới"
 }

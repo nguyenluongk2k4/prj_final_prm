@@ -278,6 +278,30 @@ mixin _$AuthStore on _AuthStore, Store {
     return _$fetchProvincesAsyncAction.run(() => super.fetchProvinces());
   }
 
+  late final _$resetPasswordAsyncAction = AsyncAction(
+    '_AuthStore.resetPassword',
+    context: context,
+  );
+
+  @override
+  Future<void> resetPassword({required String email}) {
+    return _$resetPasswordAsyncAction.run(
+      () => super.resetPassword(email: email),
+    );
+  }
+
+  late final _$changePasswordAsyncAction = AsyncAction(
+    '_AuthStore.changePassword',
+    context: context,
+  );
+
+  @override
+  Future<void> changePassword({required String newPassword}) {
+    return _$changePasswordAsyncAction.run(
+      () => super.changePassword(newPassword: newPassword),
+    );
+  }
+
   late final _$_AuthStoreActionController = ActionController(
     name: '_AuthStore',
     context: context,
