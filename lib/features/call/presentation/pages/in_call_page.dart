@@ -1,8 +1,8 @@
 import 'dart:async';
 
 import 'package:agora_rtc_engine/agora_rtc_engine.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_callkit_incoming/flutter_callkit_incoming.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -10,6 +10,9 @@ import '../../../../core/theme/app_text_styles.dart';
 import '../../data/call_session_service.dart';
 import '../../data/call_token_service.dart';
 import '../models/call_args.dart';
+
+// Statuses that mean the call is over (set by the other side)
+const _terminalStatuses = {'ended', 'rejected', 'missed'};
 
 class InCallPage extends StatefulWidget {
   final CallArgs args;
@@ -30,6 +33,9 @@ class _InCallPageState extends State<InCallPage> {
   bool _frontCamera = true;
   String? _error;
   Timer? _noAnswerTimer;
+  RealtimeChannel? _sessionChannel;
+  bool _ended = false;
+  bool _joining = false; // guard against double join (-17)
 
   static const bool _useTempAgoraConfig = false;
   static const String _tempAppId = 'd4d165d27296449b980a873124010d74';
@@ -42,16 +48,57 @@ class _InCallPageState extends State<InCallPage> {
     super.initState();
     _videoEnabled = widget.args.isVideo;
     _setupCall();
+    _subscribeSessionStatus();
   }
 
   @override
   void dispose() {
     _noAnswerTimer?.cancel();
+    _sessionChannel?.unsubscribe();
     _leaveChannel();
     super.dispose();
   }
 
+  /// Listen for remote side ending/rejecting the call via Supabase realtime.
+  void _subscribeSessionStatus() {
+    final sessionId = widget.args.callSessionId;
+    if (sessionId == null || sessionId.isEmpty) return;
+
+    _sessionChannel = Supabase.instance.client
+        .channel('call_session_$sessionId')
+        .onPostgresChanges(
+          event: PostgresChangeEvent.update,
+          schema: 'public',
+          table: 'call_sessions',
+          filter: PostgresChangeFilter(
+            type: PostgresChangeFilterType.eq,
+            column: 'id',
+            value: sessionId,
+          ),
+          callback: (payload) {
+            final newStatus =
+                payload.newRecord['status']?.toString() ?? '';
+            if (_terminalStatuses.contains(newStatus) && !_ended) {
+              _forceEndByRemote();
+            }
+          },
+        )
+        .subscribe();
+  }
+
+  /// Called when the other side ends the call (detected via realtime).
+  void _forceEndByRemote() {
+    if (_ended) return;
+    _ended = true;
+    _noAnswerTimer?.cancel();
+    FlutterCallkitIncoming.endAllCalls();
+    _leaveChannel();
+    if (mounted) Navigator.of(context).pop();
+  }
+
   Future<void> _setupCall() async {
+    if (_joining) return;
+    _joining = true;
     try {
       final appId = _useTempAgoraConfig ? _tempAppId : dotenv.env['AGORA_APP_ID'];
       if (appId == null || appId.isEmpty) {
@@ -154,6 +201,8 @@ class _InCallPageState extends State<InCallPage> {
       if (mounted) setState(() => _engine = engine);
     } catch (err) {
       if (mounted) setState(() => _error = err.toString());
+    } finally {
+      _joining = false;
     }
   }
 
@@ -226,9 +275,13 @@ class _InCallPageState extends State<InCallPage> {
   }
 
   void _endCall() {
+    if (_ended) return;
+    _ended = true;
     _noAnswerTimer?.cancel();
     final sessionId = widget.args.callSessionId;
     CallSessionService.updateStatus(sessionId, 'ended');
+    // Dismiss the callkit notification on the status bar
+    FlutterCallkitIncoming.endAllCalls();
     _leaveChannel();
     if (mounted) Navigator.of(context).pop();
   }

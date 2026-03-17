@@ -90,8 +90,21 @@ void main() async {
   ));
 }
 
-/// Called once after first frame — navigates to InCallPage if callkit has an active accepted call
+/// Called once after first frame — navigates to InCallPage if callkit has an active accepted call.
+/// Skipped if FirebaseMessagingService already handled the accept event (avoids double-push).
 Future<void> _handleCallkitLaunch() async {
+  // Case 1: _onCallkitEvent fired but router wasn't ready — args were stashed
+  final pending = FirebaseMessagingService.pendingCallArgs;
+  if (pending != null) {
+    FirebaseMessagingService.pendingCallArgs = null;
+    AppRouter.router.push(AppRoutes.callActive, extra: pending);
+    return;
+  }
+
+  // Case 2: _onCallkitEvent already navigated successfully — skip
+  if (FirebaseMessagingService.callAcceptHandled) return;
+
+  // Case 3: App was killed, user accepted from OS notification before app booted
   try {
     final calls = await FlutterCallkitIncoming.activeCalls();
     if (calls is! List || calls.isEmpty) return;
@@ -99,10 +112,8 @@ Future<void> _handleCallkitLaunch() async {
     final call = calls.first as Map?;
     if (call == null) return;
 
-    // Only navigate if call was explicitly accepted (not just ringing/incoming)
     final callStatus = call['callStatus']?.toString() ?? '';
     if (callStatus != 'accepted') {
-      // Stale ringing call — clean it up
       await FlutterCallkitIncoming.endAllCalls();
       return;
     }

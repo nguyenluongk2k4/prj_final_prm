@@ -67,7 +67,7 @@ Future<void> _showCallkit({
       'call_session_id': callSessionId ?? '',
     },
     android: const AndroidParams(
-      isCustomNotification: true,
+      isCustomNotification: false,
       isShowLogo: false,
       ringtonePath: 'incoming_call',
       backgroundColor: '#1B1B1B',
@@ -102,6 +102,10 @@ class FirebaseMessagingService {
   final SupabaseClient _supabase;
   StreamSubscription<AuthState>? _authSub;
   String? _activeCallChannelId; // deduplicate concurrent call notifications
+
+  /// Set to true when actionCallAccept is handled here — prevents
+  /// _handleCallkitLaunch in main.dart from double-navigating.
+  static bool callAcceptHandled = false;
 
   FirebaseMessagingService([SupabaseClient? supabase])
       : _supabase = supabase ?? Supabase.instance.client;
@@ -151,6 +155,10 @@ class FirebaseMessagingService {
     });
   }
 
+  /// Pending call args when accept fires before the router is mounted.
+  /// _handleCallkitLaunch in main.dart will consume this.
+  static CallArgs? pendingCallArgs;
+
   void _onCallkitEvent(CallEvent? event) {
     if (event == null) return;
     final extra = event.body['extra'] as Map? ?? {};
@@ -164,6 +172,7 @@ class FirebaseMessagingService {
     switch (event.event) {
       case Event.actionCallAccept:
         _activeCallChannelId = null;
+        FirebaseMessagingService.callAcceptHandled = true;
         unawaited(CallSessionService.updateStatus(callSessionId, 'ongoing'));
         final args = CallArgs(
           channelId: channelId,
@@ -175,9 +184,20 @@ class FirebaseMessagingService {
           isIncoming: true,
           callSessionId: callSessionId,
         );
-        Future.delayed(const Duration(milliseconds: 300), () {
-          AppRouter.router.push(AppRoutes.callActive, extra: args);
-        });
+        // Try to push immediately (app already running)
+        // If router isn't ready yet, store for _handleCallkitLaunch to pick up
+        try {
+          final router = AppRouter.router;
+          if (router.routerDelegate.currentConfiguration.matches.isNotEmpty) {
+            Future.delayed(const Duration(milliseconds: 300), () {
+              AppRouter.router.push(AppRoutes.callActive, extra: args);
+            });
+          } else {
+            FirebaseMessagingService.pendingCallArgs = args;
+          }
+        } catch (_) {
+          FirebaseMessagingService.pendingCallArgs = args;
+        }
         break;
       case Event.actionCallDecline:
         _activeCallChannelId = null;
