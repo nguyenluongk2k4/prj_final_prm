@@ -8,6 +8,7 @@ import 'core/router/app_router.dart';
 import 'i18n/strings.g.dart';
 
 import 'package:flutter_callkit_incoming/flutter_callkit_incoming.dart';
+import 'package:flutter_callkit_incoming/entities/entities.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:get_it/get_it.dart';
 import 'package:permission_handler/permission_handler.dart';
@@ -25,7 +26,41 @@ import 'core/utils/notification_service.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  
+
+  // ── Register callkit listener IMMEDIATELY before anything else ──────────
+  // When app is killed and user taps Accept, actionCallAccept fires during
+  // boot before FirebaseMessagingService is initialized. Capture it here.
+  FlutterCallkitIncoming.onEvent.listen((event) {
+    if (event == null) return;
+    if (event.event == Event.actionCallAccept) {
+      final extra = event.body['extra'] as Map? ?? {};
+      final channelId = extra['channel_id']?.toString() ?? '';
+      final callerId = extra['caller_id']?.toString() ?? '';
+      final receiverId = extra['receiver_id']?.toString() ?? '';
+      final isVideo = extra['is_video']?.toString() == 'true';
+      final callerName = event.body['nameCaller']?.toString() ?? 'Người dùng';
+      final callSessionId = extra['call_session_id']?.toString();
+      if (channelId.isNotEmpty && callerId.isNotEmpty) {
+        FirebaseMessagingService.pendingCallArgs = CallArgs(
+          channelId: channelId,
+          localUserId: receiverId,
+          remoteUserId: callerId,
+          remoteName: callerName,
+          remoteAvatarUrl: null,
+          isVideo: isVideo,
+          isIncoming: true,
+          callSessionId: callSessionId,
+        );
+        FirebaseMessagingService.callAcceptHandled = true;
+      }
+    } else if (event.event == Event.actionCallDecline ||
+        event.event == Event.actionCallTimeout) {
+      // Declined before app fully booted — nothing to navigate to
+      FlutterCallkitIncoming.endAllCalls();
+    }
+  });
+  // ────────────────────────────────────────────────────────────────────────
+
   // Load Env
   await dotenv.load(fileName: ".env");
 
@@ -90,10 +125,9 @@ void main() async {
   ));
 }
 
-/// Called once after first frame — navigates to InCallPage if callkit has an active accepted call.
-/// Skipped if FirebaseMessagingService already handled the accept event (avoids double-push).
+/// Called once after router is mounted — navigates to InCallPage for accepted calls.
 Future<void> _handleCallkitLaunch() async {
-  // Case 1: _onCallkitEvent fired but router wasn't ready — args were stashed
+  // Case 1: early listener captured accept during boot
   final pending = FirebaseMessagingService.pendingCallArgs;
   if (pending != null) {
     FirebaseMessagingService.pendingCallArgs = null;
@@ -101,10 +135,10 @@ Future<void> _handleCallkitLaunch() async {
     return;
   }
 
-  // Case 2: _onCallkitEvent already navigated successfully — skip
+  // Case 2: FirebaseMessagingService._onCallkitEvent already navigated
   if (FirebaseMessagingService.callAcceptHandled) return;
 
-  // Case 3: App was killed, user accepted from OS notification before app booted
+  // Case 3: check activeCalls as last resort (e.g. app was in background)
   try {
     final calls = await FlutterCallkitIncoming.activeCalls();
     if (calls is! List || calls.isEmpty) return;
@@ -114,6 +148,7 @@ Future<void> _handleCallkitLaunch() async {
 
     final callStatus = call['callStatus']?.toString() ?? '';
     if (callStatus != 'accepted') {
+      // Stale ringing — clean up
       await FlutterCallkitIncoming.endAllCalls();
       return;
     }
@@ -139,7 +174,6 @@ Future<void> _handleCallkitLaunch() async {
       callSessionId: callSessionId,
     );
 
-    await Future.delayed(const Duration(milliseconds: 500));
     AppRouter.router.push(AppRoutes.callActive, extra: args);
   } catch (_) {}
 }
@@ -159,9 +193,32 @@ class _AppRootState extends State<AppRoot> with WidgetsBindingObserver {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
     _presenceStore.forcePing();
+    // Request overlay permission async — don't await, don't block navigation
     _requestOverlayPermission();
-    // Delay to ensure router is mounted before navigating
-    Future.delayed(const Duration(milliseconds: 800), _handleCallkitLaunch);
+    // Navigate to call screen once router has processed its first route
+    _navigateIfPendingCall();
+  }
+
+  /// Waits for the router to settle on its first route, then navigates to
+  /// InCallPage if the user accepted a call while the app was killed.
+  void _navigateIfPendingCall() {
+    void listener() {
+      final pending = FirebaseMessagingService.pendingCallArgs;
+      if (pending != null) {
+        FirebaseMessagingService.pendingCallArgs = null;
+        AppRouter.router.routerDelegate.removeListener(listener);
+        Future.microtask(() {
+          AppRouter.router.push(AppRoutes.callActive, extra: pending);
+        });
+      } else if (!FirebaseMessagingService.callAcceptHandled) {
+        AppRouter.router.routerDelegate.removeListener(listener);
+        _handleCallkitLaunch();
+      } else {
+        AppRouter.router.routerDelegate.removeListener(listener);
+      }
+    }
+
+    AppRouter.router.routerDelegate.addListener(listener);
   }
 
   /// Request SYSTEM_ALERT_WINDOW — needed for full-screen call when app is killed

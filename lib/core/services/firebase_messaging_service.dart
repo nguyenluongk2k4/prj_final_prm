@@ -12,6 +12,7 @@ import 'package:prj_final_prm/core/router/app_routes.dart';
 import 'package:prj_final_prm/core/router/app_router.dart';
 import 'package:prj_final_prm/features/call/data/call_session_service.dart';
 import 'package:prj_final_prm/features/call/presentation/models/call_args.dart';
+import 'package:prj_final_prm/core/utils/notification_service.dart';
 
 @pragma('vm:entry-point')
 Future<void> firebaseMessagingBackgroundHandler(RemoteMessage message) async {
@@ -136,8 +137,10 @@ class FirebaseMessagingService {
       if (kDebugMode) debugPrint('[FCM] foreground: ${message.messageId}');
       if (_isCallMessage(message)) {
         unawaited(_handleCallMessage(message));
+      } else {
+        // FCM does NOT show notifications when app is foreground — do it manually
+        unawaited(NotificationService.showForegroundNotification(message));
       }
-      // non-call foreground notifications handled by FCM itself
     });
 
     FirebaseMessaging.onMessageOpenedApp.listen((message) {
